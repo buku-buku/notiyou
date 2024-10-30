@@ -1,5 +1,8 @@
 # notiyou
 
+- [Setup history](#setup-history)
+- [Dependencies](#dependencies)
+
 ## Setup history
 
 ```sh
@@ -35,4 +38,10 @@ java-17
 ```sh
 # gradle 버전 업데이트
 ./gradlew wrapper --gradle-version=8.4
+```
+
+## Dependencies
+
+```sh
+flutter pub add go_router
 ```
