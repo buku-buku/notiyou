@@ -26,6 +26,9 @@ class _ConfigPageState extends State<ConfigPage> {
     final mission1String = MissionService.getMissionTime(1);
     final mission2String = MissionService.getMissionTime(2);
 
+    print('저장된 미션1 시간: $mission1String');
+    print('저장된 미션2 시간: $mission2String');
+
     setState(() {
       if (mission1String != null) {
         final parts = mission1String.split(':');
@@ -67,9 +70,13 @@ class _ConfigPageState extends State<ConfigPage> {
   }
 
   Future<void> _selectTime(BuildContext context, bool isFirstMission) async {
+    final initialTime = isFirstMission
+        ? _mission1Time ?? TimeOfDay.now()
+        : _mission2Time ?? TimeOfDay.now();
+
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialTime: initialTime,
     );
 
     if (picked != null) {
