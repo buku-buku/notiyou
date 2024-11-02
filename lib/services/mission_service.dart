@@ -5,6 +5,8 @@ class MissionService {
   static const String _mission2TimeKey = 'mission2_time';
   static const String _mission1CompletedKey = 'mission1_completed';
   static const String _mission2CompletedKey = 'mission2_completed';
+  static const String _mission1CompletedAtKey = 'mission1_completed_at';
+  static const String _mission2CompletedAtKey = 'mission2_completed_at';
   static SharedPreferences? _prefs;
 
   // SharedPreferences 초기화
@@ -35,7 +37,7 @@ class MissionService {
     return time;
   }
 
-  // 미션 완료 상태 토글
+  // 미션 완료 상태 토글 (완료 시간 포함)
   static Future<bool> toggleMissionComplete(int missionNumber) async {
     if (_prefs == null) await init();
 
@@ -43,9 +45,10 @@ class MissionService {
         missionNumber == 1 ? _mission1CompletedKey : _mission2CompletedKey;
     final currentState = _prefs!.getBool(key) ?? false;
     final newState = !currentState;
-    await _prefs!.setBool(key, newState);
 
-    print('미션$missionNumber 완료 상태 변경: $newState');
+    await _prefs!.setBool(key, newState);
+    await saveMissionCompletedAt(missionNumber, newState);
+
     return newState;
   }
 
@@ -88,5 +91,33 @@ class MissionService {
     print('미션1 완료여부: ${isMissionCompleted(1)}');
     print('미션2 완료여부: ${isMissionCompleted(2)}');
     print('=====================\n');
+  }
+
+  // 미션 완료 시간 저장
+  static Future<void> saveMissionCompletedAt(
+      int missionNumber, bool completed) async {
+    if (_prefs == null) await init();
+
+    final key =
+        missionNumber == 1 ? _mission1CompletedAtKey : _mission2CompletedAtKey;
+    if (completed) {
+      final now = DateTime.now();
+      await _prefs!.setString(key, now.toIso8601String());
+    } else {
+      await _prefs!.remove(key);
+    }
+  }
+
+  // 미션 완료 시간 가져오기
+  static String? getMissionCompletedAt(int missionNumber) {
+    if (_prefs == null) return null;
+
+    final key =
+        missionNumber == 1 ? _mission1CompletedAtKey : _mission2CompletedAtKey;
+    final dateString = _prefs!.getString(key);
+    if (dateString == null) return null;
+
+    final dateTime = DateTime.parse(dateString);
+    return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 }
