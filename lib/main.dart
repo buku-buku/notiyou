@@ -7,8 +7,11 @@ import 'screens/login_page.dart';
 import 'screens/signup_page.dart';
 import 'screens/config_page.dart';
 import 'screens/history_page.dart';
+import 'services/mission_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Flutter 바인딩 초기화
+  await MissionService.init(); // MissionService 초기화
   runApp(const MyApp());
 }
 
