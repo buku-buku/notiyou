@@ -11,7 +11,11 @@ class MissionService {
 
   // SharedPreferences 초기화
   static Future<void> init() async {
+    if (_prefs != null) return; // 이미 초기화되어 있다면 스킵
+
     _prefs = await SharedPreferences.getInstance();
+    print('SharedPreferences 초기화 완료');
+    debugStorageContent(); // 현재 저장된 모든 데이터 출력
   }
 
   // 미션 시간 저장
@@ -119,5 +123,20 @@ class MissionService {
 
     final dateTime = DateTime.parse(dateString);
     return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+  }
+
+  // 저장소의 모든 데이터 출력 (디버깅용)
+  static void debugStorageContent() {
+    if (_prefs == null) {
+      print('SharedPreferences가 초기화되지 않음');
+      return;
+    }
+
+    print('\n=== 저장소 전체 데이터 ===');
+    final keys = _prefs!.getKeys();
+    for (final key in keys) {
+      print('$key: ${_prefs!.get(key)}');
+    }
+    print('=======================\n');
   }
 }
