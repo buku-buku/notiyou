@@ -3,32 +3,66 @@ import 'package:go_router/go_router.dart';
 import 'config_page.dart';
 import 'history_page.dart';
 import 'login_page.dart';
+import '../services/mission_service.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   static const String routeName = '/home';
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  String? mission1Time;
+  String? mission2Time;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMissionTimes();
+  }
+
+  void _loadMissionTimes() {
+    setState(() {
+      mission1Time = MissionService.getMissionTime(1);
+      mission2Time = MissionService.getMissionTime(2);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Home')),
       body: ListView(
-        children: const [
-          ListTile(
-            title: Text('미션시간 1'),
-            trailing: Checkbox(
-              value: false,
-              onChanged: null,
+        children: [
+          if (mission1Time != null)
+            ListTile(
+              title: Text('미션시간 1 ($mission1Time)'),
+              trailing: Checkbox(
+                value: false,
+                onChanged: null,
+              ),
             ),
-          ),
-          ListTile(
-            title: Text('미션시간 2'),
-            trailing: Checkbox(
-              value: false,
-              onChanged: null,
+          if (mission2Time != null)
+            ListTile(
+              title: Text('미션시간 2 ($mission2Time)'),
+              trailing: Checkbox(
+                value: false,
+                onChanged: null,
+              ),
             ),
-          ),
+          if (mission1Time == null && mission2Time == null)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  '설정된 미션이 없습니다.\n설정 메뉴에서 미션 시간을 설정해주세요.',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -57,7 +91,6 @@ class HomePage extends StatelessWidget {
         onTap: (index) {
           switch (index) {
             case 0:
-              // 이미 홈 페이지에 있으므로 아무 작업도 하지 않음
               break;
             case 1:
               context.go(HistoryPage.routeName);
