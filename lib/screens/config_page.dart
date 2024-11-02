@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'home_page.dart';
+import '../services/mission_service.dart';
 
 class ConfigPage extends StatefulWidget {
   const ConfigPage({super.key});
@@ -14,6 +15,56 @@ class ConfigPage extends StatefulWidget {
 class _ConfigPageState extends State<ConfigPage> {
   TimeOfDay? _mission1Time;
   TimeOfDay? _mission2Time;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedTimes();
+  }
+
+  Future<void> _loadSavedTimes() async {
+    final mission1String = MissionService.getMissionTime(1);
+    final mission2String = MissionService.getMissionTime(2);
+
+    setState(() {
+      if (mission1String != null) {
+        final parts = mission1String.split(':');
+        _mission1Time = TimeOfDay(
+          hour: int.parse(parts[0]),
+          minute: int.parse(parts[1]),
+        );
+      }
+
+      if (mission2String != null) {
+        final parts = mission2String.split(':');
+        _mission2Time = TimeOfDay(
+          hour: int.parse(parts[0]),
+          minute: int.parse(parts[1]),
+        );
+      }
+    });
+  }
+
+  String _timeToString(TimeOfDay time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _saveTimes() async {
+    if (_mission1Time != null) {
+      await MissionService.saveMissionTime(1, _timeToString(_mission1Time!));
+    } else {
+      await MissionService.saveMissionTime(1, null);
+    }
+
+    if (_mission2Time != null) {
+      await MissionService.saveMissionTime(2, _timeToString(_mission2Time!));
+    } else {
+      await MissionService.saveMissionTime(2, null);
+    }
+
+    // 저장된 데이터 확인
+    MissionService.debugMissionData();
+  }
 
   Future<void> _selectTime(BuildContext context, bool isFirstMission) async {
     final TimeOfDay? picked = await showTimePicker(
@@ -52,7 +103,20 @@ class _ConfigPageState extends State<ConfigPage> {
         child: Column(
           children: [
             ListTile(
-              title: const Text('미션시간 1'),
+              title: const Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: '미션시간 1 '),
+                    TextSpan(
+                      text: '(필수 선택)',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 12, // 더 작은 폰트 사이즈
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -100,11 +164,14 @@ class _ConfigPageState extends State<ConfigPage> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _mission1Time != null || _mission2Time != null
-                  ? () {
-                      context.go(HomePage.routeName);
+              onPressed: _mission1Time != null
+                  ? () async {
+                      await _saveTimes();
+                      if (context.mounted) {
+                        context.go(HomePage.routeName);
+                      }
                     }
-                  : null, // 최소 하나의 시간이 선택되어야 버튼 활성화
+                  : null,
               child: const Text('설정 완료'),
             ),
           ],
