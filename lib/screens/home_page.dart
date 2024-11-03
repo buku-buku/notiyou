@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:notiyou/models/mission.dart';
 import 'config_page.dart';
 import 'history_page.dart';
 import 'login_page.dart';
@@ -15,67 +16,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String? mission1Time;
-  String? mission2Time;
-  bool mission1Completed = false;
-  bool mission2Completed = false;
-  bool mission1Expired = false;
-  bool mission2Expired = false;
-  String? mission1CompletedAt;
-  String? mission2CompletedAt;
+  List<Mission> missions = [];
 
   @override
   void initState() {
     super.initState();
-    _loadMissionTimes();
-    _checkMissionStatus();
+    _loadMissions();
   }
 
-  void _loadMissionTimes() {
+  Future<void> _loadMissions() async {
+    final todaysMissions = await MissionService.getTodaysMissions();
     setState(() {
-      mission1Time = MissionService.getMissionTime(1);
-      mission2Time = MissionService.getMissionTime(2);
-      mission1Completed = MissionService.isMissionCompleted(1);
-      mission2Completed = MissionService.isMissionCompleted(2);
-      mission1CompletedAt = MissionService.getMissionCompletedAt(1);
-      mission2CompletedAt = MissionService.getMissionCompletedAt(2);
+      missions = todaysMissions;
     });
-  }
-
-  void _checkMissionStatus() {
-    final now = TimeOfDay.now();
-    final currentMinutes = now.hour * 60 + now.minute;
-
-    setState(() {
-      if (mission1Time != null) {
-        final parts = mission1Time!.split(':');
-        final missionMinutes = int.parse(parts[0]) * 60 + int.parse(parts[1]);
-        mission1Expired = currentMinutes > missionMinutes && !mission1Completed;
-        print('mission1Expired: $mission1Expired');
-      }
-
-      if (mission2Time != null) {
-        final parts = mission2Time!.split(':');
-        final missionMinutes = int.parse(parts[0]) * 60 + int.parse(parts[1]);
-        mission2Expired = currentMinutes > missionMinutes && !mission2Completed;
-        print('mission2Expired: $mission2Expired');
-      }
-    });
-  }
-
-  Future<void> _toggleMissionComplete(int missionNumber) async {
-    final newState = await MissionService.toggleMissionComplete(missionNumber);
-    setState(() {
-      if (missionNumber == 1) {
-        mission1Completed = newState;
-      } else {
-        mission2Completed = newState;
-      }
-    });
-
-    // 미션 상태 변경 후 만료 상태와 완료 시간 다시 로드
-    _checkMissionStatus();
-    _loadMissionTimes(); // 완료 시간 업데이트를 위해 추가
   }
 
   @override
@@ -84,73 +37,42 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(title: const Text('Home')),
       body: ListView(
         children: [
-          if (mission1Time != null) ...[
-            if (mission1Expired)
-              Container(
-                color: Colors.red[100],
-                padding: const EdgeInsets.all(16.0),
-                child: const Text(
-                  '⚠️ 미션1이 완료되지 않았습니다!!!',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+          if (missions.isNotEmpty) ...[
+            for (var mission in missions) ...[
+              if (mission.expired)
+                Container(
+                  color: Colors.red[100],
+                  padding: const EdgeInsets.all(16.0),
+                  child: const Text(
+                    '⚠️ 미션이 완료되지 않았습니다!!!',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
                 ),
-              ),
-            ListTile(
-              title: Text(
-                '미션시간 1 ($mission1Time)',
-                style: TextStyle(
-                  color: mission1Expired ? Colors.red : null,
-                ),
-              ),
-              subtitle: mission1Completed && mission1CompletedAt != null
-                  ? Text('완료 시간: $mission1CompletedAt')
-                  : null,
-              trailing: Checkbox(
-                value: mission1Completed,
-                onChanged: (bool? value) {
-                  _toggleMissionComplete(1);
-                },
-              ),
-            ),
-          ],
-          if (mission2Time != null) ...[
-            if (mission2Expired)
-              Container(
-                color: Colors.red[100],
-                padding: const EdgeInsets.all(16.0),
-                child: const Text(
-                  '⚠️ 미션2가 완료되지 않았습니다!!!',
+              ListTile(
+                title: Text(
+                  '미션시간 ${mission.id} (${mission.time})',
                   style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    color: mission.expired ? Colors.red : null,
                   ),
-                  textAlign: TextAlign.center,
+                ),
+                subtitle: mission.isCompleted && mission.completedAt != null
+                    ? Text('완료 시간: ${mission.formattedCompletedTime ?? ''}')
+                    : null,
+                trailing: Checkbox(
+                  value: mission.isCompleted,
+                  onChanged: (bool? value) {
+                    _toggleMissionComplete(mission.id);
+                  },
                 ),
               ),
-            ListTile(
-              title: Text(
-                '미션시간 2 ($mission2Time)',
-                style: TextStyle(
-                  color: mission2Expired ? Colors.red : null,
-                ),
-              ),
-              subtitle: mission2Completed && mission2CompletedAt != null
-                  ? Text('완료 시간: $mission2CompletedAt')
-                  : null,
-              trailing: Checkbox(
-                value: mission2Completed,
-                onChanged: (bool? value) {
-                  _toggleMissionComplete(2);
-                },
-              ),
-            ),
+            ],
           ],
-          if (mission1Time == null && mission2Time == null)
+          if (missions.isEmpty)
             const Center(
               child: Padding(
                 padding: EdgeInsets.all(16.0),
@@ -202,5 +124,27 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
+  }
+
+  Future<void> _toggleMissionComplete(String missionId) async {
+    final newState = await MissionService.toggleMissionComplete(missionId);
+    setState(() {
+      final updatedMissions = missions.map((mission) {
+        if (mission.id == missionId) {
+          return Mission(
+            id: mission.id,
+            time: mission.time,
+            isCompleted: newState,
+            completedAt: newState ? DateTime.now() : null,
+            date: mission.date,
+          );
+        }
+        return mission;
+      }).toList();
+      missions = updatedMissions;
+    });
+
+    // 미션 상태 변경 후 만료 상태와 완료 시간 다시 로드
+    _loadMissions();
   }
 }
