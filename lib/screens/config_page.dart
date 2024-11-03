@@ -64,9 +64,6 @@ class _ConfigPageState extends State<ConfigPage> {
     } else {
       await MissionService.saveMissionTime(2, null);
     }
-
-    // 저장된 데이터 확인
-    MissionService.debugMissionData();
   }
 
   Future<void> _selectTime(BuildContext context, bool isFirstMission) async {
