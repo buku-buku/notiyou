@@ -5,8 +5,6 @@ import '../repositories/mission_repository.dart';
 class MissionService {
   static const String _mission1TimeKey = 'mission1_time';
   static const String _mission2TimeKey = 'mission2_time';
-  static const String _mission1CompletedKey = 'mission1_completed';
-  static const String _mission2CompletedKey = 'mission2_completed';
   static SharedPreferences? _prefs;
 
   // SharedPreferences 초기화
@@ -66,10 +64,9 @@ class MissionService {
     if (_prefs == null) await init();
 
     final today = DateTime.now();
-    final key = MissionRepository.getKeyForDate(today);
 
     // 현재 날짜의 미션 데이터 가져오기
-    final missions = await MissionRepository.getMissions(key);
+    final missions = await MissionRepository.getMissions(today);
 
     // 해당 미션의 상태 변경
     final updatedMissions = missions.map((mission) {
@@ -86,7 +83,7 @@ class MissionService {
     }).toList();
 
     // 변경된 데이터 저장
-    await MissionRepository.saveMissions(key, updatedMissions);
+    await MissionRepository.saveMissions(DateTime.now(), updatedMissions);
 
     // 변경된 미션의 새로운 상태 반환
     final targetMission = updatedMissions.firstWhere((m) => m.id == missionId);
@@ -97,8 +94,7 @@ class MissionService {
   static Future<List<Mission>> getTodaysMissions() async {
     if (_prefs == null) await init();
 
-    final key = MissionRepository.getKeyForDate(DateTime.now());
-    final missions = await MissionRepository.getMissions(key);
+    final missions = await MissionRepository.getMissions(DateTime.now());
 
     if (missions.isEmpty) {
       // 해당 날짜의 첫 접속이면 미션 초기화
@@ -120,7 +116,7 @@ class MissionService {
       ];
 
       // 초기 미션 데이터 저장
-      await MissionRepository.saveMissions(key, newMissions);
+      await MissionRepository.saveMissions(DateTime.now(), newMissions);
       return newMissions;
     }
 
@@ -132,16 +128,14 @@ class MissionService {
   static Future<List<Mission>> getMissionHistory(DateTime date) async {
     if (_prefs == null) await init();
 
-    final key = MissionRepository.getKeyForDate(date);
-    return await MissionRepository.getMissions(key);
+    return await MissionRepository.getMissions(date);
   }
 
   // 오늘의 미션 초기화 (매일 자정에 호출 예정)
   static Future<void> resetDailyMissions() async {
     if (_prefs == null) await init();
 
-    await MissionRepository.removeData(_mission1CompletedKey);
-    await MissionRepository.removeData(_mission2CompletedKey);
+    await MissionRepository.removeData(DateTime.now());
     print('일일 미션 초기화 완료');
   }
 
