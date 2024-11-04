@@ -74,7 +74,8 @@ class MissionRepository {
   }
 
   // 미션 데이터 저장
-  static Future<void> setMissions(DateTime date, List<Mission> missions) async {
+  static Future<void> _setMissions(
+      DateTime date, List<Mission> missions) async {
     final key = _getKeyForDate(date);
     if (_prefs == null) await init();
 
@@ -92,7 +93,7 @@ class MissionRepository {
       return m;
     }).toList();
 
-    await setMissions(date, updatedMissions);
+    await _setMissions(date, updatedMissions);
   }
 
   /// ? 이것까지 레포지토리에 위치시키는게 좋을지 고민이 되긴함..
@@ -127,7 +128,7 @@ class MissionRepository {
     if (missionJsonList.isEmpty && createIfEmpty) {
       final newMissions = _createTodaysMissions(date);
 
-      await setMissions(date, newMissions);
+      await _setMissions(date, newMissions);
       return newMissions;
     }
 
