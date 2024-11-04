@@ -46,8 +46,7 @@ class MissionRepository {
   }
 
   // 미션 데이터 저장
-  static Future<void> saveMissions(
-      DateTime date, List<Mission> missions) async {
+  static Future<void> setMissions(DateTime date, List<Mission> missions) async {
     final key = _getKeyForDate(date);
     if (_prefs == null) await init();
 
@@ -56,8 +55,20 @@ class MissionRepository {
     await _prefs!.setStringList(key, missionJsonList);
   }
 
+  // 미션 데이터 수정
+  static Future<void> updateMission(DateTime date, Mission mission) async {
+    // mission id로 기존 미션 찾기
+    final missions = await findMissions(date);
+    final updatedMissions = missions.map((m) {
+      if (m.id == mission.id) return mission;
+      return m;
+    }).toList();
+
+    await setMissions(date, updatedMissions);
+  }
+
   // 미션 데이터 불러오기
-  static Future<List<Mission>> getMissions(DateTime date) async {
+  static Future<List<Mission>> findMissions(DateTime date) async {
     final key = _getKeyForDate(date);
     if (_prefs == null) await init();
 
@@ -65,6 +76,12 @@ class MissionRepository {
     return missionJsonList
         .map((json) => Mission.fromJson(jsonDecode(json)))
         .toList();
+  }
+
+  // 미션 아이디로 미션 찾기
+  static Future<Mission?> findMissionById(DateTime date, String id) async {
+    final missions = await findMissions(date);
+    return missions.firstWhere((m) => m.id == id);
   }
 
   // 특정 키의 데이터 삭제

@@ -64,36 +64,30 @@ class MissionService {
 
     final today = DateTime.now();
 
-    // 현재 날짜의 미션 데이터 가져오기
-    final missions = await MissionRepository.getMissions(today);
+    final mission = await MissionRepository.findMissionById(today, missionId);
 
-    // 해당 미션의 상태 변경
-    final updatedMissions = missions.map((mission) {
-      if (mission.id == missionId) {
-        return Mission(
-          id: mission.id,
-          time: mission.time,
-          isCompleted: !mission.isCompleted,
-          completedAt: !mission.isCompleted ? DateTime.now() : null,
-          date: today,
-        );
-      }
-      return mission;
-    }).toList();
+    if (mission == null) {
+      throw Exception('Mission not found');
+    }
+
+    final newIsCompleted = !mission.isCompleted;
+    final updatedMission = mission.copyWith(
+      isCompleted: newIsCompleted,
+      completedAt: newIsCompleted ? DateTime.now() : null,
+    );
 
     // 변경된 데이터 저장
-    await MissionRepository.saveMissions(DateTime.now(), updatedMissions);
+    await MissionRepository.updateMission(today, updatedMission);
 
     // 변경된 미션의 새로운 상태 반환
-    final targetMission = updatedMissions.firstWhere((m) => m.id == missionId);
-    return targetMission.isCompleted;
+    return updatedMission.isCompleted;
   }
 
   // 오늘의 미션 데이터 가져오기
   static Future<List<Mission>> getTodaysMissions() async {
     if (_prefs == null) await init();
 
-    final missions = await MissionRepository.getMissions(DateTime.now());
+    final missions = await MissionRepository.findMissions(DateTime.now());
 
     if (missions.isEmpty) {
       // 해당 날짜의 첫 접속이면 미션 초기화
@@ -115,7 +109,7 @@ class MissionService {
       ];
 
       // 초기 미션 데이터 저장
-      await MissionRepository.saveMissions(DateTime.now(), newMissions);
+      await MissionRepository.setMissions(DateTime.now(), newMissions);
       return newMissions;
     }
 
@@ -127,7 +121,7 @@ class MissionService {
   static Future<List<Mission>> getMissionHistory(DateTime date) async {
     if (_prefs == null) await init();
 
-    return await MissionRepository.getMissions(date);
+    return await MissionRepository.findMissions(date);
   }
 
   // 오늘의 미션 초기화 (매일 자정에 호출 예정)

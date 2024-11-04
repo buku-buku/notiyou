@@ -17,6 +17,21 @@ class Mission {
     required this.date,
   });
 
+  Mission copyWith({
+    String? id,
+    TimeOfDay? time,
+    bool? isCompleted,
+    DateTime? completedAt,
+    DateTime? date,
+  }) =>
+      Mission(
+        id: id ?? this.id,
+        time: time ?? this.time,
+        isCompleted: isCompleted ?? this.isCompleted,
+        completedAt: completedAt ?? this.completedAt,
+        date: date ?? this.date,
+      );
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'time': TimeUtils.stringifyTime(time),
