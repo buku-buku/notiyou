@@ -149,10 +149,7 @@ class MissionService {
   static Future<void> clearAllMissionData() async {
     if (_prefs == null) await init();
 
-    await MissionRepository.removeData(_mission1TimeKey);
-    await MissionRepository.removeData(_mission2TimeKey);
-    await MissionRepository.removeData(_mission1CompletedKey);
-    await MissionRepository.removeData(_mission2CompletedKey);
+    await MissionRepository.clearAllMissions();
     print('모든 미션 데이터 삭제 완료');
   }
 

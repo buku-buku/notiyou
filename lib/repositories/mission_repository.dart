@@ -4,6 +4,7 @@ import '../models/mission.dart';
 
 class MissionRepository {
   static SharedPreferences? _prefs;
+  static const String _missionStoreKey = 'mission';
 
   // SharedPreferences 초기화
   static Future<void> init() async {
@@ -14,7 +15,7 @@ class MissionRepository {
 
   // 날짜별 키 생성
   static String getKeyForDate(DateTime date) {
-    return 'mission_${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    return '${_missionStoreKey}_${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 
   // 미션 데이터 저장
@@ -41,5 +42,18 @@ class MissionRepository {
     if (_prefs == null) await init();
 
     await _prefs!.remove(key);
+  }
+
+  // 모든 미션 삭제
+  static Future<void> clearAllMissions() async {
+    if (_prefs == null) await init();
+
+    final futures = _prefs!
+        .getKeys()
+        .where((key) => key.startsWith(_missionStoreKey))
+        .map((key) => _prefs!.remove(key))
+        .toList();
+
+    await Future.wait(futures);
   }
 }
