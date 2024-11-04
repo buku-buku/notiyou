@@ -9,6 +9,7 @@ class MissionService {
 
   // SharedPreferences 초기화
   static Future<void> init() async {
+    await MissionRepository.init();
     if (_prefs == null) {
       _prefs = await SharedPreferences.getInstance();
       print('SharedPreferences 초기화 완료');
