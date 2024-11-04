@@ -30,8 +30,40 @@ class _ConfigPageState extends State<ConfigPage> {
   }
 
   Future<void> _saveTimes() async {
-    await MissionService.saveMissionTime(1, _mission1Time);
-    await MissionService.saveMissionTime(2, _mission2Time);
+    // 시간이 변경되었는지 확인
+    final bool hasTimeChanged =
+        _mission1Time != MissionService.getMissionTime(1) ||
+            _mission2Time != MissionService.getMissionTime(2);
+
+    final hasTodayMissions = await MissionService.hasTodayMissions();
+
+    bool? applyToToday;
+    if (hasTimeChanged && hasTodayMissions && context.mounted) {
+      applyToToday = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('미션 시간 변경'),
+            content: const Text('변경된 시간을 오늘의 미션에도 적용하시겠습니까?'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('아니오'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('예'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    await MissionService.saveMissionTime(1, _mission1Time,
+        isUpdateTodayMission: applyToToday == true);
+    await MissionService.saveMissionTime(2, _mission2Time,
+        isUpdateTodayMission: applyToToday == true);
   }
 
   Future<void> _selectTime(BuildContext context, bool isFirstMission) async {

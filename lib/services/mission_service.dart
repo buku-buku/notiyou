@@ -9,12 +9,14 @@ class MissionService {
   }
 
   // 미션 시간 저장
-  static Future<void> saveMissionTime(
-      int missionNumber, TimeOfDay? time) async {
+  static Future<void> saveMissionTime(int missionNumber, TimeOfDay? time,
+      {bool isUpdateTodayMission = true}) async {
     if (time != null) {
-      await MissionRepository.setMissionTime(missionNumber, time);
+      await MissionRepository.setMissionTime(missionNumber, time,
+          isUpdateTodayMission: isUpdateTodayMission);
     } else {
-      await MissionRepository.clearMissionTime(missionNumber);
+      await MissionRepository.clearMissionTime(missionNumber,
+          isUpdateTodayMission: isUpdateTodayMission);
     }
     print('미션$missionNumber 시간 저장: $time');
   }
@@ -47,6 +49,11 @@ class MissionService {
 
     // 변경된 미션의 새로운 상태 반환
     return updatedMission.isCompleted;
+  }
+
+  static Future<bool> hasTodayMissions() async {
+    final missions = await MissionRepository.findMissions(DateTime.now());
+    return missions.isNotEmpty;
   }
 
   // 오늘의 미션 데이터 가져오기
