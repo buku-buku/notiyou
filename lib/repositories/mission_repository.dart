@@ -7,12 +7,14 @@ import '../utils/time_utils.dart';
 class MissionRepository {
   static SharedPreferences? _prefs;
   static const String _missionStoreKey = 'mission';
+  static const String _lastResetKey = 'last_reset_date';
 
   // SharedPreferences 초기화
   static Future<void> init() async {
     if (_prefs == null) {
       _prefs = await SharedPreferences.getInstance();
     }
+    await checkAndResetDailyMissions();
   }
 
   // 미션 별 키 생성
@@ -21,6 +23,24 @@ class MissionRepository {
   // 날짜별 키 생성
   static String _getKeyForDate(DateTime date) {
     return '${_missionStoreKey}_${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  // 자정 지났는지 확인하고 초기화
+  static Future<void> checkAndResetDailyMissions() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final lastResetStr = _prefs?.getString(_lastResetKey);
+
+    if (lastResetStr != null) {
+      final lastReset = DateTime.parse(lastResetStr);
+
+      if (today.compareTo(lastReset) != 0) {
+        await removeMissionsFrom(lastReset);
+      }
+    }
+
+    // 마지막 초기화 날짜 업데이트
+    await _prefs?.setString(_lastResetKey, today.toIso8601String());
   }
 
   // 미션 시간 조회
@@ -85,7 +105,7 @@ class MissionRepository {
   }
 
   // 특정 키의 데이터 삭제
-  static Future<void> removeData(DateTime date) async {
+  static Future<void> removeMissionsFrom(DateTime date) async {
     final key = _getKeyForDate(date);
     if (_prefs == null) await init();
 
@@ -103,5 +123,37 @@ class MissionRepository {
         .toList();
 
     await Future.wait(futures);
+  }
+
+  // 디버깅용: 모든 히스토리 출력
+  static void debugMissionHistory() {
+    if (_prefs == null) return;
+
+    print('\n=== 미션 히스토리 ===');
+    final allKeys =
+        _prefs!.getKeys().where((key) => key.startsWith(_missionStoreKey));
+    for (final key in allKeys) {
+      final missions = _prefs!.getStringList(key) ?? [];
+      print('$key: ${missions.length} missions');
+      for (final mission in missions) {
+        print('  $mission');
+      }
+    }
+    print('==================\n');
+  }
+
+  // 저장소의 모든 데이터 출력 (버깅용)
+  static void debugStorageContent() {
+    if (_prefs == null) {
+      print('SharedPreferences가 초기화되지 않음');
+      return;
+    }
+
+    print('\n=== 저장소 전체 데이터 ===');
+    final keys = _prefs!.getKeys();
+    for (final key in keys) {
+      print('$key: ${_prefs!.get(key)}');
+    }
+    print('=======================\n');
   }
 }
