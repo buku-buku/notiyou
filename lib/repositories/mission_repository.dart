@@ -5,6 +5,16 @@ import '../models/mission.dart';
 import '../utils/time_utils.dart';
 import './mission_time_repository.dart';
 
+/// 미션 데이터를 관리하는 저장소입니다.
+///
+/// 해당 저장소에서는 미션을 조회하고, 수정하는 메서드만 제공됩니다.
+///
+/// 미션이 생성되는 것은 서버에서 수행될 예정입니다. 클라이언트상에서 생성되는 미션은
+/// 인터넷 연결이 불안정한 환경을 대비한 캐싱 목적으로만 존재합니다.
+///
+/// ⚠️: 로컬의 데이터는 오늘의 데이터만 저장됩니다.
+/// 오늘 이후의 모든 데이터는 앱 실행 시 삭제됩니다.
+
 class MissionRepository {
   static SharedPreferences? _prefs;
   static const String _missionStoreKey = 'mission';
@@ -48,7 +58,9 @@ class MissionRepository {
     return TimeUtils.parseDate(key.replaceFirst('${_missionStoreKey}_', ''));
   }
 
-  // 미션 데이터 저장
+  /// 미션 데이터 저장
+  /// TODO: 실제로 데이터가 생성되는 것은 서버에서 수행될 예정입니다.
+  /// 이후 해당 메서드는 서버에서 데이터를 받아오는 것을 대비한 캐싱 목적으로만 존재합니다.
   static Future<void> _setMissions(
       DateTime date, List<Mission> missions) async {
     final key = _getKeyForDate(date);
