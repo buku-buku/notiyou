@@ -51,31 +51,8 @@ class MissionService {
 
   // 오늘의 미션 데이터 가져오기
   static Future<List<Mission>> getTodaysMissions() async {
-    final missions = await MissionRepository.findMissions(DateTime.now());
-
-    if (missions.isEmpty) {
-      // 해당 날짜의 첫 접속이면 미션 초기화
-      final newMissions = [
-        if (getMissionTime(1) != null)
-          Mission(
-            id: 'mission1',
-            time: getMissionTime(1)!,
-            isCompleted: false,
-            date: DateTime.now(),
-          ),
-        if (getMissionTime(2) != null)
-          Mission(
-            id: 'mission2',
-            time: getMissionTime(2)!,
-            isCompleted: false,
-            date: DateTime.now(),
-          ),
-      ];
-
-      // 초기 미션 데이터 저장
-      await MissionRepository.setMissions(DateTime.now(), newMissions);
-      return newMissions;
-    }
+    final missions = await MissionRepository.findMissions(DateTime.now(),
+        createIfEmpty: true);
 
     // 저장된 미션 데이터 반환
     return missions;

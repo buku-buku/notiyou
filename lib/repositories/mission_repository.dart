@@ -95,12 +95,42 @@ class MissionRepository {
     await setMissions(date, updatedMissions);
   }
 
+  /// ? 이것까지 레포지토리에 위치시키는게 좋을지 고민이 되긴함..
+  static List<Mission> _createTodaysMissions(DateTime date) {
+    return [
+      if (getMissionTime(1) != null)
+        Mission(
+          id: 'mission1',
+          time: getMissionTime(1)!,
+          isCompleted: false,
+          date: DateTime.now(),
+        ),
+      if (getMissionTime(2) != null)
+        Mission(
+          id: 'mission2',
+          time: getMissionTime(2)!,
+          isCompleted: false,
+          date: DateTime.now(),
+        ),
+    ];
+  }
+
   // 미션 데이터 불러오기
-  static Future<List<Mission>> findMissions(DateTime date) async {
+  static Future<List<Mission>> findMissions(DateTime date,
+      {bool createIfEmpty = false}) async {
     final key = _getKeyForDate(date);
     if (_prefs == null) await init();
 
     final missionJsonList = _prefs!.getStringList(key) ?? [];
+
+    // 미션 데이터가 없으면 로컬에서 임의로 생성한다.
+    if (missionJsonList.isEmpty && createIfEmpty) {
+      final newMissions = _createTodaysMissions(date);
+
+      await setMissions(date, newMissions);
+      return newMissions;
+    }
+
     return missionJsonList
         .map((json) => Mission.fromJson(jsonDecode(json)))
         .toList();
