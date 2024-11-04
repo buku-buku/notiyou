@@ -1,10 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/mission.dart';
 import '../repositories/mission_repository.dart';
 
 class MissionService {
-  static const String _mission1TimeKey = 'mission1_time';
-  static const String _mission2TimeKey = 'mission2_time';
   static SharedPreferences? _prefs;
 
   // SharedPreferences 초기화
@@ -38,24 +37,23 @@ class MissionService {
   }
 
   // 미션 시간 저장
-  static Future<void> saveMissionTime(int missionNumber, String? time) async {
+  static Future<void> saveMissionTime(
+      int missionNumber, TimeOfDay? time) async {
     if (_prefs == null) await init();
 
-    final key = missionNumber == 1 ? _mission1TimeKey : _mission2TimeKey;
     if (time != null) {
-      await _prefs!.setString(key, time);
+      await MissionRepository.setMissionTime(missionNumber, time);
     } else {
-      await _prefs!.remove(key);
+      await MissionRepository.clearMissionTime(missionNumber);
     }
     print('미션$missionNumber 시간 저장: $time');
   }
 
   // 미션 시간 불러오기
-  static String? getMissionTime(int missionNumber) {
+  static TimeOfDay? getMissionTime(int missionNumber) {
     if (_prefs == null) return null;
 
-    final key = missionNumber == 1 ? _mission1TimeKey : _mission2TimeKey;
-    final time = _prefs!.getString(key);
+    final time = MissionRepository.getMissionTime(missionNumber);
     print('미션$missionNumber 시간 불러오기: $time');
     return time;
   }

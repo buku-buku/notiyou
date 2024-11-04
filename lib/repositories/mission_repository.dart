@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/mission.dart';
+import '../utils/time_utils.dart';
 
 class MissionRepository {
   static SharedPreferences? _prefs;
@@ -13,9 +15,34 @@ class MissionRepository {
     }
   }
 
+  // 미션 별 키 생성
+  static String _getMissionKey(int missionNumber) => 'mission$missionNumber';
+
   // 날짜별 키 생성
   static String _getKeyForDate(DateTime date) {
     return '${_missionStoreKey}_${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  // 미션 시간 조회
+  static TimeOfDay? getMissionTime(int missionNumber) {
+    final key = _getMissionKey(missionNumber);
+    final timeStr = _prefs!.getString(key);
+
+    if (timeStr == null) return null;
+
+    return TimeUtils.parseTime(timeStr);
+  }
+
+  // 미션 시간 설정
+  static Future<void> setMissionTime(int missionNumber, TimeOfDay time) async {
+    final key = _getMissionKey(missionNumber);
+    await _prefs!.setString(key, TimeUtils.stringifyTime(time));
+  }
+
+  // 미션 시간 초기화
+  static Future<void> clearMissionTime(int missionNumber) async {
+    final key = _getMissionKey(missionNumber);
+    await _prefs!.remove(key);
   }
 
   // 미션 데이터 저장

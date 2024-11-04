@@ -1,6 +1,10 @@
+import 'package:flutter/material.dart';
+
+import '../utils/time_utils.dart';
+
 class Mission {
   final String id;
-  final String time;
+  final TimeOfDay time;
   final bool isCompleted;
   final DateTime? completedAt;
   final DateTime date;
@@ -15,7 +19,7 @@ class Mission {
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'time': time,
+        'time': TimeUtils.stringifyTime(time),
         'isCompleted': isCompleted,
         'completedAt': completedAt?.toIso8601String(),
         'date': date.toIso8601String(),
@@ -23,7 +27,7 @@ class Mission {
 
   factory Mission.fromJson(Map<String, dynamic> json) => Mission(
         id: json['id'],
-        time: json['time'],
+        time: TimeUtils.parseTime(json['time']),
         isCompleted: json['isCompleted'],
         completedAt: json['completedAt'] != null
             ? DateTime.parse(json['completedAt'])
@@ -38,8 +42,8 @@ class Mission {
       date.year,
       date.month,
       date.day,
-      int.parse(time.split(':')[0]),
-      int.parse(time.split(':')[1]),
+      time.hour,
+      time.minute,
     ).isBefore(now);
   }
 
