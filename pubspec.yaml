@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   go_router: ^14.3.0
-  kakao_flutter_sdk: ^1.9.0 # 카카오 로그인 SDK
+  kakao_flutter_sdk: ^1.9.6 # 카카오 로그인 SDK
 
 dev_dependencies:
   flutter_test:
