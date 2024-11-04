@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'screens/home_page.dart';
-import 'screens/search_page.dart';
-import 'screens/profile_page.dart';
-import 'screens/login_page.dart';
-import 'screens/signup_page.dart';
+
 import 'screens/config_page.dart';
 import 'screens/history_page.dart';
+import 'screens/home_page.dart';
+import 'screens/login_page.dart';
+import 'screens/profile_page.dart';
+import 'screens/search_page.dart';
+import 'screens/signup_page.dart';
+import 'screens/splash_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,8 +29,12 @@ class MyApp extends StatelessWidget {
 }
 
 final _router = GoRouter(
-  initialLocation: LoginPage.routeName,
+  initialLocation: SplashPage.routeName,
   routes: [
+    GoRoute(
+      path: SplashPage.routeName,
+      builder: (context, state) => const SplashPage(),
+    ),
     GoRoute(
       path: HomePage.routeName,
       builder: (context, state) => const HomePage(),
