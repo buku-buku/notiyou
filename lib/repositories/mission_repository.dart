@@ -7,40 +7,48 @@ import '../utils/time_utils.dart';
 class MissionRepository {
   static SharedPreferences? _prefs;
   static const String _missionStoreKey = 'mission';
-  static const String _lastResetKey = 'last_reset_date';
 
   // SharedPreferences 초기화
   static Future<void> init() async {
     if (_prefs == null) {
       _prefs = await SharedPreferences.getInstance();
     }
-    await checkAndResetDailyMissions();
+    await removeMissionsBefore(DateTime.now());
   }
 
   // 미션 별 키 생성
   static String _getMissionKey(int missionNumber) => 'mission$missionNumber';
 
-  // 날짜별 키 생성
+  // 날짜별 키 생성.
   static String _getKeyForDate(DateTime date) {
-    return '${_missionStoreKey}_${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    return '${_missionStoreKey}_${TimeUtils.stringifyYearMonthDay(date)}';
   }
 
-  // 자정 지났는지 확인하고 초기화
+  /// Shared Preferences에 저장되어 있는 날짜별 키 목록
+  /// ```dart
+  /// final keys = MissionRepository._getDateKeys();
+  /// print(keys); // ['mission_2024-11-04', 'mission_2024-11-03', ...]
+  /// ```
+  static List<String> _getDateKeys() {
+    return _prefs!
+        .getKeys()
+        .where((key) =>
+            TimeUtils.isDateString(key) && key.startsWith(_missionStoreKey))
+        .toList();
+  }
+
+  /// 날짜 키로부터 날짜 값 파싱
+  /// ```dart
+  /// final date = MissionRepository._parseDateFromKey('mission_2024-11-04');
+  /// print(date); // DateTime(2024, 11, 4)
+  /// ```
+  static DateTime _parseDateFromKey(String key) {
+    return TimeUtils.parseDate(key.replaceFirst('${_missionStoreKey}_', ''));
+  }
+
+  /// 당일 이전의 미션 데이터들을 로컬에서 삭제한다.
   static Future<void> checkAndResetDailyMissions() async {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final lastResetStr = _prefs?.getString(_lastResetKey);
-
-    if (lastResetStr != null) {
-      final lastReset = DateTime.parse(lastResetStr);
-
-      if (today.compareTo(lastReset) != 0) {
-        await removeMissionsFrom(lastReset);
-      }
-    }
-
-    // 마지막 초기화 날짜 업데이트
-    await _prefs?.setString(_lastResetKey, today.toIso8601String());
+    await removeMissionsBefore(DateTime.now());
   }
 
   // 미션 시간 조회
@@ -104,12 +112,23 @@ class MissionRepository {
     return missions.firstWhere((m) => m.id == id);
   }
 
-  // 특정 키의 데이터 삭제
+  /// 특정 날짜의 데이터 삭제
   static Future<void> removeMissionsFrom(DateTime date) async {
     final key = _getKeyForDate(date);
     if (_prefs == null) await init();
 
     await _prefs!.remove(key);
+  }
+
+  /// 특정 날짜 이전의 데이터 삭제
+  static Future<void> removeMissionsBefore(DateTime date) async {
+    if (_prefs == null) await init();
+
+    final futures = _getDateKeys()
+        .where((key) => _parseDateFromKey(key).isBefore(date))
+        .map((key) => _prefs!.remove(key))
+        .toList();
+    await Future.wait(futures);
   }
 
   // 모든 미션 삭제
