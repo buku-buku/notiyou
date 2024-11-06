@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ListTile(
                 title: Text(
-                  '미션시간 ${mission.id} (${mission.time})',
+                  '미션시간 ${mission.id} (${mission.time.format(context)})',
                   style: TextStyle(
                     color: mission.expired ? Colors.red : null,
                   ),

@@ -23,47 +23,15 @@ class _ConfigPageState extends State<ConfigPage> {
   }
 
   Future<void> _loadSavedTimes() async {
-    final mission1String = MissionService.getMissionTime(1);
-    final mission2String = MissionService.getMissionTime(2);
-
-    print('저장된 미션1 시간: $mission1String');
-    print('저장된 미션2 시간: $mission2String');
-
     setState(() {
-      if (mission1String != null) {
-        final parts = mission1String.split(':');
-        _mission1Time = TimeOfDay(
-          hour: int.parse(parts[0]),
-          minute: int.parse(parts[1]),
-        );
-      }
-
-      if (mission2String != null) {
-        final parts = mission2String.split(':');
-        _mission2Time = TimeOfDay(
-          hour: int.parse(parts[0]),
-          minute: int.parse(parts[1]),
-        );
-      }
+      _mission1Time = MissionService.getMissionTime(1);
+      _mission2Time = MissionService.getMissionTime(2);
     });
   }
 
-  String _timeToString(TimeOfDay time) {
-    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
-  }
-
   Future<void> _saveTimes() async {
-    if (_mission1Time != null) {
-      await MissionService.saveMissionTime(1, _timeToString(_mission1Time!));
-    } else {
-      await MissionService.saveMissionTime(1, null);
-    }
-
-    if (_mission2Time != null) {
-      await MissionService.saveMissionTime(2, _timeToString(_mission2Time!));
-    } else {
-      await MissionService.saveMissionTime(2, null);
-    }
+    await MissionService.saveMissionTime(1, _mission1Time);
+    await MissionService.saveMissionTime(2, _mission2Time);
   }
 
   Future<void> _selectTime(BuildContext context, bool isFirstMission) async {
