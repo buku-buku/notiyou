@@ -46,11 +46,6 @@ class MissionRepository {
     return TimeUtils.parseDate(key.replaceFirst('${_missionStoreKey}_', ''));
   }
 
-  /// 당일 이전의 미션 데이터들을 로컬에서 삭제한다.
-  static Future<void> checkAndResetDailyMissions() async {
-    await removeMissionsBefore(DateTime.now());
-  }
-
   // 미션 시간 조회
   static TimeOfDay? getMissionTime(int missionNumber) {
     final key = _getMissionKey(missionNumber);
@@ -62,25 +57,60 @@ class MissionRepository {
   }
 
   // 미션 시간 설정
-  static Future<void> setMissionTime(int missionNumber, TimeOfDay time) async {
+  static Future<void> setMissionTime(int missionNumber, TimeOfDay time,
+      {bool isUpdateTodayMission = false}) async {
     final key = _getMissionKey(missionNumber);
     await _prefs!.setString(key, TimeUtils.stringifyTime(time));
+
+    if (isUpdateTodayMission) {
+      final today = DateTime.now();
+      final mission = await findMissionByMissionNumber(today, missionNumber);
+      if (mission != null) {
+        await updateMission(today, mission.copyWith(time: time));
+      } else {
+        await _addMission(
+            today,
+            Mission(
+              id: _getMissionKey(missionNumber),
+              missionNumber: missionNumber,
+              time: time,
+              isCompleted: false,
+              date: today,
+            ));
+      }
+    }
   }
 
   // 미션 시간 초기화
-  static Future<void> clearMissionTime(int missionNumber) async {
+  static Future<void> clearMissionTime(int missionNumber,
+      {bool isUpdateTodayMission = false}) async {
     final key = _getMissionKey(missionNumber);
     await _prefs!.remove(key);
+
+    if (isUpdateTodayMission) {
+      final today = DateTime.now();
+      final mission = await findMissionByMissionNumber(today, missionNumber);
+      if (mission != null) {
+        await removeMissionById(today, mission.id);
+      }
+    }
   }
 
   // 미션 데이터 저장
-  static Future<void> setMissions(DateTime date, List<Mission> missions) async {
+  static Future<void> _setMissions(
+      DateTime date, List<Mission> missions) async {
     final key = _getKeyForDate(date);
     if (_prefs == null) await init();
 
     final missionJsonList =
         missions.map((m) => jsonEncode(m.toJson())).toList();
     await _prefs!.setStringList(key, missionJsonList);
+  }
+
+  static Future<void> _addMission(DateTime date, Mission mission) async {
+    final missions = await findMissions(date);
+    final updatedMissions = [...missions, mission];
+    await _setMissions(date, updatedMissions);
   }
 
   // 미션 데이터 수정
@@ -92,15 +122,47 @@ class MissionRepository {
       return m;
     }).toList();
 
-    await setMissions(date, updatedMissions);
+    await _setMissions(date, updatedMissions);
+  }
+
+  /// ? 이것까지 레포지토리에 위치시키는게 좋을지 고민이 되긴함..
+  static List<Mission> _createTodaysMissions(DateTime date) {
+    return [
+      if (getMissionTime(1) != null)
+        Mission(
+          id: _getMissionKey(1),
+          missionNumber: 1,
+          time: getMissionTime(1)!,
+          isCompleted: false,
+          date: date,
+        ),
+      if (getMissionTime(2) != null)
+        Mission(
+          id: _getMissionKey(2),
+          missionNumber: 2,
+          time: getMissionTime(2)!,
+          isCompleted: false,
+          date: date,
+        ),
+    ];
   }
 
   // 미션 데이터 불러오기
-  static Future<List<Mission>> findMissions(DateTime date) async {
+  static Future<List<Mission>> findMissions(DateTime date,
+      {bool createIfEmpty = false}) async {
     final key = _getKeyForDate(date);
     if (_prefs == null) await init();
 
     final missionJsonList = _prefs!.getStringList(key) ?? [];
+
+    // 미션 데이터가 없으면 로컬에서 임의로 생성한다.
+    if (missionJsonList.isEmpty && createIfEmpty) {
+      final newMissions = _createTodaysMissions(date);
+
+      await _setMissions(date, newMissions);
+      return newMissions;
+    }
+
     return missionJsonList
         .map((json) => Mission.fromJson(jsonDecode(json)))
         .toList();
@@ -109,7 +171,28 @@ class MissionRepository {
   // 미션 아이디로 미션 찾기
   static Future<Mission?> findMissionById(DateTime date, String id) async {
     final missions = await findMissions(date);
-    return missions.firstWhere((m) => m.id == id);
+    try {
+      return missions.firstWhere((m) => m.id == id);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // 미션 번호로 미션 찾기
+  static Future<Mission?> findMissionByMissionNumber(
+      DateTime date, int missionNumber) async {
+    final missions = await findMissions(date);
+    try {
+      return missions.firstWhere((m) => m.missionNumber == missionNumber);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static Future<void> removeMissionById(DateTime date, String id) async {
+    final missions = await findMissions(date);
+    final updatedMissions = missions.where((m) => m.id != id).toList();
+    await _setMissions(date, updatedMissions);
   }
 
   /// 특정 날짜의 데이터 삭제
