@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'home_page.dart';
 import '../services/mission_service.dart';
+import '../widgets/notification_template_config.dart';
 
 class ConfigPage extends StatefulWidget {
   const ConfigPage({super.key});
@@ -98,6 +99,21 @@ class _ConfigPageState extends State<ConfigPage> {
     });
   }
 
+  Future<void> _showNotificationTemplateModal() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: const NotificationTemplateConfig(),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -165,6 +181,11 @@ class _ConfigPageState extends State<ConfigPage> {
                 // 카카오톡 친구 목록 확인하기 기능 연결 예정
               },
               child: const Text('조력자 선택'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _showNotificationTemplateModal,
+              child: const Text('알림 메시지 설정'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
