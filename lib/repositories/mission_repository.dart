@@ -3,6 +3,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/mission.dart';
 import '../utils/time_utils.dart';
+import './mission_time_repository.dart';
+
+/// 미션 데이터를 관리하는 저장소입니다.
+///
+/// 해당 저장소에서는 미션을 조회하고, 수정하는 메서드만 제공됩니다.
+///
+/// 미션이 생성되는 것은 서버에서 수행될 예정입니다. 클라이언트상에서 생성되는 미션은
+/// 인터넷 연결이 불안정한 환경을 대비한 캐싱 목적으로만 존재합니다.
+///
+/// ⚠️: 로컬의 데이터는 오늘의 데이터만 저장됩니다.
+/// 오늘 이후의 모든 데이터는 앱 실행 시 삭제됩니다.
 
 class MissionRepository {
   static SharedPreferences? _prefs;
@@ -10,6 +21,7 @@ class MissionRepository {
 
   // SharedPreferences 초기화
   static Future<void> init() async {
+    await MissionTimeRepository.init();
     if (_prefs == null) {
       _prefs = await SharedPreferences.getInstance();
     }
@@ -46,57 +58,9 @@ class MissionRepository {
     return TimeUtils.parseDate(key.replaceFirst('${_missionStoreKey}_', ''));
   }
 
-  // 미션 시간 조회
-  static TimeOfDay? getMissionTime(int missionNumber) {
-    final key = _getMissionKey(missionNumber);
-    final timeStr = _prefs!.getString(key);
-
-    if (timeStr == null) return null;
-
-    return TimeUtils.parseTime(timeStr);
-  }
-
-  // 미션 시간 설정
-  static Future<void> setMissionTime(int missionNumber, TimeOfDay time,
-      {bool isUpdateTodayMission = false}) async {
-    final key = _getMissionKey(missionNumber);
-    await _prefs!.setString(key, TimeUtils.stringifyTime(time));
-
-    if (isUpdateTodayMission) {
-      final today = DateTime.now();
-      final mission = await findMissionByMissionNumber(today, missionNumber);
-      if (mission != null) {
-        await updateMission(today, mission.copyWith(time: time));
-      } else {
-        await _addMission(
-            today,
-            Mission(
-              id: _getMissionKey(missionNumber),
-              missionNumber: missionNumber,
-              time: time,
-              isCompleted: false,
-              date: today,
-            ));
-      }
-    }
-  }
-
-  // 미션 시간 초기화
-  static Future<void> clearMissionTime(int missionNumber,
-      {bool isUpdateTodayMission = false}) async {
-    final key = _getMissionKey(missionNumber);
-    await _prefs!.remove(key);
-
-    if (isUpdateTodayMission) {
-      final today = DateTime.now();
-      final mission = await findMissionByMissionNumber(today, missionNumber);
-      if (mission != null) {
-        await removeMissionById(today, mission.id);
-      }
-    }
-  }
-
-  // 미션 데이터 저장
+  /// 미션 데이터 저장
+  /// TODO: 실제로 데이터가 생성되는 것은 서버에서 수행될 예정입니다.
+  /// 이후 해당 메서드는 서버에서 데이터를 받아오는 것을 대비한 캐싱 목적으로만 존재합니다.
   static Future<void> _setMissions(
       DateTime date, List<Mission> missions) async {
     final key = _getKeyForDate(date);
@@ -111,6 +75,27 @@ class MissionRepository {
     final missions = await findMissions(date);
     final updatedMissions = [...missions, mission];
     await _setMissions(date, updatedMissions);
+  }
+
+  static Future<void> updateTodayMissionTime(
+    int missionNumber,
+    TimeOfDay time,
+  ) async {
+    final today = DateTime.now();
+    final mission = await findMissionByMissionNumber(today, missionNumber);
+    if (mission != null) {
+      await updateMission(today, mission.copyWith(time: time));
+    } else {
+      await _addMission(
+          today,
+          Mission(
+            id: _getMissionKey(missionNumber),
+            missionNumber: missionNumber,
+            time: time,
+            isCompleted: false,
+            date: today,
+          ));
+    }
   }
 
   // 미션 데이터 수정
@@ -128,19 +113,19 @@ class MissionRepository {
   /// ? 이것까지 레포지토리에 위치시키는게 좋을지 고민이 되긴함..
   static List<Mission> _createTodaysMissions(DateTime date) {
     return [
-      if (getMissionTime(1) != null)
+      if (MissionTimeRepository.getMissionTime(1) != null)
         Mission(
           id: _getMissionKey(1),
           missionNumber: 1,
-          time: getMissionTime(1)!,
+          time: MissionTimeRepository.getMissionTime(1)!,
           isCompleted: false,
           date: date,
         ),
-      if (getMissionTime(2) != null)
+      if (MissionTimeRepository.getMissionTime(2) != null)
         Mission(
           id: _getMissionKey(2),
           missionNumber: 2,
-          time: getMissionTime(2)!,
+          time: MissionTimeRepository.getMissionTime(2)!,
           isCompleted: false,
           date: date,
         ),
@@ -186,6 +171,14 @@ class MissionRepository {
       return missions.firstWhere((m) => m.missionNumber == missionNumber);
     } catch (e) {
       return null;
+    }
+  }
+
+  static Future<void> removeTodayMission(int missionNumber) async {
+    final today = DateTime.now();
+    final mission = await findMissionByMissionNumber(today, missionNumber);
+    if (mission != null) {
+      await removeMissionById(today, mission.id);
     }
   }
 
