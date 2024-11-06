@@ -1,21 +1,15 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 import '../models/mission.dart';
+import '../repositories/mission_repository.dart';
 
 class MissionService {
   static const String _mission1TimeKey = 'mission1_time';
   static const String _mission2TimeKey = 'mission2_time';
-  static const String _mission1CompletedKey = 'mission1_completed';
-  static const String _mission2CompletedKey = 'mission2_completed';
   static SharedPreferences? _prefs;
-
-  // 날짜별 키 생성 (예: 'mission_2024-03-15')
-  static String _getKeyForDate(DateTime date) {
-    return 'mission_${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-  }
 
   // SharedPreferences 초기화
   static Future<void> init() async {
+    await MissionRepository.init();
     if (_prefs == null) {
       _prefs = await SharedPreferences.getInstance();
       print('SharedPreferences 초기화 완료');
@@ -71,10 +65,9 @@ class MissionService {
     if (_prefs == null) await init();
 
     final today = DateTime.now();
-    final key = _getKeyForDate(today);
 
     // 현재 날짜의 미션 데이터 가져오기
-    final missions = await getTodaysMissions();
+    final missions = await MissionRepository.getMissions(today);
 
     // 해당 미션의 상태 변경
     final updatedMissions = missions.map((mission) {
@@ -91,9 +84,7 @@ class MissionService {
     }).toList();
 
     // 변경된 데이터 저장
-    final missionJsonList =
-        updatedMissions.map((m) => jsonEncode(m.toJson())).toList();
-    await _prefs!.setStringList(key, missionJsonList);
+    await MissionRepository.saveMissions(DateTime.now(), updatedMissions);
 
     // 변경된 미션의 새로운 상태 반환
     final targetMission = updatedMissions.firstWhere((m) => m.id == missionId);
@@ -104,12 +95,11 @@ class MissionService {
   static Future<List<Mission>> getTodaysMissions() async {
     if (_prefs == null) await init();
 
-    final key = _getKeyForDate(DateTime.now());
-    final missionJsonList = _prefs!.getStringList(key) ?? [];
+    final missions = await MissionRepository.getMissions(DateTime.now());
 
-    if (missionJsonList.isEmpty) {
+    if (missions.isEmpty) {
       // 해당 날짜의 첫 접속이면 미션 초기화
-      final missions = [
+      final newMissions = [
         if (getMissionTime(1) != null)
           Mission(
             id: 'mission1',
@@ -127,36 +117,26 @@ class MissionService {
       ];
 
       // 초기 미션 데이터 저장
-      final initialJsonList =
-          missions.map((m) => jsonEncode(m.toJson())).toList();
-      await _prefs!.setStringList(key, initialJsonList);
-      return missions;
+      await MissionRepository.saveMissions(DateTime.now(), newMissions);
+      return newMissions;
     }
 
     // 저장된 미션 데이터 반환
-    return missionJsonList
-        .map((json) => Mission.fromJson(jsonDecode(json)))
-        .toList();
+    return missions;
   }
 
   // 특정 날짜의 미션 히스토리 가져오기
   static Future<List<Mission>> getMissionHistory(DateTime date) async {
     if (_prefs == null) await init();
 
-    final key = _getKeyForDate(date);
-    final missionJsonList = _prefs!.getStringList(key) ?? [];
-
-    return missionJsonList
-        .map((json) => Mission.fromJson(jsonDecode(json)))
-        .toList();
+    return await MissionRepository.getMissions(date);
   }
 
   // 오늘의 미션 초기화 (매일 자정에 호출 예정)
   static Future<void> resetDailyMissions() async {
     if (_prefs == null) await init();
 
-    await _prefs!.remove(_mission1CompletedKey);
-    await _prefs!.remove(_mission2CompletedKey);
+    await MissionRepository.removeData(DateTime.now());
     print('일일 미션 초기화 완료');
   }
 
@@ -164,10 +144,7 @@ class MissionService {
   static Future<void> clearAllMissionData() async {
     if (_prefs == null) await init();
 
-    await _prefs!.remove(_mission1TimeKey);
-    await _prefs!.remove(_mission2TimeKey);
-    await _prefs!.remove(_mission1CompletedKey);
-    await _prefs!.remove(_mission2CompletedKey);
+    await MissionRepository.clearAllMissions();
     print('모든 미션 데이터 삭제 완료');
   }
 
