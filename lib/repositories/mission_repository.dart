@@ -22,9 +22,7 @@ class MissionRepository {
   // SharedPreferences 초기화
   static Future<void> init() async {
     await MissionTimeRepository.init();
-    if (_prefs == null) {
-      _prefs = await SharedPreferences.getInstance();
-    }
+    _prefs ??= await SharedPreferences.getInstance();
     await removeMissionsBefore(DateTime.now());
   }
 
