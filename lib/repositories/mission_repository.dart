@@ -219,27 +219,4 @@ class MissionRepository {
 
     await Future.wait(futures);
   }
-
-  // 디버깅용: 모든 히스토리 출력
-  static void debugMissionHistory() {
-    if (_prefs == null) return;
-
-    final allKeys =
-        _prefs!.getKeys().where((key) => key.startsWith(_missionStoreKey));
-    for (final key in allKeys) {
-      final missions = _prefs!.getStringList(key) ?? [];
-
-      for (final mission in missions) {}
-    }
-  }
-
-  // 저장소의 모든 데이터 출력 (버깅용)
-  static void debugStorageContent() {
-    if (_prefs == null) {
-      return;
-    }
-
-    final keys = _prefs!.getKeys();
-    for (final key in keys) {}
-  }
 }
