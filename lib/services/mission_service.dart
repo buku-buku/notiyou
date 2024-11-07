@@ -24,13 +24,12 @@ class MissionService {
         await MissionRepository.removeTodayMission(missionNumber);
       }
     }
-    print('미션$missionNumber 시간 저장: $time');
   }
 
   // 미션 시간 불러오기
   static TimeOfDay? getMissionTime(int missionNumber) {
     final time = MissionTimeRepository.getMissionTime(missionNumber);
-    print('미션$missionNumber 시간 불러오기: $time');
+
     return time;
   }
 
@@ -79,7 +78,6 @@ class MissionService {
   // 모든 미션 데이터 삭제 (설정 초기화용)
   static Future<void> clearAllMissionData() async {
     await MissionRepository.clearAllMissions();
-    print('모든 미션 데이터 삭제 완료');
   }
 
   // 디버깅용: 저장소 전체 데이터 출력
