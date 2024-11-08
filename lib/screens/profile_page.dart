@@ -19,4 +19,4 @@ class ProfilePage extends StatelessWidget {
       const Center(child: Text('Profile Page')),
     );
   }
-} 
+}

@@ -12,9 +12,7 @@ class MissionTimeRepository {
   static SharedPreferences? _prefs;
 
   static Future<void> init() async {
-    if (_prefs == null) {
-      _prefs = await SharedPreferences.getInstance();
-    }
+    _prefs ??= await SharedPreferences.getInstance();
   }
 
   static String _getMissionKey(int missionNumber) => 'mission$missionNumber';

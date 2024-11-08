@@ -39,8 +39,9 @@ class _ConfigPageState extends State<ConfigPage> {
 
     bool? applyToToday;
     if (hasTimeChanged && hasTodayMissions && context.mounted) {
+      final BuildContext currentContext = context;
       applyToToday = await showDialog<bool>(
-        context: context,
+        context: currentContext,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('미션 시간 변경'),
@@ -84,7 +85,6 @@ class _ConfigPageState extends State<ConfigPage> {
           _mission2Time = picked;
         }
       });
-      print('선택된 시간: ${picked.format(context)}');
     }
   }
 

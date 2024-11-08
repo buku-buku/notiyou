@@ -19,4 +19,4 @@ class SearchPage extends StatelessWidget {
       const Center(child: Text('Search Page')),
     );
   }
-} 
+}
