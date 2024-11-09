@@ -42,6 +42,10 @@ final _router = GoRouter(
       builder: (context, state) => const SplashPage(),
     ),
     GoRoute(
+      path: LoginPage.routeName,
+      builder: (context, state) => const LoginPage(),
+    ),
+    GoRoute(
       path: HomePage.routeName,
       builder: (context, state) => const HomePage(),
     ),
@@ -52,10 +56,6 @@ final _router = GoRouter(
     GoRoute(
       path: ProfilePage.routeName,
       builder: (context, state) => const ProfilePage(),
-    ),
-    GoRoute(
-      path: LoginPage.routeName,
-      builder: (context, state) => const LoginPage(),
     ),
     GoRoute(
       path: SignupPage.routeName,
