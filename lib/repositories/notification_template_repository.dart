@@ -16,27 +16,27 @@ class NotificationTemplateRepository {
 
   /// 성공 알림 메시지 템플릿을 조회합니다.
   static Future<String> getSuccessMessageTemplate() async {
-    if (_prefs == null) await init();
+    await init();
     return _prefs!.getString(_successMessageTemplateKey) ??
         defaultSuccessMessageTemplate;
   }
 
   /// 실패 알림 메시지 템플릿을 조회합니다.
   static Future<String> getFailureMessageTemplate() async {
-    if (_prefs == null) await init();
+    await init();
     return _prefs!.getString(_failureMessageTemplateKey) ??
         defaultFailureMessageTemplate;
   }
 
   /// 성공 알림 메시지 템플릿을 저장합니다.
   static Future<bool> setSuccessMessageTemplate(String template) async {
-    if (_prefs == null) await init();
+    await init();
     return await _prefs!.setString(_successMessageTemplateKey, template);
   }
 
   /// 실패 알림 메시지 템플릿을 저장합니다.
   static Future<bool> setFailureMessageTemplate(String template) async {
-    if (_prefs == null) await init();
+    await init();
     return await _prefs!.setString(_failureMessageTemplateKey, template);
   }
 }
