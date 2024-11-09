@@ -4,24 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:notiyou/screens/config_page.dart';
 import 'package:notiyou/repositories/mission_time_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:notiyou/routes/index.dart';
 
 void main() {
-  late List<RouteBase> routes;
-
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await MissionTimeRepository.init();
-
-    routes = [
-      GoRoute(
-        path: ConfigPage.routeName,
-        builder: (context, state) {
-          final isOnboarding =
-              state.uri.queryParameters['isOnboarding'] == 'true';
-          return ConfigPage(isOnboarding: isOnboarding);
-        },
-      ),
-    ];
   });
 
   group('ConfigPage 라우트 테스트', () {
