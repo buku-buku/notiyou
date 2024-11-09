@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'screens/home_page.dart';
-import 'screens/search_page.dart';
-import 'screens/profile_page.dart';
 import 'screens/login_page.dart';
 import 'screens/signup_page.dart';
 import 'screens/config_page.dart';
@@ -35,14 +33,6 @@ final _router = GoRouter(
     GoRoute(
       path: HomePage.routeName,
       builder: (context, state) => const HomePage(),
-    ),
-    GoRoute(
-      path: SearchPage.routeName,
-      builder: (context, state) => const SearchPage(),
-    ),
-    GoRoute(
-      path: ProfilePage.routeName,
-      builder: (context, state) => const ProfilePage(),
     ),
     GoRoute(
       path: LoginPage.routeName,
