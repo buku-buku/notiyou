@@ -5,12 +5,10 @@ import '../services/mission_service.dart';
 
 class ConfigPage extends StatefulWidget {
   static const String routeName = '/config';
-
-  final bool isOnboarding;
+  static const String onboardingRouteName = '/config_onboarding';
 
   const ConfigPage({
     super.key,
-    this.isOnboarding = false,
   });
 
   @override

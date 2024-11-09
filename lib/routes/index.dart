@@ -24,6 +24,10 @@ final routes = <RouteBase>[
     path: SignupPage.routeName,
     builder: (context, state) => const SignupPage(),
   ),
+  GoRoute(
+    path: ConfigPage.onboardingRouteName,
+    builder: (context, state) => const ConfigPage(),
+  ),
   ShellRoute(
     builder: (context, state, child) {
       return Scaffold(
@@ -70,11 +74,7 @@ final routes = <RouteBase>[
       ),
       GoRoute(
         path: ConfigPage.routeName,
-        builder: (context, state) {
-          final isOnboarding =
-              state.uri.queryParameters['isOnboarding'] == 'true';
-          return ConfigPage(isOnboarding: isOnboarding);
-        },
+        builder: (context, state) => const ConfigPage(),
       ),
     ],
   ),

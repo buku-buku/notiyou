@@ -23,7 +23,7 @@ class SignupPage extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                context.go('${ConfigPage.routeName}?isOnboarding=true');
+                context.go(ConfigPage.onboardingRouteName);
               },
               child: const Text('완료'),
             ),
