@@ -6,15 +6,6 @@ import '../screens/signup_page.dart';
 import '../screens/config_page.dart';
 import '../screens/history_page.dart';
 
-int _calculateSelectedIndex(BuildContext context) {
-  final String location =
-      GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
-  if (location.startsWith(HomePage.routeName)) return 0;
-  if (location.startsWith(HistoryPage.routeName)) return 1;
-  if (location.startsWith(ConfigPage.routeName)) return 2;
-  return 0;
-}
-
 final routes = <RouteBase>[
   GoRoute(
     path: LoginPage.routeName,
@@ -45,37 +36,33 @@ final routes = <RouteBase>[
             BottomNavigationBarItem(icon: Icon(Icons.logout), label: '로그아웃'),
           ],
           onTap: (index) {
-            switch (index) {
-              case 0:
-                context.go(HomePage.routeName);
-                break;
-              case 1:
-                context.go(HistoryPage.routeName);
-                break;
-              case 2:
-                context.go(ConfigPage.routeName);
-                break;
-              case 3:
-                context.go(LoginPage.routeName);
-                break;
-            }
+            context.go(bottomNavigationRoutes[index].path);
           },
         ),
       );
     },
-    routes: [
-      GoRoute(
-        path: HomePage.routeName,
-        builder: (context, state) => const HomePage(),
-      ),
-      GoRoute(
-        path: HistoryPage.routeName,
-        builder: (context, state) => const HistoryPage(),
-      ),
-      GoRoute(
-        path: ConfigPage.routeName,
-        builder: (context, state) => const ConfigPage(),
-      ),
-    ],
+    routes: bottomNavigationRoutes,
   ),
 ];
+
+final List<GoRoute> bottomNavigationRoutes = [
+  GoRoute(
+    path: HomePage.routeName,
+    builder: (context, state) => const HomePage(),
+  ),
+  GoRoute(
+    path: HistoryPage.routeName,
+    builder: (context, state) => const HistoryPage(),
+  ),
+  GoRoute(
+    path: ConfigPage.routeName,
+    builder: (context, state) => const ConfigPage(),
+  ),
+];
+
+int _calculateSelectedIndex(BuildContext context) {
+  final String location =
+      GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
+  return bottomNavigationRoutes
+      .indexWhere((route) => location.startsWith(route.path));
+}
