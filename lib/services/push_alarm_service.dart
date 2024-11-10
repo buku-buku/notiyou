@@ -96,6 +96,10 @@ class PushAlarmService {
     await _pushAlarms.cancel(missionNumber);
   }
 
+  static Future<void> cancelAllMissionPushAlarms() async {
+    await _pushAlarms.cancelAll();
+  }
+
   // 개별 미션 알림 설정/해제
   static Future<void> updateMissionPushAlarm(
       int missionNumber, TimeOfDay? time) async {
