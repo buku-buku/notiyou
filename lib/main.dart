@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:notiyou/services/dotenv_service.dart';
+import 'package:notiyou/services/supabase_service.dart';
 import 'screens/home_page.dart';
 import 'screens/login_page.dart';
 import 'screens/signup_page.dart';
@@ -12,6 +13,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Flutter 바인딩 초기화
   await DotEnvService.init();
   await MissionService.init(); // MissionService 초기화
+  await SupabaseService.init();
   runApp(const MyApp());
 }
 
