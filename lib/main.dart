@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:timezone/data/latest.dart' as tz;
 import 'screens/home_page.dart';
 import 'screens/login_page.dart';
 import 'screens/signup_page.dart';
 import 'screens/config_page.dart';
 import 'screens/history_page.dart';
 import 'services/mission_service.dart';
+import 'services/push_alarm_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Flutter 바인딩 초기화
   await MissionService.init(); // MissionService 초기화
+  tz.initializeTimeZones();
+  await PushAlarmService.init();
+
   runApp(const MyApp());
 }
 
