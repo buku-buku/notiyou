@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'screens/home_page.dart';
+import 'package:notiyou/services/dotenv_service.dart';
+import 'package:notiyou/services/supabase_service.dart';
 import 'screens/login_page.dart';
-import 'screens/signup_page.dart';
-import 'screens/config_page.dart';
-import 'screens/history_page.dart';
 import 'services/mission_service.dart';
 import 'services/push_alarm_service.dart';
+import 'routes/index.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Flutter 바인딩 초기화
-  await MissionService.init(); // MissionService 초기화
+  WidgetsFlutterBinding.ensureInitialized();
+  await DotEnvService.init();
+  await SupabaseService.init();
+  await MissionService.init();
   await PushAlarmService.init();
-
   runApp(const MyApp());
 }
 
@@ -22,36 +22,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerConfig: _router,
+      routerConfig: GoRouter(
+        initialLocation: LoginPage.routeName,
+        routes: routes,
+      ),
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.grey,
+          showUnselectedLabels: true,
+        ),
       ),
     );
   }
 }
-
-final _router = GoRouter(
-  initialLocation: LoginPage.routeName,
-  routes: [
-    GoRoute(
-      path: HomePage.routeName,
-      builder: (context, state) => const HomePage(),
-    ),
-    GoRoute(
-      path: LoginPage.routeName,
-      builder: (context, state) => const LoginPage(),
-    ),
-    GoRoute(
-      path: SignupPage.routeName,
-      builder: (context, state) => const SignupPage(),
-    ),
-    GoRoute(
-      path: ConfigPage.routeName,
-      builder: (context, state) => const ConfigPage(),
-    ),
-    GoRoute(
-      path: HistoryPage.routeName,
-      builder: (context, state) => const HistoryPage(),
-    ),
-  ],
-);
