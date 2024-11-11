@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:notiyou/repositories/mission_time_repository.dart';
+import 'package:notiyou/screens/home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
+
+import '../routes/router.dart';
 
 class PushAlarmService {
   static final FlutterLocalNotificationsPlugin _pushAlarms =
@@ -37,7 +40,14 @@ class PushAlarmService {
       iOS: iosSettings,
     );
 
-    await _pushAlarms.initialize(settings);
+    await _pushAlarms.initialize(
+      settings,
+      onDidReceiveNotificationResponse: (NotificationResponse details) {
+        if (details.payload != null) {
+          router.push(details.payload!);
+        }
+      },
+    );
 
     // 포그라운드 알림 권한 요청
     await _pushAlarms
@@ -98,6 +108,7 @@ class PushAlarmService {
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
+      payload: HomePage.routeName,
     );
   }
 
