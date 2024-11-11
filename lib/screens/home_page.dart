@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:notiyou/models/mission.dart';
-import 'config_page.dart';
-import 'history_page.dart';
-import 'login_page.dart';
 import '../services/mission_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -83,45 +79,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
         ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: 0,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '홈',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: '히스토리',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: '설정',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.logout),
-            label: '로그아웃',
-          ),
-        ],
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              break;
-            case 1:
-              context.go(HistoryPage.routeName);
-              break;
-            case 2:
-              context.go(ConfigPage.routeName);
-              break;
-            case 3:
-              context.go(LoginPage.routeName);
-              break;
-          }
-        },
       ),
     );
   }
