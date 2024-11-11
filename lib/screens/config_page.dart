@@ -5,9 +5,12 @@ import '../services/mission_service.dart';
 import '../widgets/notification_template_config.dart';
 
 class ConfigPage extends StatefulWidget {
-  const ConfigPage({super.key});
-
   static const String routeName = '/config';
+  static const String onboardingRouteName = '/config_onboarding';
+
+  const ConfigPage({
+    super.key,
+  });
 
   @override
   State<ConfigPage> createState() => _ConfigPageState();
