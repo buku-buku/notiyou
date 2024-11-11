@@ -31,7 +31,7 @@ void main() {
 
       expect(
         router.routeInformationProvider.value.uri.toString(),
-        '${ConfigPage.routeName}?isOnboarding=true',
+        ConfigPage.onboardingRouteName,
       );
     });
   });
