@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/mission.dart';
 import '../repositories/mission_time_repository.dart';
 import '../repositories/mission_repository.dart';
+import '../services/push_alarm_service.dart';
 
 class MissionService {
   // SharedPreferences 초기화
@@ -24,6 +25,8 @@ class MissionService {
         await MissionRepository.removeTodayMission(missionNumber);
       }
     }
+
+    await PushAlarmService.updateMissionPushAlarm(missionNumber, time);
   }
 
   // 미션 시간 불러오기
@@ -78,5 +81,6 @@ class MissionService {
   // 모든 미션 데이터 삭제 (설정 초기화용)
   static Future<void> clearAllMissionData() async {
     await MissionRepository.clearAllMissions();
+    await PushAlarmService.cancelAllMissionPushAlarms();
   }
 }
