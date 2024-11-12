@@ -5,8 +5,13 @@ import '../screens/login_page.dart';
 import '../screens/signup_page.dart';
 import '../screens/config_page.dart';
 import '../screens/history_page.dart';
+import '../screens/splash_page.dart';
 
 final routes = <RouteBase>[
+  GoRoute(
+    path: SplashPage.routeName,
+    builder: (context, state) => const SplashPage(),
+  ),
   GoRoute(
     path: LoginPage.routeName,
     builder: (context, state) => const LoginPage(),

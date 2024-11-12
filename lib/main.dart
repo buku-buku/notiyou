@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk_talk.dart';
+
 import 'package:notiyou/services/dotenv_service.dart';
 import 'package:notiyou/services/supabase_service.dart';
 import 'routes/router.dart';
@@ -8,6 +10,10 @@ import 'services/push_alarm_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DotEnvService.init();
+
+  KakaoSdk.init(
+    nativeAppKey: 'fa103be733ea653613939bf1d46f4313',
+  );
   await SupabaseService.init();
   await MissionService.init();
   await PushAlarmService.init();
