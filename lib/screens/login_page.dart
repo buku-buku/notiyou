@@ -39,8 +39,7 @@ class LoginPage extends StatelessWidget {
       token = await _loginWithKakaoAccount();
     }
 
-    if (token != null) {
-      print(token.accessToken);
+    if (token != null && context.mounted) {
       context.go(SignupPage.routeName);
     }
   }
