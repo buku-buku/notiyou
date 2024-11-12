@@ -1,15 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../screens/home_page.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk_user.dart';
+import 'package:notiyou/screens/splash_page.dart';
+
 import '../screens/config_page.dart';
 import '../screens/history_page.dart';
-import '../screens/login_page.dart';
+import '../screens/home_page.dart';
 
-// 아직 사용하지 않는 위젯
 class BottomNavLayout extends StatelessWidget {
   final Widget child;
 
   const BottomNavLayout({super.key, required this.child});
+
+  Future<void> _handleLogout(BuildContext context) async {
+    try {
+      await UserApi.instance.logout();
+
+      if (context.mounted) {
+        context.go(SplashPage.routeName);
+      }
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('로그아웃 중 오류가 발생했습니다.'),
+          ),
+        );
+      }
+    }
+  }
 
   int _calculateSelectedIndex(BuildContext context) {
     final String location = GoRouterState.of(context).uri.path;
@@ -55,7 +74,26 @@ class BottomNavLayout extends StatelessWidget {
               context.go(HistoryPage.routeName);
               break;
             case 3:
-              context.go(LoginPage.routeName);
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('로그아웃'),
+                  content: const Text('정말 로그아웃 하시겠습니까?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('취소'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        _handleLogout(context);
+                      },
+                      child: const Text('로그아웃'),
+                    ),
+                  ],
+                ),
+              );
               break;
           }
         },

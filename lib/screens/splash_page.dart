@@ -23,8 +23,9 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<void> _checkLoginStatus() async {
     try {
-      await UserApi.instance.me();
+      User user = await UserApi.instance.me();
 
+      print(user);
       if (mounted) {
         context.go(HomePage.routeName);
       }
