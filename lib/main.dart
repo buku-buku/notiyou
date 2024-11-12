@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:kakao_flutter_sdk_common/kakao_flutter_sdk_common.dart';
 
-import 'screens/config_page.dart';
-import 'screens/history_page.dart';
-import 'screens/home_page.dart';
-import 'screens/login_page.dart';
-import 'screens/profile_page.dart';
-import 'screens/search_page.dart';
-import 'screens/signup_page.dart';
-import 'screens/splash_page.dart';
+import 'package:notiyou/services/dotenv_service.dart';
+import 'package:notiyou/services/supabase_service.dart';
+import 'routes/router.dart';
+import 'services/mission_service.dart';
+import 'services/push_alarm_service.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await DotEnvService.init();
 
   KakaoSdk.init(
     nativeAppKey: 'fa103be733ea653613939bf1d46f4313',
   );
+  await SupabaseService.init();
+  await MissionService.init();
+  await PushAlarmService.init();
   runApp(const MyApp());
 }
 
@@ -26,48 +26,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerConfig: _router,
+      routerConfig: router,
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.grey,
+          showUnselectedLabels: true,
+        ),
       ),
     );
   }
 }
-
-final _router = GoRouter(
-  initialLocation: SplashPage.routeName,
-  routes: [
-    GoRoute(
-      path: SplashPage.routeName,
-      builder: (context, state) => const SplashPage(),
-    ),
-    GoRoute(
-      path: LoginPage.routeName,
-      builder: (context, state) => const LoginPage(),
-    ),
-    GoRoute(
-      path: HomePage.routeName,
-      builder: (context, state) => const HomePage(),
-    ),
-    GoRoute(
-      path: SearchPage.routeName,
-      builder: (context, state) => const SearchPage(),
-    ),
-    GoRoute(
-      path: ProfilePage.routeName,
-      builder: (context, state) => const ProfilePage(),
-    ),
-    GoRoute(
-      path: SignupPage.routeName,
-      builder: (context, state) => const SignupPage(),
-    ),
-    GoRoute(
-      path: ConfigPage.routeName,
-      builder: (context, state) => const ConfigPage(),
-    ),
-    GoRoute(
-      path: HistoryPage.routeName,
-      builder: (context, state) => const HistoryPage(),
-    ),
-  ],
-);

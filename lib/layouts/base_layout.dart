@@ -14,4 +14,4 @@ class BaseLayout extends StatelessWidget {
       body: child,
     );
   }
-} 
+}
