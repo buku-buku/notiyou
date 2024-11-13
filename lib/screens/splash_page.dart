@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk_talk.dart';
 
 import 'home_page.dart';
 import 'login_page.dart';
@@ -17,13 +18,18 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkLoginStatus();
+    });
   }
 
   Future<void> _checkLoginStatus() async {
     try {
-      if (mounted) {
+      final user = await UserApi.instance.me();
+      if (mounted && user.connectedAt != null) {
         context.go(HomePage.routeName);
+      } else {
+        context.go(LoginPage.routeName);
       }
     } catch (error) {
       if (mounted) {
