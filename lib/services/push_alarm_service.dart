@@ -35,9 +35,15 @@ class PushAlarmService {
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
+    const macSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
     const settings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
+      macOS: macSettings,
     );
 
     await _pushAlarms.initialize(
