@@ -63,6 +63,10 @@ final List<GoRoute> bottomNavigationRoutes = [
     path: ConfigPage.routeName,
     builder: (context, state) => const ConfigPage(),
   ),
+  GoRoute(
+    path: LoginPage.routeName,
+    builder: (context, state) => const LoginPage(),
+  ),
 ];
 
 int _calculateSelectedIndex(BuildContext context) {
