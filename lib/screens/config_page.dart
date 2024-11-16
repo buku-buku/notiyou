@@ -120,16 +120,17 @@ class _ConfigPageState extends State<ConfigPage> {
   }
 
   Future<void> _selectSupporter() async {
+    final currentContext = context;
     try {
       final selectedFriend =
-          await KakaoPickerService.selectSingleFriend(context);
+          await KakaoPickerService.selectSingleFriend(currentContext);
       if (selectedFriend != null) {
         // TODO: 선택된 친구 정보 저장
         // print('선택된 친구: ${selectedFriend.profileNickname}');
       }
     } catch (error) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (currentContext.mounted) {
+        ScaffoldMessenger.of(currentContext).showSnackBar(
           const SnackBar(
             content: Text('카카오톡 친구 선택 중 오류가 발생했습니다.'),
           ),
