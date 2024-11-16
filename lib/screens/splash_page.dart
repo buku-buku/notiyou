@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk_user.dart';
 
 import 'home_page.dart';
 import 'login_page.dart';
@@ -22,6 +23,7 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<void> _checkLoginStatus() async {
     try {
+      await UserApi.instance.me();
       if (mounted) {
         context.go(HomePage.routeName);
       }
