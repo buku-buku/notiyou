@@ -24,7 +24,9 @@ class LoginPage extends StatelessWidget {
 
   Future<OAuthToken?> _loginWithKakaoAccount() async {
     try {
-      return await UserApi.instance.loginWithKakaoAccount();
+      return await UserApi.instance.loginWithNewScopes(
+        ['friends'],
+      );
     } catch (error) {
       return null;
     }
