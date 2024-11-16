@@ -1,13 +1,60 @@
 # notiyou
 
-- [Dependencies](#dependencies)
+- [개발 환경 세팅](#개발-환경-세팅)
+  - [필수 요구사항](#필수-요구사항)
+  - [Java 설정](#java-설정)
+  - [수동 설정 방법 (스크립트 실패 시)](#수동-설정-방법-스크립트-실패-시)
 - [Terminology](#terminology)
 
-## Dependencies
+## 개발 환경 세팅
+
+### 필수 요구사항
+
+- Flutter SDK
+- Java 17 (will be automatically installed if not present on macOS)
+- Android Studio or VS Code
+
+### Java 설정
+
+이 프로젝트는 Android 빌드를 위해 Java 17이 필요합니다. 자동 설정을 위한 스크립트를 제공합니다:
 
 ```sh
-flutter pub add go_router
+# 스크립트 실행 권한 부여 (최초 1회)
+chmod +x setup-android-local-properties.sh
+
+# 설정 스크립트 실행
+./setup-android-local-properties.sh
 ```
+
+스크립트는 다음 작업을 수행합니다:
+
+1. Java 17 설치 여부 확인
+2. 설치되어 있지 않은 경우 Homebrew를 통해 설치 (macOS만 해당)
+3. `android/local.properties`에 올바른 Java 경로 설정
+
+### 수동 설정 방법 (스크립트 실패 시)
+
+스크립트가 동작하지 않을 경우 수동으로 설정할 수 있습니다:
+
+1. Java 17 설치:
+
+   ```bash
+   # macOS
+   brew install openjdk@17
+
+   # Linux
+   sudo apt install openjdk-17-jdk
+   ```
+
+2. `android/local.properties`에 Java 경로 추가:
+
+   ```properties
+   # macOS의 경우
+   org.gradle.java.home=/path/to/your/java-17
+
+   # macOS에서 Java 17 경로 확인 방법:
+   /usr/libexec/java_home -v 17
+   ```
 
 ## Terminology
 
