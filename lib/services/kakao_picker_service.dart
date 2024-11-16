@@ -24,7 +24,7 @@ class KakaoPickerService {
       }
       return null;
     } catch (error) {
-      print('카카오 친구 피커 에러: $error');
+      // print('카카오 친구 피커 에러: $error');
       rethrow; // 에러를 상위로 전달하여 UI에서 처리할 수 있도록 함
     }
   }

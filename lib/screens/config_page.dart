@@ -125,7 +125,7 @@ class _ConfigPageState extends State<ConfigPage> {
           await KakaoPickerService.selectSingleFriend(context);
       if (selectedFriend != null) {
         // TODO: 선택된 친구 정보 저장
-        print('선택된 친구: ${selectedFriend.profileNickname}');
+        // print('선택된 친구: ${selectedFriend.profileNickname}');
       }
     } catch (error) {
       if (context.mounted) {
