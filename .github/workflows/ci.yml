@@ -101,11 +101,11 @@ jobs:
           cache: true
           channel: "stable"
 
-      - name: Set up Java 17
+      - name: Set up Java 21
         uses: actions/setup-java@v3
         with:
           distribution: "temurin"
-          java-version: "17"
+          java-version: "21"
 
       - name: Build Android APK
         run: flutter build apk
