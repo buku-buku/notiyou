@@ -5,6 +5,14 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+def envFile = new File(project.rootDir.parentFile, '.env')
+def properties = new Properties()
+if (envFile.exists()) {
+    envFile.withReader('UTF-8') { reader ->
+        properties.load(reader)
+    }
+}
+
 android {
     namespace = "com.example.notiyou"
     compileSdk = flutter.compileSdkVersion
@@ -28,6 +36,9 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders += [
+            KAKAO_NATIVE_APP_KEY: properties.getProperty('KAKAO_NATIVE_APP_KEY', '')
+        ]
     }
 
     buildTypes {
