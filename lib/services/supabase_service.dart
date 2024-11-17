@@ -15,9 +15,4 @@ class SupabaseService {
     );
     _client = Supabase.instance.client;
   }
-
-  @Deprecated('요청 테스트용으로 작성된 메서드로, 이후 기능 개발 시 삭제 예정')
-  static Future<PostgrestList> test() async {
-    return await _client.from('test').select('*');
-  }
 }
