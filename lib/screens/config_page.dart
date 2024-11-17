@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../services/kakao_picker_service.dart';
 import 'home_page.dart';
 import '../services/mission_service.dart';
 import '../widgets/notification_template_config.dart';
@@ -118,6 +119,26 @@ class _ConfigPageState extends State<ConfigPage> {
     );
   }
 
+  Future<void> _selectSupporter() async {
+    final BuildContext currentContext = context;
+    try {
+      final selectedFriend =
+          await KakaoPickerService.selectSingleFriend(currentContext);
+      if (selectedFriend != null) {
+        // TODO: 선택된 친구 정보 저장
+        print('선택된 친구: ${selectedFriend.profileNickname}');
+      }
+    } catch (error) {
+      if (currentContext.mounted) {
+        ScaffoldMessenger.of(currentContext).showSnackBar(
+          const SnackBar(
+            content: Text('카카오톡 친구 선택 중 오류가 발생했습니다.'),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -181,9 +202,7 @@ class _ConfigPageState extends State<ConfigPage> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // 카카오톡 친구 목록 확인하기 기능 연결 예정
-              },
+              onPressed: _selectSupporter,
               child: const Text('조력자 선택'),
             ),
             const SizedBox(height: 20),
