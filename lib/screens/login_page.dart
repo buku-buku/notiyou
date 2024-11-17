@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kakao_flutter_sdk/kakao_flutter_sdk_talk.dart';
+import 'package:notiyou/screens/config_page.dart';
+import 'package:notiyou/screens/home_page.dart';
+import 'package:notiyou/services/auth/auth_service.dart';
 
 import 'signup_page.dart';
 
@@ -10,37 +11,34 @@ class LoginPage extends StatelessWidget {
 
   static const String routeName = '/login';
 
-  Future<OAuthToken?> _loginWithKakaoTalk() async {
+  Future<void> _handleKakaoLogin(BuildContext context) async {
     try {
-      return await UserApi.instance.loginWithKakaoTalk();
-    } on PlatformException catch (error) {
-      if (error.code == 'CANCELED') {
-        return null;
+      final user = await AuthService.loginWithKakao();
+      if (user == null) {
+        throw Exception('User not found');
       }
 
-      return await _loginWithKakaoAccount();
-    }
-  }
-
-  Future<OAuthToken?> _loginWithKakaoAccount() async {
-    try {
-      return await UserApi.instance.loginWithKakaoAccount();
+      final registrationStatus = AuthService.getRegistrationStatus(user);
+      if (!context.mounted) {
+        return;
+      }
+      if (registrationStatus['invitation_code'] != true) {
+        context.go(SignupPage.routeName);
+      } else if (registrationStatus['mission_setting'] != true) {
+        context.go(ConfigPage.onboardingRouteName);
+      } else {
+        context.go(HomePage.routeName);
+      }
     } catch (error) {
-      return null;
-    }
-  }
-
-  Future<void> _handleKakaoLogin(BuildContext context) async {
-    OAuthToken? token;
-
-    if (await isKakaoTalkInstalled()) {
-      token = await _loginWithKakaoTalk();
-    } else {
-      token = await _loginWithKakaoAccount();
-    }
-
-    if (token != null && context.mounted) {
-      context.go(SignupPage.routeName);
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('카카오 로그인 실패하였습니다. 다시 시도해주세요.'),
+            content: Text(error.toString()),
+          ),
+        );
+      }
     }
   }
 
