@@ -11,10 +11,20 @@ class AuthService {
       await logout();
     }
 
-    final OAuthToken? token = await KakaoAuthService.login();
+    OAuthToken? token = await KakaoAuthService.login();
 
     if (token == null) {
       throw Exception('카카오 로그인에 실패하였습니다.');
+    }
+
+    // TODO: 비즈앱 전환 후에는 추가항목이 아닌 최초 인증 시 선택항목으로 제공되어 불필요해질 예정.
+    if (!await KakaoAuthService.isFriendsScopeAgreed()) {
+      final tokenWithAdditionalScopes =
+          await KakaoAuthService.logInWithAdditionalScopes();
+      if (tokenWithAdditionalScopes == null) {
+        throw Exception('카카오 추가 항목 동의에 실패하였습니다.');
+      }
+      token = tokenWithAdditionalScopes;
     }
 
     KakaoAuthService.validateTokenForSupabaseLink(token);

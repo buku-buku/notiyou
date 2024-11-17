@@ -42,6 +42,18 @@ class KakaoAuthService {
     }
   }
 
+  static Future<kakao.OAuthToken?> logInWithAdditionalScopes() async {
+    return await _kakaoUserApi.loginWithNewScopes(['friends', 'openid']);
+  }
+
+  static Future<bool> isFriendsScopeAgreed() async {
+    final scopesInfo = await _kakaoUserApi.scopes();
+    final scopeInfo = scopesInfo.scopes?.firstWhere(
+      (scope) => scope.id == 'friends',
+    );
+    return scopeInfo?.agreed ?? false;
+  }
+
   static Future<void> logout() async {
     await _kakaoUserApi.logout();
   }
