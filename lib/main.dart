@@ -12,7 +12,7 @@ void main() async {
   await DotEnvService.init();
 
   KakaoSdk.init(
-    nativeAppKey: 'fa103be733ea653613939bf1d46f4313',
+    nativeAppKey: DotEnvService.getValue('KAKAO_NATIVE_APP_KEY'),
   );
   await SupabaseService.init();
   await MissionService.init();
