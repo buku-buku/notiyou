@@ -37,6 +37,7 @@ jobs:
           content<<EOL
           SUPABASE_URL=${{ secrets.ENV_SUPABASE_URL }}
           SUPABASE_ANON_KEY=${{ secrets.ENV_SUPABASE_ANON_KEY }}
+          KAKAO_NATIVE_APP_KEY=${{ secrets.ENV_KAKAO_NATIVE_APP_KEY }}
           EOL
           EOF
 
