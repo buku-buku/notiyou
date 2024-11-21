@@ -35,9 +35,7 @@ class _SplashPageState extends State<SplashPage> {
         return;
       }
 
-      if (registrationStatus['invitation_code'] != true) {
-        context.go(SignupPage.routeName);
-      } else if (registrationStatus['mission_setting'] != true) {
+      if (registrationStatus['mission_setting'] != true) {
         context.go(ConfigPage.onboardingRouteName);
       } else {
         context.go(HomePage.routeName);
