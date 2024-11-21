@@ -139,8 +139,7 @@ class _ConfigPageState extends State<ConfigPage> {
         text: '${user.id}님의 미션 서포터가 되어주시겠습니까?',
         buttonTitle: '동의하러 가기',
         link: Link(
-          webUrl: Uri.parse(
-              ''), // TODO: 조력자 권한 동의용 웹페이지 주소, Kakao Developers에서 Web 플랫폼 설정 필요
+          webUrl: Uri.parse(''),
           mobileWebUrl: Uri.parse(''),
         ),
       );
@@ -149,10 +148,24 @@ class _ConfigPageState extends State<ConfigPage> {
         try {
           Uri uri =
               await ShareClient.instance.shareDefault(template: defaultText);
-          await ShareClient.instance.launchKakaoTalk(uri);
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('카카오톡으로 공유되었습니다.')),
+            await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('서포터 동의 구하기'),
+                  content: const Text('메시지 전송 후 상단의 돌아가기를 터치하여 앱으로 돌아와주세요.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        await ShareClient.instance.launchKakaoTalk(uri);
+                      },
+                      child: const Text('카카오톡으로 이동하기'),
+                    ),
+                  ],
+                );
+              },
             );
           }
         } on KakaoException {
