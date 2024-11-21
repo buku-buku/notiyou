@@ -139,7 +139,8 @@ class _ConfigPageState extends State<ConfigPage> {
         text: '${user.id}님의 미션 서포터가 되어주시겠습니까?',
         buttonTitle: '동의하러 가기',
         link: Link(
-          webUrl: Uri.parse(''),
+          webUrl: Uri.parse(
+              ''), // TODO: 조력자 권한 동의용 웹페이지 주소, Kakao Developers에서 Web 플랫폼 설정 필요
           mobileWebUrl: Uri.parse(''),
         ),
       );
