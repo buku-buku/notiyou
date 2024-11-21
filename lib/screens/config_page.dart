@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 
+import '../services/auth/supabase_auth_service.dart';
 import 'home_page.dart';
 import '../services/mission_service.dart';
 import '../widgets/notification_template_config.dart';
@@ -118,6 +120,89 @@ class _ConfigPageState extends State<ConfigPage> {
     );
   }
 
+  Future<void> _shareToKakao() async {
+    try {
+      final user = await SupabaseAuthService.getUser();
+      if (user == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('사용자 정보를 가져올 수 없습니다.')),
+          );
+        }
+        return;
+      }
+
+      bool isKakaoTalkSharingAvailable =
+          await ShareClient.instance.isKakaoTalkSharingAvailable();
+      final TextTemplate defaultText = TextTemplate(
+        objectType: 'text',
+        text: '${user.id}님의 미션 서포터가 되어주시겠습니까?',
+        buttonTitle: '동의하러 가기',
+        link: Link(
+          webUrl: Uri.parse(''),
+          mobileWebUrl: Uri.parse(''),
+        ),
+      );
+
+      if (isKakaoTalkSharingAvailable) {
+        try {
+          Uri uri =
+              await ShareClient.instance.shareDefault(template: defaultText);
+          await ShareClient.instance.launchKakaoTalk(uri);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('카카오톡으로 공유되었습니다.')),
+            );
+          }
+        } on KakaoException {
+          String errorMessage = '카카오톡 공유 중 오류가 발생했습니다.';
+
+          if (mounted) {
+            await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('공유 실패'),
+                  content: Text(errorMessage),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('확인'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+        }
+      } else {
+        try {
+          Uri shareUrl = await WebSharerClient.instance
+              .makeDefaultUrl(template: defaultText);
+          await launchBrowserTab(shareUrl, popupOpen: true);
+        } catch (error) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('웹 공유 중 오류가 발생했습니다.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('예상치 못한 오류가 발생했습니다.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -181,9 +266,7 @@ class _ConfigPageState extends State<ConfigPage> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // 카카오톡 친구 목록 확인하기 기능 연결 예정
-              },
+              onPressed: _shareToKakao,
               child: const Text('조력자 선택'),
             ),
             const SizedBox(height: 20),
