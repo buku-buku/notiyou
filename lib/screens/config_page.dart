@@ -120,7 +120,7 @@ class _ConfigPageState extends State<ConfigPage> {
     );
   }
 
-  Future<void> _shareToKakao() async {
+  Future<void> _shareLinkToSupporter() async {
     try {
       final user = await SupabaseAuthService.getUser();
       if (user == null) {
@@ -267,7 +267,7 @@ class _ConfigPageState extends State<ConfigPage> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _shareToKakao,
+              onPressed: _shareLinkToSupporter,
               child: const Text('조력자 선택'),
             ),
             const SizedBox(height: 20),
