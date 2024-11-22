@@ -11,5 +11,6 @@
     }
   },
   "dart.previewFlutterUiGuides": true,
-  "dart.previewFlutterUiGuidesCustomTracking": true
+  "dart.previewFlutterUiGuidesCustomTracking": true,
+  "cSpell.words": ["Kakao", "notiyou"]
 }

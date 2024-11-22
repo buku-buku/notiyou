@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kakao_flutter_sdk/kakao_flutter_sdk_user.dart';
+import 'package:notiyou/screens/config_page.dart';
+import 'package:notiyou/screens/signup_page.dart';
+import 'package:notiyou/services/auth/auth_service.dart';
 
 import 'home_page.dart';
 import 'login_page.dart';
@@ -23,8 +25,21 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<void> _checkLoginStatus() async {
     try {
-      await UserApi.instance.me();
-      if (mounted) {
+      final user = await AuthService.getUser();
+      if (user == null) {
+        throw Exception('User not found');
+      }
+
+      final registrationStatus = AuthService.getRegistrationStatus(user);
+      if (!mounted) {
+        return;
+      }
+
+      if (registrationStatus['invitation_code'] != true) {
+        context.go(SignupPage.routeName);
+      } else if (registrationStatus['mission_setting'] != true) {
+        context.go(ConfigPage.onboardingRouteName);
+      } else {
         context.go(HomePage.routeName);
       }
     } catch (error) {
