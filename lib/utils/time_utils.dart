@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class TimeUtils {
   // 시간 객체를 문자열로 변환
@@ -30,5 +31,12 @@ class TimeUtils {
   /// 년월일만 포함하는 날짜 문자열 생성
   static String stringifyYearMonthDay(DateTime date) {
     return DateTime(date.year, date.month, date.day).toIso8601String();
+  }
+
+  static String formatDateTime({
+    required DateTime date,
+    required String format,
+  }) {
+    return DateFormat(format, 'ko_KR').format(date);
   }
 }
