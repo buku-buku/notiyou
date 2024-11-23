@@ -19,14 +19,38 @@ class ConfigPage extends StatefulWidget {
   State<ConfigPage> createState() => _ConfigPageState();
 }
 
-class _ConfigPageState extends State<ConfigPage> {
+class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
   TimeOfDay? _mission1Time;
   TimeOfDay? _mission2Time;
+  bool _isWaitingForReturn = false;
+  bool _hasSupporter = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadSavedTimes();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _isWaitingForReturn) {
+      _isWaitingForReturn = false;
+      if (mounted) {
+        // TODO: callback url 기능 구현 후, supporters 테이블에 조력자 정보 조회하도록 수정
+        // 조력자 정보 없는 경우 or 조력자 status 기반 UI 처리
+        // 다만 노티유WEB 개발 전까지는 '돌아왔다면 공유에 성공'한 것으로 간주하고 진행
+        setState(() {
+          _hasSupporter = true;
+        });
+      }
+    }
   }
 
   Future<void> _loadSavedTimes() async {
@@ -159,6 +183,9 @@ class _ConfigPageState extends State<ConfigPage> {
                     TextButton(
                       onPressed: () async {
                         Navigator.pop(context);
+                        setState(() {
+                          _isWaitingForReturn = true;
+                        });
                         await ShareClient.instance.launchKakaoTalk(uri);
                       },
                       child: const Text('카카오톡으로 이동하기'),
@@ -281,7 +308,7 @@ class _ConfigPageState extends State<ConfigPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _shareLinkToSupporter,
-              child: const Text('조력자 선택'),
+              child: Text(_hasSupporter ? '조력자 status 기반 text' : '조력자 선택'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
