@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../utils/time_utils.dart';
 import '../widgets/mission_history_list_item.dart';
-import '../fixtures/mission_history.dart';
 import '../models/mission_history.dart';
+import '../services/mission_history_service.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
@@ -23,7 +23,9 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Future<void> _loadMissionHistories() async {
-    var missionHistories = missionHistoriesFixture;
+    // TODO(민철): 아래 더미 데이터를 MissionHistoryService에서 사용할 수 있는 실제 유저 아이디로 변경해야 합니다.
+    var missionHistories =
+        await MissionHistoryService.getMissionHistoriesByUserId('1234');
 
     setState(() {
       groupedMissionHistories = _groupMissionHistoriesByDate(missionHistories);
