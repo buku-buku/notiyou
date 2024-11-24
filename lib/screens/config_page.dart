@@ -43,9 +43,8 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed && _isWaitingForReturn) {
       _isWaitingForReturn = false;
       if (mounted) {
-        // TODO: callback url 기능 구현 후, supporters 테이블에 조력자 정보 조회하도록 수정
-        // 조력자 정보 없는 경우 or 조력자 status 기반 UI 처리
-        // 다만 노티유WEB 개발 전까지는 '돌아왔다면 공유에 성공'한 것으로 간주하고 진행
+        // TODO: callback url 기능 구현 후, userId로 supporters 테이블 조력자 정보 조회 로직 추가
+        // TEMP: 노티유WEB 개발 전까지는 돌아왔다면 공유에 성공 + waiting 상태인 것으로 간주하여 임시 처리
         setState(() {
           _hasSupporter = true;
         });
@@ -308,7 +307,7 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _shareLinkToSupporter,
-              child: Text(_hasSupporter ? '조력자 status 기반 text' : '조력자 선택'),
+              child: Text(_hasSupporter ? '조력자의 수락을 기다리는 중입니다' : '조력자 선택'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
