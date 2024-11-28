@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
+import 'package:notiyou/services/supporter_service.dart';
 
+import '../services/auth/auth_service.dart';
 import '../services/auth/supabase_auth_service.dart';
 import 'home_page.dart';
 import '../services/mission_service.dart';
@@ -22,14 +24,16 @@ class ConfigPage extends StatefulWidget {
 class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
   TimeOfDay? _mission1Time;
   TimeOfDay? _mission2Time;
-  bool _isWaitingForReturn = false;
-  bool _hasSupporter = false;
+  bool _isWaitingForKakaoTalkReturn = false;
+  bool _isKakaoTalkReturned = false;
+  Map<String, dynamic>? _supporterInfo;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _loadSavedTimes();
+    _loadSupporterInfo();
   }
 
   @override
@@ -39,14 +43,12 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && _isWaitingForReturn) {
-      _isWaitingForReturn = false;
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (state == AppLifecycleState.resumed && _isWaitingForKakaoTalkReturn) {
+      _isWaitingForKakaoTalkReturn = false;
       if (mounted) {
-        // TODO: callback url 기능 구현 후, userId로 supporters 테이블 조력자 정보 조회 로직 추가
-        // TEMP: 노티유WEB 개발 전까지는 돌아왔다면 공유에 성공 + waiting 상태인 것으로 간주하여 임시 처리
         setState(() {
-          _hasSupporter = true;
+          _isKakaoTalkReturned = true;
         });
       }
     }
@@ -118,6 +120,16 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
     }
   }
 
+  Future<void> _loadSupporterInfo() async {
+    final user = await AuthService.getUser();
+    if (user != null) {
+      final supporter = await SupporterService.getSupporter(user.id);
+      setState(() {
+        _supporterInfo = supporter;
+      });
+    }
+  }
+
   void _resetTime(bool isFirstMission) {
     setState(() {
       if (isFirstMission) {
@@ -183,7 +195,7 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
                       onPressed: () async {
                         Navigator.pop(context);
                         setState(() {
-                          _isWaitingForReturn = true;
+                          _isWaitingForKakaoTalkReturn = true;
                         });
                         await ShareClient.instance.launchKakaoTalk(uri);
                       },
@@ -222,12 +234,9 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
           await launchBrowserTab(shareUrl, popupOpen: true);
         } catch (error) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('웹 공유 중 오류가 발생했습니다.'),
-                backgroundColor: Colors.red,
-              ),
-            );
+            setState(() {
+              _isKakaoTalkReturned = true;
+            });
           }
         }
       }
@@ -241,6 +250,37 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
         );
       }
     }
+  }
+
+  Widget _buildSupporterWidget() {
+    return Column(
+      children: [
+        const SizedBox(height: 20),
+        if (_supporterInfo == null) ...[
+          ElevatedButton(
+            onPressed: _shareLinkToSupporter,
+            child: const Text('조력자 초대하기'),
+          ),
+          if (_isKakaoTalkReturned)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                '서포터가 초대를 수락해야 알람 공유 기능이 활성화 됩니다.\n 초대 링크가 올바르게 전송되었는지 확인해 주세요',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+        ] else
+          Text(
+            _supporterInfo?['supporter_name'] ?? '(이름 없음)',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        const SizedBox(height: 20),
+      ],
+    );
   }
 
   @override
@@ -304,12 +344,7 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _shareLinkToSupporter,
-              child: Text(_hasSupporter ? '조력자의 수락을 기다리는 중입니다' : '조력자 선택'),
-            ),
-            const SizedBox(height: 20),
+            _buildSupporterWidget(),
             ElevatedButton(
               onPressed: _showNotificationTemplateModal,
               child: const Text('알림 메시지 설정'),

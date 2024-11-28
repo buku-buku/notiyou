@@ -5,7 +5,7 @@ class SupporterRepository {
     try {
       final response = await SupabaseService.client
           .from('supporters')
-          .select()
+          .select('*')
           .eq('user_id', userId)
           .single();
       return response;
