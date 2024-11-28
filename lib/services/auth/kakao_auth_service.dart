@@ -15,7 +15,6 @@ class KakaoAuthService {
       if (error.code == 'CANCELED') {
         return null;
       }
-
       return await _loginWithKakaoAccount();
     }
   }
@@ -43,6 +42,8 @@ class KakaoAuthService {
   }
 
   static Future<void> logout() async {
-    await _kakaoUserApi.logout();
+    if (await kakao.AuthApi.instance.hasToken()) {
+      await _kakaoUserApi.logout();
+    }
   }
 }
