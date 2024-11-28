@@ -5,11 +5,22 @@ import 'package:notiyou/screens/signup_page.dart';
 import 'package:notiyou/screens/config_page.dart';
 import 'package:notiyou/routes/index.dart';
 import 'package:notiyou/repositories/mission_time_repository.dart';
+import 'package:notiyou/services/supabase_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:mocktail/mocktail.dart';
+
+class MockSupabaseClient extends Mock implements SupabaseClient {}
+
+class MockGotrueClient extends Mock implements GoTrueClient {}
 
 void main() {
+  final MockSupabaseClient mockSupabaseClient = MockSupabaseClient();
+
   group('SignupPage 테스트', () {
     setUp(() async {
+      SupabaseService.setMockClient(mockSupabaseClient);
+
       SharedPreferences.setMockInitialValues({});
       await MissionTimeRepository.init();
     });
