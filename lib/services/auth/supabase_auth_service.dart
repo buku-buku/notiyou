@@ -15,8 +15,7 @@ class SupabaseAuthService {
   }
 
   static Future<supabase.User?> getUser() async {
-    final response = await SupabaseService.client.auth.getUser();
-    return response.user;
+    return SupabaseService.client.auth.currentUser;
   }
 
   static bool isRegistrationCompleted(supabase.User user) {
