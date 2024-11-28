@@ -252,6 +252,26 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
     }
   }
 
+  Future<void> _deleteSupporter() async {
+    final user = await AuthService.getUser();
+    if (user != null) {
+      final isDeleted = await SupporterService.deleteSupporter(user.id);
+
+      if (isDeleted) {
+        setState(() {
+          _supporterInfo = null;
+        });
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('조력자를 삭제하는 도중 오류가 발생했습니다'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   Widget _buildSupporterWidget() {
     return Column(
       children: [
@@ -274,9 +294,25 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
               ),
             ),
         ] else
-          Text(
-            _supporterInfo?['supporter_name'] ?? '(이름 없음)',
-            style: Theme.of(context).textTheme.titleMedium,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                _supporterInfo?['supporter_name'] ?? '(이름 없음)',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: _deleteSupporter,
+                child: Text(
+                  '교체하기',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.red[400],
+                  ),
+                ),
+              ),
+            ],
           ),
         const SizedBox(height: 20),
       ],

@@ -7,6 +7,7 @@ class SupporterRepository {
           .from('supporters')
           .select('*')
           .eq('user_id', userId)
+          .eq('is_deleted', false)
           .single();
       return response;
     } catch (e) {
@@ -17,10 +18,9 @@ class SupporterRepository {
   // 서포터 삭제
   static Future<bool> deleteSupporter(String userId) async {
     try {
-      await await SupabaseService.client
+      await SupabaseService.client
           .from('supporters')
-          .delete()
-          .eq('user_id', userId);
+          .update({'is_deleted': true}).eq('user_id', userId);
       return true;
     } catch (e) {
       return false;
