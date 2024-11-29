@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notiyou/repositories/mission_repository_interface.dart';
+import 'package:notiyou/repositories/mission_repository_remote.dart';
 import 'package:notiyou/repositories/mission_time_repository_interface.dart';
 import 'package:notiyou/repositories/mission_time_repository_local.dart';
 import 'package:notiyou/repositories/mission_time_repository_remote.dart';
@@ -10,7 +11,7 @@ import '../services/push_alarm_service.dart';
 class MissionService {
   static MissionTimeRepository _missionTimeRepository =
       MissionTimeRepositoryRemote();
-  static MissionRepository _missionRepository = MissionRepositoryLocal();
+  static MissionRepository _missionRepository = MissionRepositoryRemote();
 
   // SharedPreferences 초기화
   static Future<void> init() async {

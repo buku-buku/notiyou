@@ -58,6 +58,17 @@ class Mission {
         date: DateTime.parse(json['date']),
       );
 
+  factory Mission.fromMissionHistoryEntity(Map<String, dynamic> json) =>
+      Mission(
+        id: json['id'].toString(),
+        missionNumber: json['missions']['mission_number'],
+        time: TimeUtils.parseTime(json['missions']['mission_at']),
+        isCompleted: json['done_at'] != null,
+        completedAt:
+            json['done_at'] != null ? DateTime.parse(json['done_at']) : null,
+        date: DateTime.parse(json['created_at']),
+      );
+
   bool get expired {
     if (isCompleted) return false;
     final now = DateTime.now();
