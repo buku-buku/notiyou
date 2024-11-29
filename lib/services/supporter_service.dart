@@ -1,9 +1,14 @@
+import 'package:notiyou/services/auth/auth_service.dart';
+
 import '../repositories/supporter_repository.dart';
 
 class SupporterService {
-  static Future<Map<String, dynamic>?> getSupporter(String userId) async {
-    final supporter = await SupporterRepository.getSupporter(userId);
-    return supporter;
+  static Future<Map<String, dynamic>?> getSupporter() async {
+    final user = await AuthService.getUser();
+    if (user != null) {
+      return await SupporterRepository.getSupporter(user.id);
+    }
+    return null;
   }
 
   static Future<bool> deleteSupporter(String userId) async {
