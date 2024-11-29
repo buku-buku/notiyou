@@ -14,6 +14,17 @@ import '../utils/time_utils.dart';
 /// ⚠️ 현재 사용되지 않는 저장소입니다. 필요가 있기 전까지는 MissionTimeRepositoryRemote를 사용해주세요.
 class MissionTimeRepositoryLocal implements MissionTimeRepository {
   SharedPreferences? _prefs;
+  // 싱글턴 인스턴스
+  static final MissionTimeRepositoryLocal _instance =
+      MissionTimeRepositoryLocal._internal();
+
+  // 팩토리 생성자
+  factory MissionTimeRepositoryLocal() {
+    return _instance;
+  }
+
+  // private 생성자
+  MissionTimeRepositoryLocal._internal();
 
   @override
   Future<void> init() async {
