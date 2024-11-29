@@ -27,11 +27,6 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
     _loadSavedTimes();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   Future<void> _loadSavedTimes() async {
     setState(() {
       _mission1Time = MissionService.getMissionTime(1);
