@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:notiyou/screens/config_page.dart';
-import 'package:notiyou/screens/signup_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 
 import 'home_page.dart';
@@ -35,9 +34,7 @@ class _SplashPageState extends State<SplashPage> {
         return;
       }
 
-      if (registrationStatus['invitation_code'] != true) {
-        context.go(SignupPage.routeName);
-      } else if (registrationStatus['mission_setting'] != true) {
+      if (registrationStatus['mission_setting'] != true) {
         context.go(ConfigPage.onboardingRouteName);
       } else {
         context.go(HomePage.routeName);

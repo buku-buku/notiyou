@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import 'home_page.dart';
 import '../services/mission_service.dart';
 import '../widgets/notification_template_config.dart';
+import '../widgets/supporter_section.dart';
 
 class ConfigPage extends StatefulWidget {
   static const String routeName = '/config';
@@ -141,7 +141,7 @@ class _ConfigPageState extends State<ConfigPage> {
                       text: '(필수 선택)',
                       style: TextStyle(
                         color: Colors.red,
-                        fontSize: 12, // 더 작은 폰트 사이즈
+                        fontSize: 12,
                       ),
                     ),
                   ],
@@ -185,14 +185,7 @@ class _ConfigPageState extends State<ConfigPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // 카카오톡 친구 목록 확인하기 기능 연결 예정
-              },
-              child: const Text('조력자 선택'),
-            ),
-            const SizedBox(height: 20),
+            const SupporterSection(),
             ElevatedButton(
               onPressed: _showNotificationTemplateModal,
               child: const Text('알림 메시지 설정'),
