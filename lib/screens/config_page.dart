@@ -45,7 +45,10 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed && _isWaitingForKakaoTalkReturn) {
-      _isWaitingForKakaoTalkReturn = false;
+      setState(() {
+        _isWaitingForKakaoTalkReturn = false;
+      });
+
       if (mounted) {
         setState(() {
           _isKakaoTalkReturned = true;
@@ -121,9 +124,9 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
   }
 
   Future<void> _loadSupporterInfo() async {
-    final user = await AuthService.getUser();
-    if (user != null) {
-      final supporter = await SupporterService.getSupporter(user.id);
+    final supporter = await SupporterService.getSupporter();
+
+    if (supporter != null) {
       setState(() {
         _supporterInfo = supporter;
       });
@@ -157,7 +160,7 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
 
   Future<void> _shareLinkToSupporter() async {
     try {
-      final user = await SupabaseAuthService.getUser();
+      final user = await AuthService.getUser();
       if (user == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
