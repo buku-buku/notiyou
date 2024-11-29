@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
-import 'package:notiyou/services/supporter_service.dart';
-
-import '../services/auth/auth_service.dart';
-import '../services/auth/supabase_auth_service.dart';
 import 'home_page.dart';
 import '../services/mission_service.dart';
 import '../widgets/notification_template_config.dart';
+import '../widgets/supporter_section.dart';
 
 class ConfigPage extends StatefulWidget {
   static const String routeName = '/config';
@@ -24,37 +20,18 @@ class ConfigPage extends StatefulWidget {
 class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
   TimeOfDay? _mission1Time;
   TimeOfDay? _mission2Time;
-  bool _isWaitingForKakaoTalkReturn = false;
-  bool _isKakaoTalkReturned = false;
-  Map<String, dynamic>? _supporterInfo;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _loadSavedTimes();
-    _loadSupporterInfo();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
-  }
-
-  @override
-  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    if (state == AppLifecycleState.resumed && _isWaitingForKakaoTalkReturn) {
-      setState(() {
-        _isWaitingForKakaoTalkReturn = false;
-      });
-
-      if (mounted) {
-        setState(() {
-          _isKakaoTalkReturned = true;
-        });
-      }
-    }
   }
 
   Future<void> _loadSavedTimes() async {
@@ -123,16 +100,6 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _loadSupporterInfo() async {
-    final supporter = await SupporterService.getSupporter();
-
-    if (supporter != null) {
-      setState(() {
-        _supporterInfo = supporter;
-      });
-    }
-  }
-
   void _resetTime(bool isFirstMission) {
     setState(() {
       if (isFirstMission) {
@@ -158,170 +125,6 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
     );
   }
 
-  Future<void> _shareLinkToSupporter() async {
-    try {
-      final user = await AuthService.getUser();
-      if (user == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('사용자 정보를 가져올 수 없습니다.')),
-          );
-        }
-        return;
-      }
-
-      bool isKakaoTalkSharingAvailable =
-          await ShareClient.instance.isKakaoTalkSharingAvailable();
-      final TextTemplate defaultText = TextTemplate(
-        objectType: 'text',
-        text: '${user.id}님의 미션 서포터가 되어주시겠습니까?',
-        buttonTitle: '동의하러 가기',
-        link: Link(
-          webUrl: Uri.parse(''),
-          mobileWebUrl: Uri.parse(''),
-        ),
-      );
-
-      if (isKakaoTalkSharingAvailable) {
-        try {
-          Uri uri =
-              await ShareClient.instance.shareDefault(template: defaultText);
-          if (mounted) {
-            await showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('서포터 동의 구하기'),
-                  content: const Text('메시지 전송 후 상단의 돌아가기를 터치하여 앱으로 돌아와주세요.'),
-                  actions: [
-                    TextButton(
-                      onPressed: () async {
-                        Navigator.pop(context);
-                        setState(() {
-                          _isWaitingForKakaoTalkReturn = true;
-                        });
-                        await ShareClient.instance.launchKakaoTalk(uri);
-                      },
-                      child: const Text('카카오톡으로 이동하기'),
-                    ),
-                  ],
-                );
-              },
-            );
-          }
-        } on KakaoException {
-          String errorMessage = '카카오톡 공유 중 오류가 발생했습니다.';
-
-          if (mounted) {
-            await showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('공유 실패'),
-                  content: Text(errorMessage),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('확인'),
-                    ),
-                  ],
-                );
-              },
-            );
-          }
-        }
-      } else {
-        try {
-          Uri shareUrl = await WebSharerClient.instance
-              .makeDefaultUrl(template: defaultText);
-          await launchBrowserTab(shareUrl, popupOpen: true);
-        } catch (error) {
-          if (mounted) {
-            setState(() {
-              _isKakaoTalkReturned = true;
-            });
-          }
-        }
-      }
-    } catch (error) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('예상치 못한 오류가 발생했습니다.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _deleteSupporter() async {
-    final user = await AuthService.getUser();
-    if (user != null) {
-      final isDeleted = await SupporterService.deleteSupporter(user.id);
-
-      if (isDeleted) {
-        setState(() {
-          _supporterInfo = null;
-        });
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('조력자를 삭제하는 도중 오류가 발생했습니다'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  Widget _buildSupporterWidget() {
-    return Column(
-      children: [
-        const SizedBox(height: 20),
-        if (_supporterInfo == null) ...[
-          ElevatedButton(
-            onPressed: _shareLinkToSupporter,
-            child: const Text('조력자 초대하기'),
-          ),
-          if (_isKakaoTalkReturned)
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Text(
-                '서포터가 초대를 수락해야 알람 공유 기능이 활성화 됩니다.\n 초대 링크가 올바르게 전송되었는지 확인해 주세요',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-        ] else
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                _supporterInfo?['supporter_name'] ?? '(이름 없음)',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(width: 8),
-              TextButton(
-                onPressed: _deleteSupporter,
-                child: Text(
-                  '교체하기',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.red[400],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        const SizedBox(height: 20),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -339,7 +142,7 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
                       text: '(필수 선택)',
                       style: TextStyle(
                         color: Colors.red,
-                        fontSize: 12, // 더 작은 폰트 사이즈
+                        fontSize: 12,
                       ),
                     ),
                   ],
@@ -383,7 +186,7 @@ class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
                 ],
               ),
             ),
-            _buildSupporterWidget(),
+            const SupporterSection(),
             ElevatedButton(
               onPressed: _showNotificationTemplateModal,
               child: const Text('알림 메시지 설정'),
