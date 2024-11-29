@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:notiyou/repositories/mission_time_repository_interface.dart';
+import 'package:notiyou/repositories/mission_time_repository_local.dart';
+import 'package:notiyou/repositories/mission_time_repository_remote.dart';
 import '../models/mission.dart';
-import '../repositories/mission_time_repository.dart';
 import '../repositories/mission_repository.dart';
 import '../services/push_alarm_service.dart';
 
 class MissionService {
+  static MissionTimeRepository _missionTimeRepository =
+      MissionTimeRepositoryRemote();
+
   // SharedPreferences 초기화
   static Future<void> init() async {
-    await MissionTimeRepository.init();
+    await _missionTimeRepository.init();
     await MissionRepository.init();
   }
 
@@ -15,12 +20,12 @@ class MissionService {
   static Future<void> saveMissionTime(int missionNumber, TimeOfDay? time,
       {bool isUpdateTodayMission = true}) async {
     if (time != null) {
-      await MissionTimeRepository.setMissionTime(missionNumber, time);
+      await _missionTimeRepository.setMissionTime(missionNumber, time);
       if (isUpdateTodayMission) {
         await MissionRepository.updateTodayMissionTime(missionNumber, time);
       }
     } else {
-      await MissionTimeRepository.clearMissionTime(missionNumber);
+      await _missionTimeRepository.clearMissionTime(missionNumber);
       if (isUpdateTodayMission) {
         await MissionRepository.removeTodayMission(missionNumber);
       }
@@ -30,8 +35,8 @@ class MissionService {
   }
 
   // 미션 시간 불러오기
-  static TimeOfDay? getMissionTime(int missionNumber) {
-    final time = MissionTimeRepository.getMissionTime(missionNumber);
+  static Future<TimeOfDay?> getMissionTime(int missionNumber) async {
+    final time = await _missionTimeRepository.getMissionTime(missionNumber);
 
     return time;
   }
@@ -82,5 +87,9 @@ class MissionService {
   static Future<void> clearAllMissionData() async {
     await MissionRepository.clearAllMissions();
     await PushAlarmService.cancelAllMissionPushAlarms();
+  }
+
+  static switchToLocalRepository() {
+    _missionTimeRepository = MissionTimeRepositoryLocal();
   }
 }

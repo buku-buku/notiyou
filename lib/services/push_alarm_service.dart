@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:notiyou/repositories/mission_time_repository.dart';
+import 'package:notiyou/repositories/mission_time_repository_interface.dart';
+import 'package:notiyou/repositories/mission_time_repository_remote.dart';
 import 'package:notiyou/screens/home_page.dart';
+import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -9,6 +11,9 @@ import 'package:timezone/data/latest.dart' as tz;
 import '../routes/router.dart';
 
 class PushAlarmService {
+  static final MissionTimeRepository _missionTimeRepository =
+      MissionTimeRepositoryRemote();
+
   static final FlutterLocalNotificationsPlugin _pushAlarms =
       FlutterLocalNotificationsPlugin();
 
@@ -64,9 +69,13 @@ class PushAlarmService {
         );
   }
 
+  // TODO: 로그인 및 회원가입을 모두 마친 후, 미션 시간을 설정한 후에 알림 설정을 하도록 수정
   static Future<void> _scheduleDevicePushAlarms() async {
-    final firstMissionTime = MissionTimeRepository.getMissionTime(1);
-    final secondMissionTime = MissionTimeRepository.getMissionTime(2);
+    if (!await AuthService.isLoggedIn()) {
+      return;
+    }
+    final firstMissionTime = await _missionTimeRepository.getMissionTime(1);
+    final secondMissionTime = await _missionTimeRepository.getMissionTime(2);
 
     if (firstMissionTime != null) {
       await scheduleMissionPushAlarm(1, firstMissionTime);

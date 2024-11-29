@@ -15,4 +15,8 @@ class SupabaseService {
     );
     _client = Supabase.instance.client;
   }
+
+  static setMockClient(SupabaseClient mockClient) {
+    _client = mockClient;
+  }
 }

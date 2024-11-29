@@ -28,17 +28,23 @@ class _ConfigPageState extends State<ConfigPage> {
   }
 
   Future<void> _loadSavedTimes() async {
+    final results = await Future.wait([
+      MissionService.getMissionTime(1),
+      MissionService.getMissionTime(2),
+    ]);
     setState(() {
-      _mission1Time = MissionService.getMissionTime(1);
-      _mission2Time = MissionService.getMissionTime(2);
+      // 병렬 처리
+
+      _mission1Time = results[0];
+      _mission2Time = results[1];
     });
   }
 
   Future<void> _saveTimes() async {
     // 시간이 변경되었는지 확인
     final bool hasTimeChanged =
-        _mission1Time != MissionService.getMissionTime(1) ||
-            _mission2Time != MissionService.getMissionTime(2);
+        _mission1Time != await MissionService.getMissionTime(1) ||
+            _mission2Time != await MissionService.getMissionTime(2);
 
     final hasTodayMissions = await MissionService.hasTodayMissions();
 

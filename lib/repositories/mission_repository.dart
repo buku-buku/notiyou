@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:notiyou/repositories/mission_time_repository_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/mission.dart';
 import '../utils/time_utils.dart';
-import './mission_time_repository.dart';
+import 'mission_time_repository_remote.dart';
 
 /// 미션 데이터를 관리하는 저장소입니다.
 ///
@@ -18,10 +19,12 @@ import './mission_time_repository.dart';
 class MissionRepository {
   static SharedPreferences? _prefs;
   static const String _missionStoreKey = 'mission';
+  static final MissionTimeRepository _missionTimeRepository =
+      MissionTimeRepositoryRemote();
 
   // SharedPreferences 초기화
   static Future<void> init() async {
-    await MissionTimeRepository.init();
+    await _missionTimeRepository.init();
     _prefs ??= await SharedPreferences.getInstance();
     await removeMissionsBefore(DateTime.now());
   }
@@ -109,21 +112,26 @@ class MissionRepository {
   }
 
   /// ? 이것까지 레포지토리에 위치시키는게 좋을지 고민이 되긴함..
-  static List<Mission> _createTodaysMissions(DateTime date) {
+  static Future<List<Mission>> _createTodaysMissions(DateTime date) async {
+    final [mission1Time, mission2Time] = await Future.wait([
+      _missionTimeRepository.getMissionTime(1),
+      _missionTimeRepository.getMissionTime(2),
+    ]);
+
     return [
-      if (MissionTimeRepository.getMissionTime(1) != null)
+      if (mission1Time != null)
         Mission(
           id: _getMissionKey(1),
           missionNumber: 1,
-          time: MissionTimeRepository.getMissionTime(1)!,
+          time: mission1Time,
           isCompleted: false,
           date: date,
         ),
-      if (MissionTimeRepository.getMissionTime(2) != null)
+      if (mission2Time != null)
         Mission(
           id: _getMissionKey(2),
           missionNumber: 2,
-          time: MissionTimeRepository.getMissionTime(2)!,
+          time: mission2Time,
           isCompleted: false,
           date: date,
         ),
@@ -140,7 +148,7 @@ class MissionRepository {
 
     // 미션 데이터가 없으면 로컬에서 임의로 생성한다.
     if (missionJsonList.isEmpty && createIfEmpty) {
-      final newMissions = _createTodaysMissions(date);
+      final newMissions = await _createTodaysMissions(date);
 
       await _setMissions(date, newMissions);
       return newMissions;
