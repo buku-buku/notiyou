@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk_talk.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:notiyou/services/dotenv_service.dart';
 import 'package:notiyou/services/supabase_service.dart';
@@ -10,6 +11,7 @@ import 'services/push_alarm_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DotEnvService.init();
+  await initializeDateFormatting('ko_KR', null);
 
   KakaoSdk.init(
     nativeAppKey: DotEnvService.getValue('KAKAO_NATIVE_APP_KEY'),
