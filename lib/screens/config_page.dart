@@ -17,7 +17,7 @@ class ConfigPage extends StatefulWidget {
   State<ConfigPage> createState() => _ConfigPageState();
 }
 
-class _ConfigPageState extends State<ConfigPage> with WidgetsBindingObserver {
+class _ConfigPageState extends State<ConfigPage> {
   TimeOfDay? _mission1Time;
   TimeOfDay? _mission2Time;
 
