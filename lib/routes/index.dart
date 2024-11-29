@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:notiyou/services/auth/auth_service.dart';
 import '../screens/home_page.dart';
 import '../screens/login_page.dart';
 import '../screens/signup_page.dart';
@@ -40,8 +41,15 @@ final routes = <RouteBase>[
             BottomNavigationBarItem(icon: Icon(Icons.settings), label: '설정'),
             BottomNavigationBarItem(icon: Icon(Icons.logout), label: '로그아웃'),
           ],
-          onTap: (index) {
-            context.go(bottomNavigationRoutes[index].path);
+          onTap: (index) async {
+            if (index == 3) {
+              await AuthService.logout();
+              if (context.mounted) {
+                context.go(LoginPage.routeName);
+              }
+            } else {
+              context.go(bottomNavigationRoutes[index].path);
+            }
           },
         ),
       );
