@@ -26,15 +26,17 @@ class Mission {
     bool? isCompleted,
     DateTime? completedAt,
     DateTime? date,
-  }) =>
-      Mission(
-        id: id ?? this.id,
-        missionNumber: missionNumber ?? this.missionNumber,
-        time: time ?? this.time,
-        isCompleted: isCompleted ?? this.isCompleted,
-        completedAt: completedAt ?? this.completedAt,
-        date: date ?? this.date,
-      );
+  }) {
+    final newIsCompleted = isCompleted ?? this.isCompleted;
+    return Mission(
+      id: id ?? this.id,
+      missionNumber: missionNumber ?? this.missionNumber,
+      time: time ?? this.time,
+      isCompleted: newIsCompleted,
+      completedAt: newIsCompleted ? (completedAt ?? this.completedAt) : null,
+      date: date ?? this.date,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
