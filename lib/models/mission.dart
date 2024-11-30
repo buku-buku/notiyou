@@ -62,7 +62,7 @@ class Mission {
       Mission(
         id: json['id'].toString(),
         missionNumber: json['missions']['mission_number'],
-        time: TimeUtils.parseTime(json['missions']['mission_at']),
+        time: TimeUtils.parseTime(json['mission_at']),
         isCompleted: json['done_at'] != null,
         completedAt:
             json['done_at'] != null ? DateTime.parse(json['done_at']) : null,
