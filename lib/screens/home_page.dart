@@ -59,11 +59,31 @@ class _HomePageState extends State<HomePage> {
                 subtitle: mission.isCompleted && mission.completedAt != null
                     ? Text('완료 시간: ${mission.formattedCompletedTime ?? ''}')
                     : null,
-                trailing: Checkbox(
-                  value: mission.isCompleted,
-                  onChanged: (bool? value) {
-                    _toggleMissionComplete(mission.id);
-                  },
+                trailing: ElevatedButton(
+                  onPressed: () => _toggleMissionComplete(mission.id),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor:
+                        mission.isCompleted ? Colors.green : Colors.grey[600],
+                    backgroundColor: Colors.white,
+                    elevation: 0,
+                    side: BorderSide(
+                      color: mission.isCompleted
+                          ? Colors.green
+                          : Colors.grey[400]!,
+                      width: 1,
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    shadowColor: Colors.transparent,
+                    surfaceTintColor: Colors.transparent,
+                  ),
+                  child: Text(
+                    mission.isCompleted ? '완료' : '미완료',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ],
