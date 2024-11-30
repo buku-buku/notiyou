@@ -64,6 +64,19 @@ class MissionRepositoryRemote implements MissionRepository {
   }
 
   @override
+  Future<void> createTodayMission(int missionNumber) async {
+    final newMission = await SupabaseService.client
+        .from('missions')
+        .select('id')
+        .eq('mission_number', missionNumber)
+        .single();
+
+    await SupabaseService.client.from('mission_history').insert({
+      'mission_id': newMission['id'],
+    });
+  }
+
+  @override
   Future<bool> hasTodayMission(int missionNumber) async {
     final missions = await findMissions(DateTime.now());
     return missions.any((e) => e.missionNumber == missionNumber);
@@ -81,17 +94,7 @@ class MissionRepositoryRemote implements MissionRepository {
     if (mission != null) {
       return;
     }
-
-    // 오늘의 미션이 없을 경우, 새롭게 생성한다.
-    final newMission = await SupabaseService.client
-        .from('missions')
-        .select('id')
-        .eq('mission_number', missionNumber)
-        .single();
-
-    await SupabaseService.client.from('mission_history').insert({
-      'mission_id': newMission['id'],
-    });
+    await createTodayMission(missionNumber);
   }
 
   @override

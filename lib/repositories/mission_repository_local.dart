@@ -56,6 +56,11 @@ class MissionRepositoryLocal implements MissionRepository {
   }
 
   @override
+  Future<void> createTodayMission(int missionNumber) async {
+    throw UnimplementedError('createTodayMission is not implemented');
+  }
+
+  @override
   Future<bool> hasTodayMission(int missionNumber) async {
     final missions = await findMissions(DateTime.now());
     return missions.any((e) => e.missionNumber == missionNumber);

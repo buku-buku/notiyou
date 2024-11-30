@@ -4,6 +4,9 @@ import '../models/mission.dart';
 abstract interface class MissionRepository {
   Future<void> init();
 
+  // TODO: missionId로 생성하도록 변경
+  Future<void> createTodayMission(int missionNumber);
+
   Future<bool> hasTodayMission(int missionNumber);
 
 // TODO: missionNumber가 아닌 id로 업데이트
