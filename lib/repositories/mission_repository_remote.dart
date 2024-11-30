@@ -86,15 +86,7 @@ class MissionRepositoryRemote implements MissionRepository {
   // 현재 테이블 구조로는 오늘의 미션 시간은 언제나 mission_time에 동기화되어 관리 됨.
   // 따라서 해당 메서드는 구현할 필요가 없음.
   Future<void> updateTodayMissionTime(int missionNumber, TimeOfDay time) async {
-    final missions = await findMissions(DateTime.now());
-    final mission = missions.cast<Mission?>().firstWhere(
-          (e) => e?.missionNumber == missionNumber,
-          orElse: () => null,
-        );
-    if (mission != null) {
-      return;
-    }
-    await createTodayMission(missionNumber);
+    return Future.value();
   }
 
   @override

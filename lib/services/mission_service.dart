@@ -26,8 +26,11 @@ class MissionService {
   ) async {
     if (time != null) {
       await _missionTimeRepository.setMissionTime(missionNumber, time);
-      // 미션 시간 변경시 오늘의 미션 시간 업데이트
-      await _missionRepository.updateTodayMissionTime(missionNumber, time);
+      if (await _missionRepository.hasTodayMission(missionNumber)) {
+        await _missionRepository.updateTodayMissionTime(missionNumber, time);
+      } else {
+        await _missionRepository.createTodayMission(missionNumber);
+      }
     } else {
       await _missionTimeRepository.clearMissionTime(missionNumber);
       // 미션 시간 삭제시 오늘의 미션 삭제
