@@ -38,7 +38,6 @@ class MissionRepositoryLocal implements MissionRepository {
   Future<void> init() async {
     await _missionTimeRepository.init();
     _prefs ??= await SharedPreferences.getInstance();
-    await removeMissionsBefore(DateTime.now());
   }
 
   // 미션 별 키 생성
@@ -93,33 +92,12 @@ class MissionRepositoryLocal implements MissionRepository {
     int missionNumber,
     TimeOfDay time,
   ) async {
-    final today = DateTime.now();
-    final mission = await findMissionByMissionNumber(today, missionNumber);
-    if (mission != null) {
-      await updateMission(today, mission.copyWith(time: time));
-    } else {
-      await _addMission(
-          today,
-          Mission(
-            id: _getMissionKey(missionNumber),
-            missionNumber: missionNumber,
-            time: time,
-            isCompleted: false,
-            date: today,
-          ));
-    }
+    throw UnimplementedError('updateTodayMissionTime is not implemented');
   }
 
   // 미션 데이터 수정
-  Future<void> updateMission(DateTime date, Mission mission) async {
-    // mission id로 기존 미션 찾기
-    final missions = await findMissions(date);
-    final updatedMissions = missions.map((m) {
-      if (m.id == mission.id) return mission;
-      return m;
-    }).toList();
-
-    await _setMissions(date, updatedMissions);
+  Future<void> updateMission(Mission mission) async {
+    throw UnimplementedError('updateMission is not implemented');
   }
 
   /// ? 이것까지 레포지토리에 위치시키는게 좋을지 고민이 되긴함..
@@ -170,9 +148,9 @@ class MissionRepositoryLocal implements MissionRepository {
         .toList();
   }
 
-  // 미션 아이디로 미션 찾기
-  Future<Mission?> findMissionById(DateTime date, String id) async {
-    final missions = await findMissions(date);
+  /// 현재는 오늘의 미션에 대한 찾기만 지원함.
+  Future<Mission?> findMissionById(String id) async {
+    final missions = await findMissions(DateTime.now());
     try {
       return missions.firstWhere((m) => m.id == id);
     } catch (e) {
@@ -181,7 +159,7 @@ class MissionRepositoryLocal implements MissionRepository {
   }
 
   // 미션 번호로 미션 찾기
-  Future<Mission?> findMissionByMissionNumber(
+  Future<Mission?> _findMissionByMissionNumber(
       DateTime date, int missionNumber) async {
     final missions = await findMissions(date);
     try {
@@ -191,49 +169,18 @@ class MissionRepositoryLocal implements MissionRepository {
     }
   }
 
+  @override
   Future<void> removeTodayMission(int missionNumber) async {
     final today = DateTime.now();
-    final mission = await findMissionByMissionNumber(today, missionNumber);
+    final mission = await _findMissionByMissionNumber(today, missionNumber);
     if (mission != null) {
-      await removeMissionById(today, mission.id);
+      await _removeMissionById(today, mission.id);
     }
   }
 
-  Future<void> removeMissionById(DateTime date, String id) async {
+  Future<void> _removeMissionById(DateTime date, String id) async {
     final missions = await findMissions(date);
     final updatedMissions = missions.where((m) => m.id != id).toList();
     await _setMissions(date, updatedMissions);
-  }
-
-  /// 특정 날짜의 데이터 삭제
-  Future<void> removeMissionsFrom(DateTime date) async {
-    final key = _getKeyForDate(date);
-    if (_prefs == null) await init();
-
-    await _prefs!.remove(key);
-  }
-
-  /// 특정 날짜 이전의 데이터 삭제
-  Future<void> removeMissionsBefore(DateTime date) async {
-    if (_prefs == null) await init();
-
-    final futures = _getDateKeys()
-        .where((key) => _parseDateFromKey(key).isBefore(date))
-        .map((key) => _prefs!.remove(key))
-        .toList();
-    await Future.wait(futures);
-  }
-
-  // 모든 미션 삭제
-  Future<void> clearAllMissions() async {
-    if (_prefs == null) await init();
-
-    final futures = _prefs!
-        .getKeys()
-        .where((key) => key.startsWith(_missionStoreKey))
-        .map((key) => _prefs!.remove(key))
-        .toList();
-
-    await Future.wait(futures);
   }
 }

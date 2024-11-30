@@ -16,19 +16,9 @@ import 'package:notiyou/utils/time_utils.dart';
 
 class MissionRepositoryRemote implements MissionRepository {
   @override
-  Future<void> clearAllMissions() async {
-    // 모든 미션 기록 삭제
-    await SupabaseService.client.from('mission_history').delete().neq('id', '');
-  }
-
-  @override
-  Future<Mission?> findMissionById(DateTime date, String id) async {
-    final today = DateTime(date.year, date.month, date.day);
-    final tomorrow = today.add(const Duration(days: 1));
-
-    final results = await SupabaseService.client
-        .from('mission_history')
-        .select('''
+  Future<Mission?> findMissionById(String id) async {
+    final entity =
+        await SupabaseService.client.from('mission_history').select('''
           id,
           done_at,
           created_at,
@@ -38,40 +28,9 @@ class MissionRepositoryRemote implements MissionRepository {
             mission_number,
             user_id
           )
-        ''')
-        .eq('id', id)
-        .lt('created_at', tomorrow.toUtc().toIso8601String())
-        .single();
+        ''').eq('id', id).single();
 
-    final syncedEntity = _syncEntityTimeZone(entity: results, baseDate: date);
-    return Mission.fromMissionHistoryEntity(syncedEntity);
-  }
-
-  @override
-  Future<Mission?> findMissionByMissionNumber(
-      DateTime date, int missionNumber) async {
-    final today = DateTime(date.year, date.month, date.day);
-    final tomorrow = today.add(const Duration(days: 1));
-
-    final results = await SupabaseService.client
-        .from('mission_history')
-        .select('''
-          id,
-          done_at,
-          created_at,
-          missions (
-            id,
-            mission_at,
-            mission_number,
-            user_id
-          )
-        ''')
-        .eq('missions.mission_number', missionNumber)
-        .lt('created_at', tomorrow.toUtc().toIso8601String())
-        .single();
-
-    final syncedEntity = _syncEntityTimeZone(entity: results, baseDate: date);
-    return Mission.fromMissionHistoryEntity(syncedEntity);
+    return Mission.fromMissionHistoryEntity(entity);
   }
 
   @override
@@ -81,47 +40,18 @@ class MissionRepositoryRemote implements MissionRepository {
   }
 
   @override
-  Future<void> removeMissionById(DateTime date, String id) async {
-    await SupabaseService.client
-        .from('mission_history')
-        .delete()
-        .eq('missions.id', id);
-  }
-
-  @override
-  Future<void> removeMissionsBefore(DateTime date) async {
-    final targetDate = DateTime(date.year, date.month, date.day);
-
-    await SupabaseService.client
-        .from('mission_history')
-        .delete()
-        .lt('created_at', targetDate.toUtc().toIso8601String());
-  }
-
-  @override
-  Future<void> removeMissionsFrom(DateTime date) async {
-    final targetDate = DateTime(date.year, date.month, date.day);
-
-    await SupabaseService.client
-        .from('mission_history')
-        .delete()
-        .gte('created_at', targetDate.toUtc().toIso8601String());
-  }
-
-  @override
   Future<void> removeTodayMission(int missionNumber) async {
     final today = DateTime.now();
-    final tomorrow = DateTime(today.year, today.month, today.day + 1);
 
     await SupabaseService.client
         .from('mission_history')
         .delete()
         .eq('missions.mission_number', missionNumber)
-        .lt('created_at', tomorrow.toUtc().toIso8601String());
+        .gte('created_at', today.toUtc().toIso8601String());
   }
 
   @override
-  Future<void> updateMission(DateTime date, Mission mission) async {
+  Future<void> updateMission(Mission mission) async {
     if (mission.completedAt == null) {
       await SupabaseService.client.from('mission_history').update({
         'done_at': null,
@@ -137,12 +67,29 @@ class MissionRepositoryRemote implements MissionRepository {
   // 현재 테이블 구조로는 오늘의 미션 시간은 언제나 mission_time에 동기화되어 관리 됨.
   // 따라서 해당 메서드는 구현할 필요가 없음.
   Future<void> updateTodayMissionTime(int missionNumber, TimeOfDay time) async {
-    return Future.value();
+    final missions = await findMissions(DateTime.now());
+    final mission = missions.cast<Mission?>().firstWhere(
+          (e) => e?.missionNumber == missionNumber,
+          orElse: () => null,
+        );
+    if (mission != null) {
+      return;
+    }
+
+    // 오늘의 미션이 없을 경우, 새롭게 생성한다.
+    final newMission = await SupabaseService.client
+        .from('missions')
+        .select('id')
+        .eq('mission_number', missionNumber)
+        .single();
+
+    await SupabaseService.client.from('mission_history').insert({
+      'mission_id': newMission['id'],
+    });
   }
 
   @override
-  Future<List<Mission>> findMissions(DateTime date,
-      {bool createIfEmpty = false}) async {
+  Future<List<Mission>> findMissions(DateTime date) async {
     final today = DateTime(date.year, date.month, date.day);
     final yesterday = today.subtract(const Duration(days: 1));
     final tomorrow = today.add(const Duration(days: 1));
