@@ -83,6 +83,7 @@ class Mission {
 
   String? get formattedCompletedTime {
     if (completedAt == null) return null;
-    return '${completedAt!.hour.toString().padLeft(2, '0')}:${completedAt!.minute.toString().padLeft(2, '0')}';
+    final localCompletedAt = completedAt!.toLocal();
+    return '${localCompletedAt.hour.toString().padLeft(2, '0')}:${localCompletedAt.minute.toString().padLeft(2, '0')}';
   }
 }
