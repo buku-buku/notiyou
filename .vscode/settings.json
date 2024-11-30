@@ -7,6 +7,7 @@
     "editor.tabCompletion": "onlySnippets",
     "editor.wordBasedSuggestions": "off",
     "editor.codeActionsOnSave": {
+      "source.fixAll": "always",
       "quickfix.insertSemicolon.multi": "always"
     }
   },
