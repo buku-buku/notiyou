@@ -56,6 +56,12 @@ class MissionRepositoryLocal implements MissionRepository {
   }
 
   @override
+  Future<bool> hasTodayMission(int missionNumber) async {
+    final missions = await findMissions(DateTime.now());
+    return missions.any((e) => e.missionNumber == missionNumber);
+  }
+
+  @override
   Future<void> updateTodayMissionTime(
     int missionNumber,
     TimeOfDay time,
