@@ -39,4 +39,9 @@ class TimeUtils {
   }) {
     return DateFormat(format, 'ko_KR').format(date);
   }
+
+  static DateTime syncTimeZone(
+      {required DateTime baseDate, required DateTime targetDate}) {
+    return targetDate.add(baseDate.timeZoneOffset);
+  }
 }
