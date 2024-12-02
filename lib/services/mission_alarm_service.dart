@@ -7,7 +7,7 @@ import 'package:notiyou/services/local_notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../routes/router.dart';
 
-class PushAlarmService {
+class MissionAlarmService {
   static final MissionTimeRepository _missionTimeRepository =
       MissionTimeRepositoryRemote();
 
@@ -40,14 +40,14 @@ class PushAlarmService {
     final secondMissionTime = await _missionTimeRepository.getMissionTime(2);
 
     if (firstMissionTime != null) {
-      await scheduleMissionPushAlarm(1, firstMissionTime);
+      await scheduleAlarm(1, firstMissionTime);
     }
     if (secondMissionTime != null) {
-      await scheduleMissionPushAlarm(2, secondMissionTime);
+      await scheduleAlarm(2, secondMissionTime);
     }
   }
 
-  static Future<void> scheduleMissionPushAlarm(
+  static Future<void> scheduleAlarm(
       int missionNumber, TimeOfDay missionTime) async {
     final now = DateTime.now();
     var scheduledTime = DateTime(
@@ -71,20 +71,19 @@ class PushAlarmService {
     );
   }
 
-  static Future<void> cancelMissionPushAlarm(int missionNumber) async {
+  static Future<void> cancelAlarm(int missionNumber) async {
     await LocalNotificationService.cancelNotification(missionNumber);
   }
 
-  static Future<void> cancelAllMissionPushAlarms() async {
+  static Future<void> cancelAllAlarms() async {
     await LocalNotificationService.cancelAllNotifications();
   }
 
-  static Future<void> updateMissionPushAlarm(
-      int missionNumber, TimeOfDay? time) async {
-    await cancelMissionPushAlarm(missionNumber);
+  static Future<void> updateAlarm(int missionNumber, TimeOfDay? time) async {
+    await cancelAlarm(missionNumber);
 
     if (time != null) {
-      await scheduleMissionPushAlarm(missionNumber, time);
+      await scheduleAlarm(missionNumber, time);
     }
   }
 }
