@@ -25,11 +25,11 @@ class NotificationService {
           ),
         ),
       );
-      print('메시지 보내기 성공 ${result.successfulReceiverUuids}');
 
       if (result.failureInfos != null) {
         return NotificationResult.partialFailure;
       }
+
       return NotificationResult.success;
     } catch (error) {
       return NotificationResult.error;
