@@ -1,27 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:notiyou/repositories/mission_time_repository_interface.dart';
 import 'package:notiyou/repositories/mission_time_repository_remote.dart';
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
+import 'package:notiyou/services/local_notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz;
-
 import '../routes/router.dart';
 
 class PushAlarmService {
   static final MissionTimeRepository _missionTimeRepository =
       MissionTimeRepositoryRemote();
 
-  static final FlutterLocalNotificationsPlugin _pushAlarms =
-      FlutterLocalNotificationsPlugin();
-
   static const String _pushAlarmSetupKey = 'push_alarm_setup';
 
   static Future<void> init() async {
-    tz.initializeTimeZones();
-    await _initializeDevicePushAlarmSettings();
+    await LocalNotificationService.init(
+      onNotificationTapped: (String? payload) {
+        if (payload != null) {
+          router.push(payload);
+        }
+      },
+    );
 
     final prefs = await SharedPreferences.getInstance();
     final isAlreadySetup = prefs.getBool(_pushAlarmSetupKey) ?? false;
@@ -30,43 +29,6 @@ class PushAlarmService {
       await _scheduleDevicePushAlarms();
       await prefs.setBool(_pushAlarmSetupKey, true);
     }
-  }
-
-  static Future<void> _initializeDevicePushAlarmSettings() async {
-    const androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
-    const settings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
-    );
-
-    await _pushAlarms.initialize(
-      settings,
-      onDidReceiveNotificationResponse: (NotificationResponse details) {
-        if (details.payload != null) {
-          router.push(details.payload!);
-        }
-      },
-    );
-
-    // 포그라운드 알림 권한 요청
-    await _pushAlarms
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestNotificationsPermission();
-    await _pushAlarms
-        .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
   }
 
   // TODO: 로그인 및 회원가입을 모두 마친 후, 미션 시간을 설정한 후에 알림 설정을 하도록 수정
@@ -100,33 +62,21 @@ class PushAlarmService {
       scheduledTime = scheduledTime.add(const Duration(days: 1));
     }
 
-    await _pushAlarms.zonedSchedule(
-      missionNumber,
-      '미션 알림',
-      '미션 시간입니다!',
-      tz.TZDateTime.from(scheduledTime, tz.local),
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'mission_alarm',
-          'Mission Alarm',
-          channelDescription: 'Mission time notification',
-          importance: Importance.max,
-          priority: Priority.high,
-        ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
+    await LocalNotificationService.scheduleNotification(
+      id: missionNumber,
+      title: '미션 알림',
+      body: '미션 시간입니다!',
+      scheduledTime: scheduledTime,
       payload: HomePage.routeName,
     );
   }
 
   static Future<void> cancelMissionPushAlarm(int missionNumber) async {
-    await _pushAlarms.cancel(missionNumber);
+    await LocalNotificationService.cancelNotification(missionNumber);
   }
 
   static Future<void> cancelAllMissionPushAlarms() async {
-    await _pushAlarms.cancelAll();
+    await LocalNotificationService.cancelAllNotifications();
   }
 
   static Future<void> updateMissionPushAlarm(
