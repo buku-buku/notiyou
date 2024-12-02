@@ -16,7 +16,9 @@ class NotificationService {
 
     try {
       MessageSendResult result = await TalkApi.instance.sendDefaultMessage(
-        receiverUuids: [''], // 조력자의 kakao uuid가 필요하다
+        receiverUuids: [
+          supporter!['supporter_kakao_uuid']
+        ], // 조력자의 kakao uuid가 필요하다
         template: TextTemplate(
           text: successTemplate,
           link: Link(
