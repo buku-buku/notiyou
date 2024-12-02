@@ -22,9 +22,9 @@ class MissionRepositoryRemote implements MissionRepository {
           id,
           done_at,
           created_at,
+          mission_at,
           missions (
             id,
-            mission_at,
             mission_number,
             user_id
           )
@@ -67,12 +67,13 @@ class MissionRepositoryRemote implements MissionRepository {
   Future<void> createTodayMission(int missionNumber) async {
     final newMission = await SupabaseService.client
         .from('missions')
-        .select('id')
+        .select('id, mission_at')
         .eq('mission_number', missionNumber)
         .single();
 
     await SupabaseService.client.from('mission_history').insert({
       'mission_id': newMission['id'],
+      'mission_at': newMission['mission_at'],
     });
   }
 
@@ -83,10 +84,17 @@ class MissionRepositoryRemote implements MissionRepository {
   }
 
   @override
-  // 현재 테이블 구조로는 오늘의 미션 시간은 언제나 mission_time에 동기화되어 관리 됨.
-  // 따라서 해당 메서드는 구현할 필요가 없음.
+  // TODO: updateMission 메서드에서 처리
   Future<void> updateTodayMissionTime(int missionNumber, TimeOfDay time) async {
-    return Future.value();
+    final mission = await SupabaseService.client
+        .from('missions')
+        .select('id')
+        .eq('mission_number', missionNumber)
+        .single();
+
+    await SupabaseService.client.from('mission_history').update({
+      'mission_at': TimeUtils.stringifyTime(time),
+    }).eq('mission_id', mission['id']);
   }
 
   @override
@@ -101,16 +109,16 @@ class MissionRepositoryRemote implements MissionRepository {
           id,
           done_at,
           created_at,
+          mission_at,
           missions (
             id,
-            mission_at,
             mission_number,
             user_id
           )
         ''')
         .gte('created_at', yesterday.toUtc().toIso8601String())
         .lt('created_at', tomorrow.toUtc().toIso8601String())
-        .order('missions(mission_at)', ascending: true);
+        .order('mission_at', ascending: true);
 
     return missionHistoryEntities
         .map((e) => _syncEntityTimeZone(entity: e, baseDate: date))
