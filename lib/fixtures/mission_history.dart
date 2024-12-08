@@ -1,6 +1,6 @@
 // 🚨 fixtures 폴더는 supabase에서 데이터를 가져오는 것이 완성되면 삭제합니다. 개발 편의를 위해 작성된 임시 데이터입니다.
 
-import '../models/mission_history.dart';
+import 'package:notiyou/models/mission_history.dart';
 
 final baseDate = DateTime.parse('2024-11-22 13:00:00');
 const missionCountOnDay = 2;

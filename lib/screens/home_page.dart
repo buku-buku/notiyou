@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notiyou/models/mission.dart';
-import '../services/mission_service.dart';
+import 'package:notiyou/services/mission_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

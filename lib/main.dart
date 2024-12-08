@@ -4,9 +4,9 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:notiyou/services/dotenv_service.dart';
 import 'package:notiyou/services/supabase_service.dart';
-import 'routes/router.dart';
-import 'services/mission_service.dart';
-import 'services/mission_alarm_service.dart';
+import 'package:notiyou/routes/router.dart';
+import 'package:notiyou/services/mission_service.dart';
+import 'package:notiyou/services/mission_alarm_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

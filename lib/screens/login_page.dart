@@ -4,7 +4,7 @@ import 'package:notiyou/screens/config_page.dart';
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 
-import 'signup_page.dart';
+import 'package:notiyou/screens/signup_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});

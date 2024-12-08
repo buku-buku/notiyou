@@ -1,4 +1,4 @@
-import '../repositories/notification_template_repository.dart';
+import 'package:notiyou/repositories/notification_template_repository.dart';
 
 class NotificationTemplateService {
   static Future<String> getSuccessMessageTemplate() async {

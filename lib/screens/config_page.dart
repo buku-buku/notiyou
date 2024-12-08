@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'home_page.dart';
-import '../services/mission_service.dart';
-import '../widgets/notification_template_config.dart';
-import '../widgets/supporter_section.dart';
+import 'package:notiyou/screens/home_page.dart';
+import 'package:notiyou/services/mission_service.dart';
+import 'package:notiyou/widgets/notification_template_config.dart';
+import 'package:notiyou/widgets/supporter_section.dart';
 
 class ConfigPage extends StatefulWidget {
   static const String routeName = '/config';

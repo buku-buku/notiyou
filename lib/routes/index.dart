@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
-import '../screens/home_page.dart';
-import '../screens/login_page.dart';
-import '../screens/signup_page.dart';
-import '../screens/config_page.dart';
-import '../screens/history_page.dart';
-import '../screens/splash_page.dart';
+import 'package:notiyou/screens/home_page.dart';
+import 'package:notiyou/screens/login_page.dart';
+import 'package:notiyou/screens/signup_page.dart';
+import 'package:notiyou/screens/config_page.dart';
+import 'package:notiyou/screens/history_page.dart';
+import 'package:notiyou/screens/splash_page.dart';
 
 final routes = <RouteBase>[
   GoRoute(

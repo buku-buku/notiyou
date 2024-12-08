@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../screens/home_page.dart';
+import 'package:notiyou/screens/home_page.dart';
 
 class BackButtonLayout extends StatelessWidget {
   final Widget child;

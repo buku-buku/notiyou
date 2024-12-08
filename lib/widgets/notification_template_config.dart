@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/notification_template_service.dart';
+import 'package:notiyou/services/notification_template_service.dart';
 
 class NotificationTemplateConfig extends StatefulWidget {
   const NotificationTemplateConfig({super.key});

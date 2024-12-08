@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../utils/time_utils.dart';
-import '../widgets/mission_history_list_item.dart';
-import '../models/mission_history.dart';
-import '../services/mission_history_service.dart';
+import 'package:notiyou/utils/time_utils.dart';
+import 'package:notiyou/widgets/mission_history_list_item.dart';
+import 'package:notiyou/models/mission_history.dart';
+import 'package:notiyou/services/mission_history_service.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});

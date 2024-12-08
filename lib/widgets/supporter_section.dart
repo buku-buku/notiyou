@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
-import '../services/auth/auth_service.dart';
-import '../services/supporter_service.dart';
+import 'package:notiyou/services/auth/auth_service.dart';
+import 'package:notiyou/services/supporter_service.dart';
 
 class SupporterSection extends StatefulWidget {
   const SupporterSection({super.key});

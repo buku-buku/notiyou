@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../utils/time_utils.dart';
+import 'package:notiyou/utils/time_utils.dart';
 
 class Mission {
   final String id;

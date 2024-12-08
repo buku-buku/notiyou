@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:notiyou/repositories/mission_time_repository_interface.dart';
 import 'package:notiyou/services/supabase_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../utils/time_utils.dart';
+import 'package:notiyou/utils/time_utils.dart';
 
 /// 미션 시간 데이터를 관리하는 저장소입니다.
 ///

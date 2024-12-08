@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'config_page.dart';
+import 'package:notiyou/screens/config_page.dart';
 
 class SignupPage extends StatelessWidget {
   const SignupPage({super.key});
