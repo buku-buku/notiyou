@@ -21,6 +21,13 @@ const notificationDetails = NotificationDetails(
   ),
 );
 
+const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+const iosSettings = DarwinInitializationSettings();
+const settings = InitializationSettings(
+  android: androidSettings,
+  iOS: iosSettings,
+);
+
 class LocalNotificationService {
   static final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
@@ -45,14 +52,6 @@ class LocalNotificationService {
   }
 
   static Future<void> _initializeSettings() async {
-    const androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iosSettings = DarwinInitializationSettings();
-    const settings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
-    );
-
     await _notifications.initialize(
       settings,
       onDidReceiveNotificationResponse: (NotificationResponse details) {
