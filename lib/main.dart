@@ -6,7 +6,7 @@ import 'package:notiyou/services/dotenv_service.dart';
 import 'package:notiyou/services/supabase_service.dart';
 import 'routes/router.dart';
 import 'services/mission_service.dart';
-import 'services/push_alarm_service.dart';
+import 'services/mission_alarm_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +18,7 @@ void main() async {
   );
   await SupabaseService.init();
   await MissionService.init();
-  await PushAlarmService.init();
+  await MissionAlarmService.init();
   runApp(const MyApp());
 }
 

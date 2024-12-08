@@ -4,9 +4,9 @@ import 'package:notiyou/repositories/mission_repository_remote.dart';
 import 'package:notiyou/repositories/mission_time_repository_interface.dart';
 import 'package:notiyou/repositories/mission_time_repository_local.dart';
 import 'package:notiyou/repositories/mission_time_repository_remote.dart';
+import 'package:notiyou/services/mission_alarm_service.dart';
 import '../models/mission.dart';
 import '../repositories/mission_repository_local.dart';
-import '../services/push_alarm_service.dart';
 
 class MissionService {
   static MissionTimeRepository _missionTimeRepository =
@@ -37,7 +37,7 @@ class MissionService {
       await _missionRepository.removeTodayMission(missionNumber);
     }
 
-    await PushAlarmService.updateMissionPushAlarm(missionNumber, time);
+    await MissionAlarmService.updateAlarm(missionNumber, time);
   }
 
   // 미션 시간 불러오기

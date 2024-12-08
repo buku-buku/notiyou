@@ -23,6 +23,8 @@
       android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
       android:hardwareAccelerated="true"
       android:windowSoftInputMode="adjustResize"
+      android:showWhenLocked="true"
+      android:turnScreenOn="true"
     >
       <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user
@@ -32,16 +34,21 @@
         android:name="io.flutter.embedding.android.NormalTheme"
         android:resource="@style/NormalTheme"
       />
+      <!-- 기본 실행을 위한 intent-filter -->
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+
+      <!-- 카카오 관련 intent-filter를 별도로 분리 -->
+      <intent-filter>
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" />
-        <!-- "kakao${YOUR_NATIVE_APP_KEY}://${PRODUCT_NAME}" 형식의 앱 실행 스킴 설정 -->
-        <!-- 카카오톡 공유, 카카오톡 메시지 -->
-        <data android:host="kakaolink"
-            android:scheme="kakao${KAKAO_NATIVE_APP_KEY}" />
+        <data
+          android:host="kakaolink"
+          android:scheme="kakao${KAKAO_NATIVE_APP_KEY}"
+        />
       </intent-filter>
     </activity>
     <!-- Don't delete the meta-data below.
@@ -65,6 +72,24 @@
         />
       </intent-filter>
     </activity>
+
+    <!-- Specify the following between the <application> tags so that the plugin can actually show the scheduled notification(s) -->
+    <!-- @see https://pub.dev/packages/flutter_local_notifications#androidmanifestxml-setup -->
+    <receiver
+      android:exported="false"
+      android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
+    />
+    <receiver
+      android:exported="false"
+      android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+    >
+      <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+        <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+        <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+        <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+      </intent-filter>
+    </receiver>
   </application>
   <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
