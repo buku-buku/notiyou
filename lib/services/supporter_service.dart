@@ -1,6 +1,6 @@
 import 'package:notiyou/services/auth/auth_service.dart';
 
-import '../repositories/supporter_repository.dart';
+import 'package:notiyou/repositories/supporter_repository.dart';
 
 class SupporterService {
   static Future<Map<String, dynamic>?> getSupporter() async {

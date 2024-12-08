@@ -1,4 +1,4 @@
-import '../services/supabase_service.dart';
+import 'package:notiyou/services/supabase_service.dart';
 
 class SupporterRepository {
   static Future<Map<String, dynamic>?> getSupporter(String userId) async {

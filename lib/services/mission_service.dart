@@ -5,8 +5,8 @@ import 'package:notiyou/repositories/mission_time_repository_interface.dart';
 import 'package:notiyou/repositories/mission_time_repository_local.dart';
 import 'package:notiyou/repositories/mission_time_repository_remote.dart';
 import 'package:notiyou/services/mission_alarm_service.dart';
-import '../models/mission.dart';
-import '../repositories/mission_repository_local.dart';
+import 'package:notiyou/models/mission.dart';
+import 'package:notiyou/repositories/mission_repository_local.dart';
 
 class MissionService {
   static MissionTimeRepository _missionTimeRepository =

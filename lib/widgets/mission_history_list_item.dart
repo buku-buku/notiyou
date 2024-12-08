@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/mission_history.dart';
+import 'package:notiyou/models/mission_history.dart';
 
 const incompleteText = '미완료';
 const done = (color: Colors.green, icon: Icons.check_circle);

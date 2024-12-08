@@ -4,8 +4,8 @@ import 'package:notiyou/repositories/mission_time_repository_interface.dart';
 import 'package:notiyou/repositories/mission_time_repository_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import '../models/mission.dart';
-import '../utils/time_utils.dart';
+import 'package:notiyou/models/mission.dart';
+import 'package:notiyou/utils/time_utils.dart';
 
 /// 미션 데이터를 관리하는 저장소입니다.
 ///

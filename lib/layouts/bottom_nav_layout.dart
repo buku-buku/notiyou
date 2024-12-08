@@ -3,9 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk_user.dart';
 import 'package:notiyou/screens/splash_page.dart';
 
-import '../screens/config_page.dart';
-import '../screens/history_page.dart';
-import '../screens/home_page.dart';
+import 'package:notiyou/screens/config_page.dart';
+import 'package:notiyou/screens/history_page.dart';
+import 'package:notiyou/screens/home_page.dart';
 
 class BottomNavLayout extends StatelessWidget {
   final Widget child;

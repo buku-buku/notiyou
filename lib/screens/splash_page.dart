@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:notiyou/screens/config_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 
-import 'home_page.dart';
-import 'login_page.dart';
+import 'package:notiyou/screens/home_page.dart';
+import 'package:notiyou/screens/login_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});

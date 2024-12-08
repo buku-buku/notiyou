@@ -5,7 +5,7 @@ import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/local_notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../routes/router.dart';
+import 'package:notiyou/routes/router.dart';
 
 class MissionAlarmService {
   static final MissionTimeRepository _missionTimeRepository =

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/mission.dart';
+import 'package:notiyou/models/mission.dart';
 
 abstract interface class MissionRepository {
   Future<void> init();
