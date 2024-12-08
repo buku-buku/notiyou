@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notiyou/models/mission.dart';
+import 'package:notiyou/services/notification_service.dart';
 import '../services/mission_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -25,6 +26,64 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       missions = todaysMissions;
     });
+  }
+
+  Future<void> _toggleMissionComplete(String missionId) async {
+    final newState = await MissionService.toggleMissionComplete(missionId);
+
+    if (newState) {
+      final result = await NotificationService.sendCompleteMessageToSupporter();
+
+      if (!mounted) return;
+
+      String message;
+      Color backgroundColor;
+
+      switch (result) {
+        case NotificationResult.success:
+          message = '메시지를 성공적으로 전송했습니다';
+          backgroundColor = Colors.green;
+        case NotificationResult.error:
+          message = '메시지 전송에 실패했습니다';
+          backgroundColor = Colors.red;
+        case NotificationResult.noReceiver:
+          message = '등록된 조력자가 없습니다';
+          backgroundColor = Colors.orange;
+        case NotificationResult.partialFailure:
+          message = '일부 메시지 전송에 실패했습니다';
+          backgroundColor = Colors.orange;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: backgroundColor,
+          duration: const Duration(seconds: 2), // 표시 시간 조절 가능
+          behavior: SnackBarBehavior.floating, // 플로팅 스타일
+          margin: const EdgeInsets.all(16), // 여백 추가
+        ),
+      );
+    }
+
+    setState(() {
+      final updatedMissions = missions.map((mission) {
+        if (mission.id == missionId) {
+          return Mission(
+            id: mission.id,
+            missionNumber: mission.missionNumber,
+            time: mission.time,
+            isCompleted: newState,
+            completedAt: newState ? DateTime.now() : null,
+            date: mission.date,
+          );
+        }
+        return mission;
+      }).toList();
+      missions = updatedMissions;
+    });
+
+    // 미션 상태 변경 후 만료 상태와 완료 시간 다시 로드
+    _loadMissions();
   }
 
   @override
@@ -59,11 +118,31 @@ class _HomePageState extends State<HomePage> {
                 subtitle: mission.isCompleted && mission.completedAt != null
                     ? Text('완료 시간: ${mission.formattedCompletedTime ?? ''}')
                     : null,
-                trailing: Checkbox(
-                  value: mission.isCompleted,
-                  onChanged: (bool? value) {
-                    _toggleMissionComplete(mission.id);
-                  },
+                trailing: ElevatedButton(
+                  onPressed: () => _toggleMissionComplete(mission.id),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor:
+                        mission.isCompleted ? Colors.green : Colors.grey[600],
+                    backgroundColor: Colors.white,
+                    elevation: 0,
+                    side: BorderSide(
+                      color: mission.isCompleted
+                          ? Colors.green
+                          : Colors.grey[400]!,
+                      width: 1,
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    shadowColor: Colors.transparent,
+                    surfaceTintColor: Colors.transparent,
+                  ),
+                  child: Text(
+                    mission.isCompleted ? '완료' : '미완료',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -81,28 +160,5 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
-  }
-
-  Future<void> _toggleMissionComplete(String missionId) async {
-    final newState = await MissionService.toggleMissionComplete(missionId);
-    setState(() {
-      final updatedMissions = missions.map((mission) {
-        if (mission.id == missionId) {
-          return Mission(
-            id: mission.id,
-            missionNumber: mission.missionNumber,
-            time: mission.time,
-            isCompleted: newState,
-            completedAt: newState ? DateTime.now() : null,
-            date: mission.date,
-          );
-        }
-        return mission;
-      }).toList();
-      missions = updatedMissions;
-    });
-
-    // 미션 상태 변경 후 만료 상태와 완료 시간 다시 로드
-    _loadMissions();
   }
 }
