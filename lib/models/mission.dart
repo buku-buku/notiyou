@@ -61,7 +61,7 @@ class Mission {
   factory Mission.fromMissionHistoryEntity(Map<String, dynamic> json) =>
       Mission(
         id: json['id'].toString(),
-        missionNumber: json['missions']['mission_number'],
+        missionNumber: json['challenger_mission_time']['mission_number'],
         time: TimeUtils.parseTime(json['mission_at']),
         isCompleted: json['done_at'] != null,
         completedAt:
