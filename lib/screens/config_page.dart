@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:notiyou/screens/home_page.dart';
-import 'package:notiyou/services/mission_service.dart';
+import 'package:notiyou/services/mission_config_service.dart';
 import 'package:notiyou/widgets/notification_template_config.dart';
 import 'package:notiyou/widgets/supporter_section.dart';
 
@@ -29,8 +29,8 @@ class _ConfigPageState extends State<ConfigPage> {
 
   Future<void> _loadSavedTimes() async {
     final results = await Future.wait([
-      MissionService.getMissionTime(1),
-      MissionService.getMissionTime(2),
+      MissionConfigService.getMissionTime(1),
+      MissionConfigService.getMissionTime(2),
     ]);
     setState(() {
       // 병렬 처리
@@ -43,15 +43,15 @@ class _ConfigPageState extends State<ConfigPage> {
   Future<void> _saveTimes() async {
     // 시간이 변경되었는지 확인
     final bool hasTimeChanged =
-        _mission1Time != await MissionService.getMissionTime(1) ||
-            _mission2Time != await MissionService.getMissionTime(2);
+        _mission1Time != await MissionConfigService.getMissionTime(1) ||
+            _mission2Time != await MissionConfigService.getMissionTime(2);
 
     if (hasTimeChanged == false) {
       return;
     }
 
-    await MissionService.saveMissionTime(1, _mission1Time);
-    await MissionService.saveMissionTime(2, _mission2Time);
+    await MissionConfigService.saveMissionTime(1, _mission1Time);
+    await MissionConfigService.saveMissionTime(2, _mission2Time);
   }
 
   Future<void> _selectTime(BuildContext context, bool isFirstMission) async {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notiyou/models/mission.dart';
 
-abstract interface class MissionRepository {
+abstract interface class MissionHistoryRepository {
   Future<void> init();
 
   // TODO: missionId로 생성하도록 변경

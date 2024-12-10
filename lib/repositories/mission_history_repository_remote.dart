@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notiyou/models/mission.dart';
-import 'package:notiyou/repositories/mission_repository_interface.dart';
+import 'package:notiyou/repositories/mission_history_repository_interface.dart';
 import 'package:notiyou/services/supabase_service.dart';
 import 'package:notiyou/utils/time_utils.dart';
 
@@ -13,8 +13,8 @@ import 'package:notiyou/utils/time_utils.dart';
 ///
 /// ⚠️: 로컬의 데이터는 오늘의 데이터만 저장됩니다.
 /// 오늘 이후의 모든 데이터는 앱 실행 시 삭제됩니다.
-
-class MissionRepositoryRemote implements MissionRepository {
+/// TODO(무호): supabas의 테이블 명칭을 상수로 관리한다.
+class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
   @override
   Future<Mission?> findMissionById(String id) async {
     final entity =
@@ -23,10 +23,10 @@ class MissionRepositoryRemote implements MissionRepository {
           done_at,
           created_at,
           mission_at,
-          missions (
+          challenger_mission_time (
             id,
             mission_number,
-            user_id
+            challenger_id
           )
         ''').eq('id', id).single();
 
@@ -46,7 +46,7 @@ class MissionRepositoryRemote implements MissionRepository {
     await SupabaseService.client
         .from('mission_history')
         .delete()
-        .eq('missions.mission_number', missionNumber)
+        .eq('challenger_mission_time.mission_number', missionNumber)
         .gte('created_at', today.toUtc().toIso8601String());
   }
 
@@ -66,7 +66,7 @@ class MissionRepositoryRemote implements MissionRepository {
   @override
   Future<void> createTodayMission(int missionNumber) async {
     final newMission = await SupabaseService.client
-        .from('missions')
+        .from('challenger_mission_time')
         .select('id, mission_at')
         .eq('mission_number', missionNumber)
         .single();
@@ -87,7 +87,7 @@ class MissionRepositoryRemote implements MissionRepository {
   // TODO: updateMission 메서드에서 처리
   Future<void> updateTodayMissionTime(int missionNumber, TimeOfDay time) async {
     final mission = await SupabaseService.client
-        .from('missions')
+        .from('challenger_mission_time')
         .select('id')
         .eq('mission_number', missionNumber)
         .single();
@@ -110,10 +110,10 @@ class MissionRepositoryRemote implements MissionRepository {
           done_at,
           created_at,
           mission_at,
-          missions (
+          challenger_mission_time (
             id,
             mission_number,
-            user_id
+            challenger_id
           )
         ''')
         .gte('created_at', yesterday.toUtc().toIso8601String())

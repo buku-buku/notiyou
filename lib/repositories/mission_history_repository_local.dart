@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:notiyou/repositories/mission_repository_interface.dart';
+import 'package:notiyou/repositories/mission_history_repository_interface.dart';
 import 'package:notiyou/repositories/mission_time_repository_interface.dart';
 import 'package:notiyou/repositories/mission_time_repository_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,23 +16,23 @@ import 'package:notiyou/utils/time_utils.dart';
 ///
 /// ⚠️: 로컬의 데이터는 오늘의 데이터만 저장됩니다.
 /// 오늘 이후의 모든 데이터는 앱 실행 시 삭제됩니다.
-class MissionRepositoryLocal implements MissionRepository {
+class MissionHistoryRepositoryLocal implements MissionHistoryRepository {
   SharedPreferences? _prefs;
   final String _missionStoreKey = 'mission';
   final MissionTimeRepository _missionTimeRepository =
       MissionTimeRepositoryLocal();
 
 // 싱글턴 인스턴스
-  static final MissionRepositoryLocal _instance =
-      MissionRepositoryLocal._internal();
+  static final MissionHistoryRepositoryLocal _instance =
+      MissionHistoryRepositoryLocal._internal();
 
   // 팩토리 생성자
-  factory MissionRepositoryLocal() {
+  factory MissionHistoryRepositoryLocal() {
     return _instance;
   }
 
   // private 생성자
-  MissionRepositoryLocal._internal();
+  MissionHistoryRepositoryLocal._internal();
 
   @override
   Future<void> init() async {
