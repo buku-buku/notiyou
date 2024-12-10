@@ -35,9 +35,9 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
     }
 
     final mission = await supabaseClient
-        .from('missions')
+        .from('challenger_mission_time')
         .select('mission_at')
-        .eq('user_id', userId)
+        .eq('challenger_id', userId)
         .eq('mission_number', missionNumber);
 
     return mission.isNotEmpty
@@ -53,20 +53,20 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
       throw const AuthException('User not found');
     }
     final hasMission = await supabaseClient
-        .from('missions')
+        .from('challenger_mission_time')
         .select('id')
-        .eq('user_id', userId)
+        .eq('challenger_id', userId)
         .eq('mission_number', missionNumber);
 
     if (hasMission.isNotEmpty) {
       await supabaseClient
-          .from('missions')
+          .from('challenger_mission_time')
           .update({'mission_at': TimeUtils.stringifyTime(time)})
-          .eq('user_id', userId)
+          .eq('challenger_id', userId)
           .eq('mission_number', missionNumber);
     } else {
-      await supabaseClient.from('missions').insert({
-        'user_id': userId,
+      await supabaseClient.from('challenger_mission_time').insert({
+        'challenger_id': userId,
         'mission_number': missionNumber,
         'mission_at': TimeUtils.stringifyTime(time),
       });
@@ -81,9 +81,9 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
       throw const AuthException('User not found');
     }
     await supabaseClient
-        .from('missions')
+        .from('challenger_mission_time')
         .delete()
-        .eq('user_id', userId)
+        .eq('challenger_id', userId)
         .eq('mission_number', missionNumber);
   }
 }
