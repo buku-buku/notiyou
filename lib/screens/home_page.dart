@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notiyou/models/mission.dart';
-import 'package:notiyou/services/mission_service.dart';
+import 'package:notiyou/services/mission_history_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadMissions() async {
-    final todaysMissions = await MissionService.getTodaysMissions();
+    final todaysMissions = await MissionHistoryService.getTodaysMissions();
     setState(() {
       missions = todaysMissions;
     });
@@ -84,7 +84,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _toggleMissionComplete(String missionId) async {
-    final newState = await MissionService.toggleMissionComplete(missionId);
+    final newState =
+        await MissionHistoryService.toggleMissionComplete(missionId);
     setState(() {
       final updatedMissions = missions.map((mission) {
         if (mission.id == missionId) {
