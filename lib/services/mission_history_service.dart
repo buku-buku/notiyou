@@ -35,14 +35,6 @@ class MissionHistoryService {
     return updatedMission.isCompleted;
   }
 
-  // unused
-  @deprecated
-  static Future<bool> hasTodayMissions() async {
-    final missions =
-        await _missionHistoryRepository.findMissions(DateTime.now());
-    return missions.isNotEmpty;
-  }
-
   // 오늘의 미션 데이터 가져오기
   static Future<List<Mission>> getTodaysMissions() async {
     final missions =
@@ -50,13 +42,6 @@ class MissionHistoryService {
 
     // 저장된 미션 데이터 반환
     return missions;
-  }
-
-  // 특정 날짜의 미션 히스토리 가져오기
-  // unused
-  @deprecated
-  static Future<List<Mission>> getMissionHistory(DateTime date) async {
-    return await _missionHistoryRepository.findMissions(date);
   }
 
   static switchToLocalRepository() {
