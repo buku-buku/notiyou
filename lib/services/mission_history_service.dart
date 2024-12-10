@@ -47,7 +47,7 @@ class MissionHistoryService {
   static Future<List<Mission>> getTodaysMissions() async {
     final missions =
         await _missionHistoryRepository.findMissions(DateTime.now());
-    print(missions);
+
     // 저장된 미션 데이터 반환
     return missions;
   }
