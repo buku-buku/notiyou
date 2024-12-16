@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
 import 'package:notiyou/screens/config_page.dart';
-import 'package:notiyou/services/auth/auth_service.dart';
-
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/screens/login_page.dart';
+import 'package:notiyou/services/auth/auth_service.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -44,6 +44,8 @@ class _SplashPageState extends State<SplashPage> {
         context.go(LoginPage.routeName);
       }
     }
+
+    FlutterNativeSplash.remove();
   }
 
   @override
