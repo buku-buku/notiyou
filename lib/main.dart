@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:kakao_flutter_sdk/kakao_flutter_sdk_talk.dart';
 import 'package:intl/date_symbol_data_local.dart';
-
-import 'package:notiyou/services/dotenv_service.dart';
-import 'package:notiyou/services/supabase_service.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk_talk.dart';
 import 'package:notiyou/routes/router.dart';
-import 'package:notiyou/services/mission_config_service.dart';
+import 'package:notiyou/services/dotenv_service.dart';
 import 'package:notiyou/services/mission_alarm_service.dart';
+import 'package:notiyou/services/mission_config_service.dart';
+import 'package:notiyou/services/supabase_service.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
+  // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await DotEnvService.init();
   await initializeDateFormatting('ko_KR', null);
 
