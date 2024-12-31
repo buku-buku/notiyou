@@ -4,7 +4,7 @@ import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/screens/login_page.dart';
 import 'package:notiyou/screens/signup_page.dart';
-import 'package:notiyou/screens/config_page.dart';
+import 'package:notiyou/screens/challenger_config_page.dart';
 import 'package:notiyou/screens/history_page.dart';
 import 'package:notiyou/screens/splash_page.dart';
 
@@ -22,8 +22,8 @@ final routes = <RouteBase>[
     builder: (context, state) => const SignupPage(),
   ),
   GoRoute(
-    path: ConfigPage.onboardingRouteName,
-    builder: (context, state) => const ConfigPage(),
+    path: ChallengerConfigPage.onboardingRouteName,
+    builder: (context, state) => const ChallengerConfigPage(),
   ),
   ShellRoute(
     builder: (context, state, child) {
@@ -68,8 +68,8 @@ final List<GoRoute> bottomNavigationRoutes = [
     builder: (context, state) => const HistoryPage(),
   ),
   GoRoute(
-    path: ConfigPage.routeName,
-    builder: (context, state) => const ConfigPage(),
+    path: ChallengerConfigPage.routeName,
+    builder: (context, state) => const ChallengerConfigPage(),
   ),
 ];
 
