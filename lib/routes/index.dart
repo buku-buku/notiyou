@@ -7,6 +7,7 @@ import 'package:notiyou/screens/signup_page.dart';
 import 'package:notiyou/screens/challenger_config_page.dart';
 import 'package:notiyou/screens/history_page.dart';
 import 'package:notiyou/screens/splash_page.dart';
+import 'package:notiyou/screens/supporter_signup_page.dart';
 
 final routes = <RouteBase>[
   GoRoute(
@@ -20,6 +21,12 @@ final routes = <RouteBase>[
   GoRoute(
     path: SignupPage.routeName,
     builder: (context, state) => const SignupPage(),
+  ),
+  GoRoute(
+    path: SupporterSignupPage.routeName,
+    builder: (context, state) => SupporterSignupPage(
+      initialChallengerCode: state.uri.queryParameters['code'],
+    ),
   ),
   GoRoute(
     path: ChallengerConfigPage.onboardingRouteName,
