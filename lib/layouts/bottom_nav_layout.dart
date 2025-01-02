@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk_user.dart';
 import 'package:notiyou/screens/splash_page.dart';
 
-import 'package:notiyou/screens/config_page.dart';
+import 'package:notiyou/screens/challenger_config_page.dart';
 import 'package:notiyou/screens/history_page.dart';
 import 'package:notiyou/screens/home_page.dart';
 
@@ -33,7 +33,7 @@ class BottomNavLayout extends StatelessWidget {
   int _calculateSelectedIndex(BuildContext context) {
     final String location = GoRouterState.of(context).uri.path;
     if (location.startsWith(HomePage.routeName)) return 0;
-    if (location.startsWith(ConfigPage.routeName)) return 1;
+    if (location.startsWith(ChallengerConfigPage.routeName)) return 1;
     if (location.startsWith(HistoryPage.routeName)) return 2;
     return 0;
   }
@@ -68,7 +68,7 @@ class BottomNavLayout extends StatelessWidget {
               context.go(HomePage.routeName);
               break;
             case 1:
-              context.go(ConfigPage.routeName);
+              context.go(ChallengerConfigPage.routeName);
               break;
             case 2:
               context.go(HistoryPage.routeName);
