@@ -117,10 +117,10 @@ class ChallengerCodeServiceImpl implements ChallengerCodeService {
     }
   }
 
-  int _codeToNumber(String code) {
-    var number = 0;
+  BigInt _codeToNumber(String code) {
+    var number = BigInt.from(0);
     for (var i = code.length - 1; i >= 0; i--) {
-      number = number * _radix + _charset.indexOf(code[i]);
+      number = number * BigInt.from(_radix) + BigInt.from(_charset.indexOf(code[i]));
     }
     return number;
   }
