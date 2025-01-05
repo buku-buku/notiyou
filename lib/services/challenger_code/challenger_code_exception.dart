@@ -1,5 +1,3 @@
-// 도전자 코드 검증 관련 에러 클래스
-// TODO: 다른 파일에서 관리
 class ChallengerCodeException implements Exception {
   final String message;
   final ChallengerCodeExceptionType type;
