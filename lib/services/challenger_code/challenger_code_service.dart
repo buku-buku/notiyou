@@ -51,7 +51,7 @@ class ChallengerCodeServiceImpl implements ChallengerCodeService {
         final index = (combinedNumber % radixBig).toInt();
         final safeIndex = index % _charset.length;
         codeChars[i] = _charset[safeIndex];
-        combinedNumber = combinedNumber >> 4;
+        combinedNumber = combinedNumber ~/ radixBig;
       }
 
       return codeChars.join();
