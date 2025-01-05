@@ -1,3 +1,4 @@
+import 'package:notiyou/models/registration_status.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:notiyou/services/supabase_service.dart';
 
@@ -20,21 +21,18 @@ class SupabaseAuthService {
 
   static bool isRegistrationCompleted(supabase.User user) {
     final registrationStatus = getRegistrationStatus(user);
-    return registrationStatus['invitation_code'] == true &&
-        registrationStatus['mission_setting'] == true;
+    return registrationStatus.registeredRole != UserRole.none;
   }
 
-  static Map<String, bool> getRegistrationStatus(supabase.User user) {
+  static RegistrationStatus getRegistrationStatus(supabase.User user) {
     if (user.userMetadata == null) {
-      return {
-        'invitation_code': false,
-        'mission_setting': false,
-      };
+      return RegistrationStatus(
+        registeredRole: UserRole.none,
+      );
     }
-    // * 초대코드 및 미션 설정까지 입력 받아야 회원가입이 완료되었다고 판단할 수 있음
-    return {
-      'invitation_code': user.userMetadata!['invitation_code'] != null,
-      'mission_setting': user.userMetadata!['mission_setting'] != null,
-    };
+
+    return RegistrationStatus.fromString(
+      user.userMetadata!['registered_role'],
+    );
   }
 }

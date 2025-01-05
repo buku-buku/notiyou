@@ -1,4 +1,5 @@
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk_talk.dart';
+import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/services/auth/kakao_auth_service.dart';
 import 'package:notiyou/services/auth/supabase_auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
@@ -43,8 +44,7 @@ class AuthService {
     return SupabaseAuthService.isRegistrationCompleted(user);
   }
 
-// TODO: RegistrationStatus 객체 정의
-  static Map<String, bool> getRegistrationStatus(supabase.User user) {
+  static RegistrationStatus getRegistrationStatus(supabase.User user) {
     return SupabaseAuthService.getRegistrationStatus(user);
   }
 }
