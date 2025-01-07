@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:notiyou/models/registration_status.dart';
+import 'package:notiyou/services/auth/auth_service.dart';
 import 'dart:async';
 
 import 'package:notiyou/services/challenger_code/challenger_code_exception.dart';
+import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
+import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
 
 class SupporterSignupPage extends StatefulWidget {
   const SupporterSignupPage({
@@ -18,6 +22,8 @@ class SupporterSignupPage extends StatefulWidget {
 
 class _SupporterSignupPageState extends State<SupporterSignupPage> {
   late final TextEditingController _challengerCodeController;
+  final ChallengerCodeService _challengerCodeService =
+      ChallengerCodeServiceImpl.instance;
   ChallengerCodeException? _error;
   Timer? _debounceTimer;
   bool _isValidated = false;
@@ -56,10 +62,9 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
     });
   }
 
-  // TODO: ChallengerCodeService 클래스 구현 후 해당 클래스의 메서드 사용
-  bool _validateChallengerCode(String code) {
+  Future<bool> _validateChallengerCode(String code) async {
     try {
-      // TODO: ChallengerCodeService.validate(code) 메서드 호출
+      await _challengerCodeService.verifyCode(code);
       setState(() {
         _error = null;
         _isValidated = true;
