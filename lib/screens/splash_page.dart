@@ -43,9 +43,9 @@ class _SplashPageState extends State<SplashPage> {
       if (mounted) {
         context.go(LoginPage.routeName);
       }
+    } finally {
+      FlutterNativeSplash.remove();
     }
-
-    FlutterNativeSplash.remove();
   }
 
   @override
