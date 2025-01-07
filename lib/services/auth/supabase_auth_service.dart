@@ -22,6 +22,7 @@ class SupabaseAuthService {
   static Future<void> setRole(UserRole role) async {
     final userMetadata =
         SupabaseService.client.auth.currentUser?.userMetadata ?? {};
+    // TODO: Add error handling for updateUser operation
     await SupabaseService.client.auth.updateUser(
       supabase.UserAttributes(
         data: {
