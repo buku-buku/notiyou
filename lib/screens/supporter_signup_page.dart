@@ -74,12 +74,16 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
     }
   }
 
-  void _onNextPressed() {
+  void _onNextPressed() async {
     final code = _challengerCodeController.text;
-    if (!_isValidated && !_validateChallengerCode(code)) {
+    if (!_isValidated && !await _validateChallengerCode(code)) {
       return;
     }
-    // TODO: 서버에서 도전자 코드 확인 후 다음 단계로 이동
+
+    // TODO: 도전자의 미션들의 서포터로 해당 유저를 등록
+
+    await AuthService.setRole(UserRole.supporter);
+
     debugPrint('도전자 코드 입력 완료: $code');
   }
 
