@@ -19,6 +19,19 @@ class SupabaseAuthService {
     return SupabaseService.client.auth.currentUser;
   }
 
+  static Future<void> setRole(UserRole role) async {
+    final userMetadata =
+        SupabaseService.client.auth.currentUser?.userMetadata ?? {};
+    await SupabaseService.client.auth.updateUser(
+      supabase.UserAttributes(
+        data: {
+          ...userMetadata,
+          'registered_role': role.name,
+        },
+      ),
+    );
+  }
+
   static bool isRegistrationCompleted(supabase.User user) {
     final registrationStatus = getRegistrationStatus(user);
     return registrationStatus.registeredRole != UserRole.none;

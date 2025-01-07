@@ -36,6 +36,10 @@ class AuthService {
     }
   }
 
+  static Future<void> setRole(UserRole role) async {
+    return SupabaseAuthService.setRole(role);
+  }
+
   static Future<supabase.User?> getUser() async {
     return await SupabaseAuthService.getUser();
   }
