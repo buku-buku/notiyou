@@ -86,17 +86,21 @@ class _SupporterSectionState extends State<SupporterSection>
         return;
       }
 
-      bool isKakaoTalkSharingAvailable =
-          await ShareClient.instance.isKakaoTalkSharingAvailable();
+      // TODO: user.id를 도전자 식별값으로 변경
+      final inviteLink = 'https://temp-web-link.vercel.app/invite/${user.id}';
+
       final TextTemplate defaultText = TextTemplate(
         objectType: 'text',
         text: '${user.id}님의 미션 서포터가 되어주시겠습니까?',
         buttonTitle: '동의하러 가기',
         link: Link(
-          webUrl: Uri.parse(''),
-          mobileWebUrl: Uri.parse(''),
+          webUrl: Uri.parse(inviteLink),
+          mobileWebUrl: Uri.parse(inviteLink),
         ),
       );
+
+      bool isKakaoTalkSharingAvailable =
+          await ShareClient.instance.isKakaoTalkSharingAvailable();
 
       if (isKakaoTalkSharingAvailable) {
         try {
