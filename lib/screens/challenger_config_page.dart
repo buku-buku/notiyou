@@ -111,7 +111,7 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
     if (widget.isFirstTime) {
       AuthService.setRole(UserRole.challenger);
     }
-    if (context.mounted) {
+    if (mounted) {
       context.go(HomePage.routeName);
     }
   }
