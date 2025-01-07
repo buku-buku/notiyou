@@ -105,8 +105,12 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
     );
   }
 
+  bool _isSubmittable() {
+    return _mission1Time != null;
+  }
+
   Future<void> _handleSubmit() async {
-    if (_mission1Time == null) return;
+    if (_isSubmittable() == false) return;
     await _saveTimes();
     if (widget.isFirstTime) {
       AuthService.setRole(UserRole.challenger);
@@ -184,7 +188,7 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _handleSubmit,
+              onPressed: _isSubmittable() ? _handleSubmit : null,
               child: const Text('설정 완료'),
             ),
           ],
