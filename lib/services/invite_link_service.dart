@@ -1,7 +1,6 @@
 import 'package:app_links/app_links.dart';
 import 'package:notiyou/routes/router.dart';
 import 'package:notiyou/screens/home_page.dart';
-import 'package:notiyou/screens/login_page.dart';
 import 'package:notiyou/screens/supporter_signup_page.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
