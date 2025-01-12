@@ -25,11 +25,13 @@ class ChallengerConfigPage extends StatefulWidget {
 class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
   TimeOfDay? _mission1Time;
   TimeOfDay? _mission2Time;
+  int _selectedGracePeriod = 0;
 
   @override
   void initState() {
     super.initState();
     _loadSavedTimes();
+    _loadSavedGracePeriod();
   }
 
   Future<void> _loadSavedTimes() async {
@@ -45,11 +47,19 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
     });
   }
 
+  Future<void> _loadSavedGracePeriod() async {
+    final int savedGracePeriod = await MissionConfigService.getGracePeriod();
+    setState(() {
+      _selectedGracePeriod = savedGracePeriod;
+    });
+  }
+
   Future<void> _saveTimes() async {
     // 시간이 변경되었는지 확인
     final bool hasTimeChanged =
         _mission1Time != await MissionConfigService.getMissionTime(1) ||
-            _mission2Time != await MissionConfigService.getMissionTime(2);
+            _mission2Time != await MissionConfigService.getMissionTime(2) ||
+            _selectedGracePeriod != await MissionConfigService.getGracePeriod();
 
     if (hasTimeChanged == false) {
       return;
@@ -57,6 +67,7 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
 
     await MissionConfigService.saveMissionTime(1, _mission1Time);
     await MissionConfigService.saveMissionTime(2, _mission2Time);
+    await MissionConfigService.saveGracePeriod(_selectedGracePeriod);
   }
 
   Future<void> _selectTime(BuildContext context, bool isFirstMission) async {
@@ -120,6 +131,51 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
     }
   }
 
+  Future<void> _showGracePeriodExplanation() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: RichText(
+            text: const TextSpan(
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+                height: 1.6,
+              ),
+              children: [
+                TextSpan(
+                  text: '유예 시간',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: '은 미션 시간 이후 미션을 완료하기까지 허용되는 추가 시간입니다.\n',
+                ),
+                TextSpan(
+                  text: '예를 들어, 미션 시간이 오전 10시이고 ',
+                  style: TextStyle(color: Color(0xFF424242)),
+                ),
+                TextSpan(
+                  text: '유예 시간',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF424242),
+                  ),
+                ),
+                TextSpan(
+                  text:
+                      '이 5분으로 설정된 경우, 오전 10시 5분까지 미션 완료를 기록하지 않으면 미션 실패로 간주하여 조력자에게 알림이 발송됩니다.',
+                  style: TextStyle(color: Color(0xFF424242)),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,6 +235,37 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
                       onPressed: () => _resetTime(false),
                     ),
                 ],
+              ),
+            ),
+            ListTile(
+              title: Row(
+                children: [
+                  const Text('유예시간'),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.help_outline,
+                      size: 20,
+                    ),
+                    onPressed: _showGracePeriodExplanation,
+                  ),
+                ],
+              ),
+              trailing: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: DropdownButton<int>(
+                  value: _selectedGracePeriod,
+                  items: List.generate(13, (index) => index * 5)
+                      .map((value) => DropdownMenuItem<int>(
+                            value: value,
+                            child: Text('$value 분'),
+                          ))
+                      .toList(),
+                  onChanged: (int? newValue) {
+                    setState(() {
+                      _selectedGracePeriod = newValue ?? 0;
+                    });
+                  },
+                ),
               ),
             ),
             const SupporterSection(),
