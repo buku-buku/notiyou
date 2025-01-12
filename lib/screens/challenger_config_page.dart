@@ -40,8 +40,6 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
       MissionConfigService.getMissionTime(2),
     ]);
     setState(() {
-      // 병렬 처리
-
       _mission1Time = results[0];
       _mission2Time = results[1];
     });
@@ -55,7 +53,6 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
   }
 
   Future<void> _saveTimes() async {
-    // 시간이 변경되었는지 확인
     final bool hasTimeChanged =
         _mission1Time != await MissionConfigService.getMissionTime(1) ||
             _mission2Time != await MissionConfigService.getMissionTime(2) ||
