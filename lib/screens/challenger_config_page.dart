@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/screens/home_page.dart';
+import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/mission_config_service.dart';
 import 'package:notiyou/widgets/notification_template_config.dart';
 import 'package:notiyou/widgets/supporter_section.dart';
@@ -9,8 +11,11 @@ class ChallengerConfigPage extends StatefulWidget {
   static const String routeName = '/challenger/config';
   static const String onboardingRouteName = '/challenger/config_onboarding';
 
+  final bool isFirstTime;
+
   const ChallengerConfigPage({
     super.key,
+    this.isFirstTime = false,
   });
 
   @override
@@ -100,6 +105,21 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
     );
   }
 
+  bool _isSubmittable() {
+    return _mission1Time != null;
+  }
+
+  Future<void> _handleSubmit() async {
+    if (_isSubmittable() == false) return;
+    await _saveTimes();
+    if (widget.isFirstTime) {
+      AuthService.setRole(UserRole.challenger);
+    }
+    if (mounted) {
+      context.go(HomePage.routeName);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -168,14 +188,7 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _mission1Time != null
-                  ? () async {
-                      await _saveTimes();
-                      if (context.mounted) {
-                        context.go(HomePage.routeName);
-                      }
-                    }
-                  : null,
+              onPressed: _isSubmittable() ? _handleSubmit : null,
               child: const Text('설정 완료'),
             ),
           ],

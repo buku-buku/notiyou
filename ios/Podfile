@@ -42,3 +42,35 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
   end
 end
+
+pre_install do |installer|
+  puts "🔄 Copying environment variables..."
+  
+  env_file = '../.env'
+  xcconfig_file = 'Flutter/Common.xcconfig'
+  
+  # .env 파일 존재 확인
+  unless File.exist?(env_file)
+    puts "❌ .env file not found"
+    exit 1
+  end
+  
+  begin
+    # xcconfig 파일 생성 또는 업데이트
+    FileUtils.touch(xcconfig_file)
+    FileUtils.cp(env_file, xcconfig_file)
+    
+    # xcconfig 파일 포맷 검증
+    File.foreach(xcconfig_file) do |line|
+      unless line.match(/^[A-Z_]+=.*$/) || line.strip.empty?
+        puts "❌ Invalid format in Common.xcconfig"
+        exit 1
+      end
+    end
+    
+    puts "✅ Successfully created Common.xcconfig with values from .env"
+  rescue => e
+    puts "❌ Failed to process configuration files: #{e.message}"
+    exit 1
+  end
+end
