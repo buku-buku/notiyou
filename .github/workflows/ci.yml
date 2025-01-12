@@ -123,12 +123,6 @@ jobs:
         run: |
           echo "${{ needs.setup.outputs.env_content }}" > .env
 
-      - name: Create Common.xcconfig
-        run: |
-          mkdir -p ios/Flutter
-          echo "#include? \"Pods/Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig\"" > ios/Flutter/Common.xcconfig
-          echo "#include? \"Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig\"" >> ios/Flutter/Common.xcconfig
-
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
