@@ -26,6 +26,7 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
   TimeOfDay? _mission1Time;
   TimeOfDay? _mission2Time;
   int _selectedGracePeriod = 0;
+  bool _isSubmitLoading = false;
 
   @override
   void initState() {
@@ -119,6 +120,7 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
 
   Future<void> _handleSubmit() async {
     if (_isSubmittable() == false) return;
+    setState(() => _isSubmitLoading = true);
     await _saveTimes();
     if (widget.isFirstTime) {
       AuthService.setRole(UserRole.challenger);
@@ -126,6 +128,7 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
     if (mounted) {
       context.go(HomePage.routeName);
     }
+    setState(() => _isSubmitLoading = false);
   }
 
   Future<void> _showGracePeriodExplanation() async {
@@ -272,8 +275,25 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _isSubmittable() ? _handleSubmit : null,
-              child: const Text('설정 완료'),
+              onPressed:
+                  _isSubmittable() && !_isSubmitLoading ? _handleSubmit : null,
+              child: _isSubmitLoading
+                  ? const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('설정 완료'),
+                        SizedBox(width: 10),
+                        SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    )
+                  : const Text('설정 완료'),
             ),
           ],
         ),
