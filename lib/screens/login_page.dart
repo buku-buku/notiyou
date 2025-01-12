@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:notiyou/screens/challenger_config_page.dart';
+import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 
@@ -22,10 +22,8 @@ class LoginPage extends StatelessWidget {
       if (!context.mounted) {
         return;
       }
-      if (registrationStatus['invitation_code'] != true) {
+      if (registrationStatus.registeredRole == UserRole.none) {
         context.go(SignupPage.routeName);
-      } else if (registrationStatus['mission_setting'] != true) {
-        context.go(ChallengerConfigPage.onboardingRouteName);
       } else {
         context.go(HomePage.routeName);
       }
