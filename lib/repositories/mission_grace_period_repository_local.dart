@@ -32,6 +32,12 @@ class MissionGracePeriodRepositoryLocal
 
   @override
   Future<void> setGracePeriod(int gracePeriod) async {
+    if (gracePeriod < 0) {
+      throw ArgumentError('유예 기간은 0보다 작을 수 없습니다');
+    }
+    if (gracePeriod > 60) {
+      throw ArgumentError('유예 기간은 60분을 초과할 수 없습니다');
+    }
     await init();
     const key = 'grace_period';
     await _prefs!.setInt(key, gracePeriod);
