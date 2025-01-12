@@ -22,7 +22,11 @@ class MissionGracePeriodRepositoryLocal
   Future<int> getGracePeriod() async {
     await init();
     const key = 'grace_period';
-    final gracePeriod = _prefs!.getInt(key);
+    final prefs = _prefs;
+    if (prefs == null) {
+      throw StateError('SharedPreferences가 초기화되지 않았습니다');
+    }
+    final gracePeriod = prefs.getInt(key);
     return gracePeriod ?? 0;
   }
 
