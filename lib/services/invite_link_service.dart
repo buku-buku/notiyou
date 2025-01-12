@@ -1,5 +1,6 @@
 import 'package:app_links/app_links.dart';
 import 'package:notiyou/routes/router.dart';
+import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/screens/login_page.dart';
 
 class InviteLinkService {
@@ -29,25 +30,25 @@ class InviteLinkService {
 
   static void _handleLink(Uri uri) {
     try {
-      if (uri.path.startsWith('/invite/')) {
-        final userId = uri.pathSegments.last;
-        router.push(LoginPage.routeName, extra: {'challengerCode': userId});
+      String parsedChallengerCode = '';
+      if (uri.scheme.startsWith('kakao')) {
+        final uriString = uri.toString();
+        parsedChallengerCode = uriString.split('challenger_code=').last;
+      } else if (uri.path.startsWith('/invite/')) {
+        parsedChallengerCode = uri.pathSegments.last;
       } else {
         throw Exception('올바른 초대링크가 아닙니다');
       }
+
+      router.push(LoginPage.routeName,
+          extra: {'challengerCode': parsedChallengerCode});
     } catch (error) {
       _handleError('초대링크 처리 에러', error);
     }
   }
 
   static void _handleError(String message, dynamic error) {
-    // 에러 로깅
-    print('InviteLinkService 에러: $message - $error');
-
-    try {
-      router.go(LoginPage.routeName); // 또는 다른 적절한 fallback 라우트
-    } catch (error) {
-      print('리다이렉트 실패: $error');
-    }
+    // TODO: 에러 로깅
+    router.go(HomePage.routeName); // 또는 다른 적절한 fallback 라우트
   }
 }
