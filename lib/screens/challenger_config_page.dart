@@ -5,19 +5,19 @@ import 'package:notiyou/services/mission_config_service.dart';
 import 'package:notiyou/widgets/notification_template_config.dart';
 import 'package:notiyou/widgets/supporter_section.dart';
 
-class ConfigPage extends StatefulWidget {
-  static const String routeName = '/config';
-  static const String onboardingRouteName = '/config_onboarding';
+class ChallengerConfigPage extends StatefulWidget {
+  static const String routeName = '/challenger/config';
+  static const String onboardingRouteName = '/challenger/config_onboarding';
 
-  const ConfigPage({
+  const ChallengerConfigPage({
     super.key,
   });
 
   @override
-  State<ConfigPage> createState() => _ConfigPageState();
+  State<ChallengerConfigPage> createState() => _ChallengerConfigPageState();
 }
 
-class _ConfigPageState extends State<ConfigPage> {
+class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
   TimeOfDay? _mission1Time;
   TimeOfDay? _mission2Time;
 

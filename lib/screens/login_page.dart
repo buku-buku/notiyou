@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:notiyou/screens/config_page.dart';
+import 'package:notiyou/screens/challenger_config_page.dart';
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 
@@ -25,7 +25,7 @@ class LoginPage extends StatelessWidget {
       if (registrationStatus['invitation_code'] != true) {
         context.go(SignupPage.routeName);
       } else if (registrationStatus['mission_setting'] != true) {
-        context.go(ConfigPage.onboardingRouteName);
+        context.go(ChallengerConfigPage.onboardingRouteName);
       } else {
         context.go(HomePage.routeName);
       }
