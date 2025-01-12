@@ -2,9 +2,14 @@ import 'package:app_links/app_links.dart';
 import 'package:notiyou/routes/router.dart';
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/screens/login_page.dart';
+import 'package:notiyou/screens/supporter_signup_page.dart';
+import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
+import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
 
 class InviteLinkService {
   static final _appLinks = AppLinks();
+  static final ChallengerCodeService _challengerCodeService =
+      ChallengerCodeServiceImpl.instance;
 
   static Future<void> init() async {
     try {
@@ -28,9 +33,18 @@ class InviteLinkService {
     }
   }
 
+  static Future<String> generateInviteLink(String userId) async {
+    try {
+      final challengerCode = await _challengerCodeService.generateCode(userId);
+      return 'https://temp-web-link.vercel.app/invite/$challengerCode';
+    } catch (e) {
+      throw Exception('초대 링크 생성에 실패했습니다');
+    }
+  }
+
   static void _handleLink(Uri uri) {
     try {
-      String parsedChallengerCode = '';
+      String? parsedChallengerCode;
       if (uri.scheme.startsWith('kakao')) {
         final uriString = uri.toString();
         parsedChallengerCode = uriString.split('challenger_code=').last;
@@ -40,8 +54,7 @@ class InviteLinkService {
         throw Exception('올바른 초대링크가 아닙니다');
       }
 
-      router.push(LoginPage.routeName,
-          extra: {'challengerCode': parsedChallengerCode});
+      router.push(SupporterSignupPage.routeName, extra: parsedChallengerCode);
     } catch (error) {
       _handleError('초대링크 처리 에러', error);
     }

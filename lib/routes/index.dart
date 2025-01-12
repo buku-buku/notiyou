@@ -25,7 +25,7 @@ final routes = <RouteBase>[
   GoRoute(
     path: SupporterSignupPage.routeName,
     builder: (context, state) => SupporterSignupPage(
-      initialChallengerCode: state.uri.queryParameters['code'],
+      initialChallengerCode: state.extra as String?,
     ),
   ),
   GoRoute(
