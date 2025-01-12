@@ -188,7 +188,7 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
               title: const Text.rich(
                 TextSpan(
                   children: [
-                    TextSpan(text: '미션시간 1 '),
+                    TextSpan(text: '미션 시간 1 '),
                     TextSpan(
                       text: '(필수 선택)',
                       style: TextStyle(
@@ -218,7 +218,7 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
               ),
             ),
             ListTile(
-              title: const Text('미션시간 2'),
+              title: const Text('미션 시간 2'),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -240,7 +240,7 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
             ListTile(
               title: Row(
                 children: [
-                  const Text('유예시간'),
+                  const Text('유예 시간'),
                   IconButton(
                     icon: const Icon(
                       Icons.help_outline,
