@@ -4,6 +4,7 @@ import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/screens/supporter_signup_page.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
+import 'package:notiyou/services/dotenv_service.dart';
 
 class InviteLinkService {
   static final _appLinks = AppLinks();
@@ -35,7 +36,8 @@ class InviteLinkService {
   static Future<String> generateInviteLink(String userId) async {
     try {
       final challengerCode = await _challengerCodeService.generateCode(userId);
-      return 'https://temp-web-link.vercel.app/invite/$challengerCode';
+      final serviceWebDomain = DotEnvService.getValue('SERVICE_WEB_DOMAIN');
+      return '$serviceWebDomain/invite/$challengerCode';
     } catch (e) {
       throw Exception('초대 링크 생성에 실패했습니다');
     }
