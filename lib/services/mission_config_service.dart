@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:notiyou/repositories/mission_grace_period_repository_remote.dart';
+import 'package:notiyou/repositories/mission_grace_period_repository_interface.dart';
+import 'package:notiyou/repositories/mission_grace_period_repository_local.dart';
 import 'package:notiyou/repositories/mission_history_repository_interface.dart';
 import 'package:notiyou/repositories/mission_history_repository_local.dart';
 import 'package:notiyou/repositories/mission_history_repository_remote.dart';
@@ -12,6 +15,8 @@ class MissionConfigService {
       MissionTimeRepositoryRemote();
   static MissionHistoryRepository _missionHistoryRepository =
       MissionHistoryRepositoryRemote();
+  static MissionGracePeriodRepository _missionGracePeriodRepository =
+      MissionGracePeriodRepositoryRemote();
 
   // SharedPreferences 초기화
   static Future<void> init() async {
@@ -48,8 +53,17 @@ class MissionConfigService {
     return time;
   }
 
+  static Future<int> getGracePeriod() async {
+    return await _missionGracePeriodRepository.getGracePeriod();
+  }
+
+  static Future<void> saveGracePeriod(int gracePeriod) async {
+    await _missionGracePeriodRepository.setGracePeriod(gracePeriod);
+  }
+
   static switchToLocalRepository() {
     _missionTimeRepository = MissionTimeRepositoryLocal();
     _missionHistoryRepository = MissionHistoryRepositoryLocal();
+    _missionGracePeriodRepository = MissionGracePeriodRepositoryLocal();
   }
 }
