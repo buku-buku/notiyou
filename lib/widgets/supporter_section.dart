@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
+import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
+import 'package:notiyou/services/invite_link_service.dart';
 import 'package:notiyou/services/supporter_service.dart';
 
 class SupporterSection extends StatefulWidget {
@@ -86,17 +88,17 @@ class _SupporterSectionState extends State<SupporterSection>
         return;
       }
 
-      // TODO: user.id를 도전자 식별값으로 변경
-      final inviteLink = 'https://temp-web-link.vercel.app/invite/${user.id}';
-
+      final challengerCode =
+          await ChallengerCodeServiceImpl.instance.generateCode(user.id);
+      final inviteLink = await InviteLinkService.generateInviteLink(user.id);
       final TextTemplate defaultText = TextTemplate(
         objectType: 'text',
         text: '${user.id}님의 미션 서포터가 되어주시겠습니까?',
-        buttonTitle: '동의하러 가기',
+        buttonTitle: '서포터 등록하기',
         link: Link(
-          webUrl: Uri.parse(inviteLink),
-          mobileWebUrl: Uri.parse(inviteLink),
-        ),
+            mobileWebUrl: Uri.parse(inviteLink),
+            androidExecutionParams: {'challenger_code': challengerCode},
+            iosExecutionParams: {'challenger_code': challengerCode}),
       );
 
       bool isKakaoTalkSharingAvailable =
