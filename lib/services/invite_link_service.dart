@@ -1,7 +1,11 @@
 import 'package:app_links/app_links.dart';
+import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/routes/router.dart';
 import 'package:notiyou/screens/home_page.dart';
+import 'package:notiyou/screens/login_page.dart';
+import 'package:notiyou/screens/splash_page.dart';
 import 'package:notiyou/screens/supporter_signup_page.dart';
+import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
 import 'package:notiyou/services/dotenv_service.dart';
@@ -43,7 +47,7 @@ class InviteLinkService {
     }
   }
 
-  static void _handleLink(Uri uri) {
+  static void _handleLink(Uri uri) async {
     try {
       String? parsedChallengerCode;
       if (uri.scheme.startsWith('kakao')) {
@@ -55,7 +59,22 @@ class InviteLinkService {
         throw Exception('올바른 초대링크가 아닙니다');
       }
 
-      router.push(SupporterSignupPage.routeName, extra: parsedChallengerCode);
+      final user = await AuthService.getUser();
+      if (user == null) {
+        router.push(
+          LoginPage.routeName,
+          extra: parsedChallengerCode,
+        );
+        return;
+      }
+
+      final registrationStatus = AuthService.getRegistrationStatus(user);
+      if (registrationStatus.registeredRole == UserRole.none) {
+        router.push(SupporterSignupPage.routeName, extra: parsedChallengerCode);
+        return;
+      }
+
+      router.push(HomePage.routeName);
     } catch (error) {
       _handleError('초대링크 처리 에러', error);
     }
@@ -63,6 +82,6 @@ class InviteLinkService {
 
   static void _handleError(String message, dynamic error) {
     // TODO: 에러 로깅
-    router.go(HomePage.routeName); // 또는 다른 적절한 fallback 라우트
+    router.go(SplashPage.routeName);
   }
 }
