@@ -2,14 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/screens/home_page.dart';
+import 'package:notiyou/screens/supporter_signup_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 
 import 'package:notiyou/screens/signup_page.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+  static const routeName = '/login';
+  final String? initialChallengerCode;
 
-  static const String routeName = '/login';
+  const LoginPage({
+    super.key,
+    this.initialChallengerCode,
+  });
 
   Future<void> _handleKakaoLogin(BuildContext context) async {
     try {
@@ -22,10 +27,19 @@ class LoginPage extends StatelessWidget {
       if (!context.mounted) {
         return;
       }
-      if (registrationStatus.registeredRole == UserRole.none) {
-        context.go(SignupPage.routeName);
-      } else {
+
+      if (registrationStatus.registeredRole != UserRole.none) {
         context.go(HomePage.routeName);
+        return;
+      }
+
+      if (registrationStatus.registeredRole == UserRole.none) {
+        if (initialChallengerCode != null) {
+          context.go(SupporterSignupPage.routeName,
+              extra: initialChallengerCode);
+        } else {
+          context.go(SignupPage.routeName);
+        }
       }
     } catch (error) {
       if (context.mounted) {
