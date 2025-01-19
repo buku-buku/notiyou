@@ -1,30 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:notiyou/models/mission_history.dart';
+import 'package:notiyou/models/mission.dart';
 
 const incompleteText = '미완료';
 const done = (color: Colors.green, icon: Icons.check_circle);
 const notDone = (color: Colors.red, icon: Icons.cancel);
 
 class MissionHistoryListItem extends StatelessWidget {
-  final MissionHistory missionHistory;
+  final Mission mission;
 
-  const MissionHistoryListItem({super.key, required this.missionHistory});
+  const MissionHistoryListItem({super.key, required this.mission});
 
   @override
   Widget build(BuildContext context) {
-    final isDone = missionHistory.doneAt != null;
+    final isDone = mission.isCompleted;
     final doneAtText = isDone
-        ? TimeOfDay.fromDateTime(DateTime.parse(missionHistory.doneAt!))
-            .format(context)
+        ? TimeOfDay.fromDateTime(mission.completedAt!).format(context)
         : incompleteText;
 
-    final missionAtText =
-        TimeOfDay.fromDateTime(DateTime.parse(missionHistory.missionAt))
-            .format(context);
+    final missionAtText = mission.time.format(context);
 
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      title: Text('미션 ${missionHistory.missionId}'),
+      title: Text('미션 ${mission.id}'),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
