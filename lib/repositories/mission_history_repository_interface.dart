@@ -24,4 +24,6 @@ abstract interface class MissionHistoryRepository {
 
   // TODO: removeMissionById를 제공하고 해당 메서드 삭제
   Future<void> removeTodayMission(int missionNumber);
+
+  Future<List<Mission>> findAllMissions();
 }
