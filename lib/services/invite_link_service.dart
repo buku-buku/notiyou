@@ -47,7 +47,7 @@ class InviteLinkService {
     }
   }
 
-  static void _handleLink(Uri uri) async {
+  static Future<void> _handleLink(Uri uri) async {
     try {
       String? parsedChallengerCode;
       if (uri.scheme.startsWith('kakao')) {
