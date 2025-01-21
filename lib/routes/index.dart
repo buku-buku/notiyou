@@ -16,7 +16,9 @@ final routes = <RouteBase>[
   ),
   GoRoute(
     path: LoginPage.routeName,
-    builder: (context, state) => const LoginPage(),
+    builder: (context, state) => LoginPage(
+      initialChallengerCode: state.extra as String?,
+    ),
   ),
   GoRoute(
     path: SignupPage.routeName,
