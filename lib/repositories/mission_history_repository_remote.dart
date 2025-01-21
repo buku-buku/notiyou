@@ -132,6 +132,30 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
         .toList();
   }
 
+  @override
+  Future<List<Mission>> findAllMissions() async {
+    final missionHistoryEntities =
+        await SupabaseService.client.from('mission_history').select('''
+        id,
+        done_at,
+        created_at,
+        mission_at,
+        challenger_mission_time (
+          id,
+          mission_number,
+          challenger_id
+        )
+      ''');
+
+    final missions = missionHistoryEntities
+        .map((e) => Mission.fromMissionHistoryEntity(e))
+        .toList();
+
+    missions.sort((a, b) => int.parse(a.id).compareTo(int.parse(b.id)));
+
+    return missions;
+  }
+
   Map<String, dynamic> _syncEntityTimeZone(
       {required Map<String, dynamic> entity, required DateTime baseDate}) {
     return {

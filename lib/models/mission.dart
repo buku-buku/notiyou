@@ -87,3 +87,12 @@ class Mission {
     return '${localCompletedAt.hour.toString().padLeft(2, '0')}:${localCompletedAt.minute.toString().padLeft(2, '0')}';
   }
 }
+
+extension MissionHelpers on Mission {
+  Mission withLocalTimes() {
+    return copyWith(
+      completedAt: completedAt?.toLocal(),
+      date: date.toLocal(),
+    );
+  }
+}

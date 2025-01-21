@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:notiyou/models/mission.dart';
 import 'package:notiyou/utils/time_utils.dart';
 import 'package:notiyou/widgets/mission_history_list_item.dart';
-import 'package:notiyou/models/mission_history.dart';
 import 'package:notiyou/services/mission_history_service.dart';
 
 class HistoryPage extends StatefulWidget {
@@ -14,7 +14,7 @@ class HistoryPage extends StatefulWidget {
 }
 
 class _HistoryPageState extends State<HistoryPage> {
-  Map<String, List<MissionHistory>> groupedMissionHistories = {};
+  Map<String, List<Mission>> groupedMissions = {};
 
   @override
   void initState() {
@@ -23,45 +23,43 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Future<void> _loadMissionHistories() async {
-    // TODO(민철): 아래 더미 데이터를 MissionHistoryService에서 사용할 수 있는 실제 유저 아이디로 변경해야 합니다.
-    var missionHistories =
-        await MissionHistoryService.getMissionHistoriesByUserId('1234');
+    var missions = await MissionHistoryService.getAllMissions();
 
     setState(() {
-      groupedMissionHistories = _groupMissionHistoriesByDate(missionHistories);
+      groupedMissions = _groupMissionsByDate(missions);
     });
   }
 
-  Map<String, List<MissionHistory>> _groupMissionHistoriesByDate(
-      List<MissionHistory> missionHistories) {
-    final Map<String, List<MissionHistory>> groupedMissionHistories = {};
+  Map<String, List<Mission>> _groupMissionsByDate(List<Mission> missions) {
+    final Map<String, List<Mission>> groupedMissions = {};
 
-    for (var history in missionHistories) {
+    for (var mission in missions) {
       final dateKey = TimeUtils.formatDateTime(
-        date: DateTime.parse(history.missionAt),
+        date: mission.date,
         format: 'yyyy-MM-dd (E)',
       );
 
-      if (groupedMissionHistories.containsKey(dateKey)) {
-        groupedMissionHistories[dateKey]!.add(history);
+      if (groupedMissions.containsKey(dateKey)) {
+        groupedMissions[dateKey]!.add(mission);
       } else {
-        groupedMissionHistories[dateKey] = [history];
+        groupedMissions[dateKey] = [mission];
       }
     }
-    return groupedMissionHistories;
+
+    return groupedMissions;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('히스토리')),
-      body: groupedMissionHistories.isEmpty
+      body: groupedMissions.isEmpty
           ? const Center(child: Text('미션 히스토리가 없습니다.'))
           : ListView.builder(
-              itemCount: groupedMissionHistories.keys.length,
+              itemCount: groupedMissions.keys.length,
               itemBuilder: (context, index) {
-                final dateKey = groupedMissionHistories.keys.elementAt(index);
-                final histories = groupedMissionHistories[dateKey]!;
+                final dateKey = groupedMissions.keys.elementAt(index);
+                final missions = groupedMissions[dateKey]!;
 
                 return StyledGroup(
                   child: Column(
@@ -71,8 +69,8 @@ class _HistoryPageState extends State<HistoryPage> {
                         dateKey,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      ...histories.map((history) =>
-                          MissionHistoryListItem(missionHistory: history)),
+                      ...missions.map((mission) =>
+                          MissionHistoryListItem(mission: mission)),
                     ],
                   ),
                 );

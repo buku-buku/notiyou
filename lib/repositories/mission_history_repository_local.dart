@@ -126,4 +126,9 @@ class MissionHistoryRepositoryLocal implements MissionHistoryRepository {
     final updatedMissions = missions.where((m) => m.id != id).toList();
     await _setMissions(date, updatedMissions);
   }
+
+  @override
+  Future<List<Mission>> findAllMissions() async {
+    throw UnimplementedError('findAllMissions is not implemented');
+  }
 }

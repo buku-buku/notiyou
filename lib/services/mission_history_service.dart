@@ -1,6 +1,4 @@
 import 'package:notiyou/models/mission.dart';
-import 'package:notiyou/models/mission_history.dart';
-import 'package:notiyou/fixtures/mission_history.dart';
 import 'package:notiyou/repositories/mission_history_repository_interface.dart';
 import 'package:notiyou/repositories/mission_history_repository_local.dart';
 import 'package:notiyou/repositories/mission_history_repository_remote.dart';
@@ -9,9 +7,13 @@ class MissionHistoryService {
   static MissionHistoryRepository _missionHistoryRepository =
       MissionHistoryRepositoryRemote();
 
-  static Future<List<MissionHistory>> getMissionHistoriesByUserId(
-      String userId) async {
-    return missionHistoriesFixture;
+  static Future<List<Mission>> getAllMissions() async {
+    final missions = await _missionHistoryRepository.findAllMissions();
+
+    final missionsInLocalTime =
+        missions.map((mission) => mission.withLocalTimes()).toList();
+
+    return missionsInLocalTime;
   }
 
   // 미션 완료 상태 토글 및 히스토리 저장
