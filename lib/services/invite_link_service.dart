@@ -1,5 +1,4 @@
 import 'package:app_links/app_links.dart';
-import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/routes/router.dart';
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/screens/login_page.dart';
@@ -59,24 +58,22 @@ class InviteLinkService {
         throw Exception('올바른 초대링크가 아닙니다');
       }
 
-      final user = await AuthService.getUser();
-      if (user == null) {
-        router.push(
-          LoginPage.routeName,
-          extra: parsedChallengerCode,
-        );
-        return;
-      }
-
-      final registrationStatus = AuthService.getRegistrationStatus(user);
-      if (registrationStatus.registeredRole == UserRole.none) {
-        router.push(SupporterSignupPage.routeName, extra: parsedChallengerCode);
-        return;
-      }
-
-      router.push(HomePage.routeName);
+      _navigateUserByStatus(parsedChallengerCode);
     } catch (error) {
       _handleError('초대링크 처리 에러', error);
+    }
+  }
+
+  static Future<void> _navigateUserByStatus(
+      String? parsedChallengerCode) async {
+    final user = await AuthService.getUser();
+
+    if (user == null) {
+      router.push(LoginPage.routeName, extra: parsedChallengerCode);
+    } else if (AuthService.isRegistrationCompleted(user)) {
+      router.push(HomePage.routeName);
+    } else {
+      router.push(SupporterSignupPage.routeName, extra: parsedChallengerCode);
     }
   }
 
