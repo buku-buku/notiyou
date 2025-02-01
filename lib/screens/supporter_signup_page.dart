@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:notiyou/models/registration_status.dart';
+import 'package:notiyou/routes/router.dart';
+import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'dart:async';
 
 import 'package:notiyou/services/challenger_code/challenger_code_exception.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
+import 'package:notiyou/services/mission_config_service.dart';
+import 'package:notiyou/services/mission_supporter_exception.dart';
 
 class SupporterSignupPage extends StatefulWidget {
   const SupporterSignupPage({
@@ -79,17 +83,49 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
     }
   }
 
+  Future<void> _registerMissionSupporter(String code) async {
+    // TODO: 추출 로직 오류로 동작 안 함
+    final challengerId = await _challengerCodeService.extractUserId(code);
+    final user = await AuthService.getUser();
+    if (user == null) {
+      throw Exception('User not found');
+    }
+    await MissionConfigService.saveMissionSupporter(challengerId, user.id);
+    await AuthService.setRole(UserRole.supporter);
+  }
+
   void _onNextPressed() async {
     final code = _challengerCodeController.text;
     if (!_isValidated && !await _validateChallengerCode(code)) {
-      return;
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('도전자의 초대 코드가 유효하지 않습니다.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
 
-    // TODO: 도전자의 미션들의 서포터로 해당 유저를 등록
-
-    await AuthService.setRole(UserRole.supporter);
-
-    debugPrint('도전자 코드 입력 완료: $code');
+    try {
+      await _registerMissionSupporter(code);
+      router.push(HomePage.routeName);
+    } on MissionSupporterException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('조력자 등록 중 오류가 발생했습니다.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   @override
