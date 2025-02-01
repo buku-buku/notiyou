@@ -8,7 +8,8 @@ import 'package:notiyou/utils/time_utils.dart';
 ///
 /// 설정된 미션 시간은 서버에 기록되며, 서버에서 미션을 생성할때 사용됩니다.
 ///
-class MissionTimeRepositoryRemote implements MissionTimeRepository {
+class MissionTimeRepositoryRemote
+    implements MissionTimeRepository, MissionSupporterRepository {
   // 싱글턴 인스턴스
   static final MissionTimeRepositoryRemote _instance =
       MissionTimeRepositoryRemote._internal();
@@ -43,6 +44,24 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
     return mission.isNotEmpty
         ? TimeUtils.parseTime(mission.first['mission_at'])
         : null;
+  }
+
+  // TODO: 조력자와 미션(도전자)를 매칭하는 방식 개편 필요
+  @override
+  Future getMissionByUserId(String challengerId) async {
+    final mission = await supabaseClient
+        .from('challenger_mission_time')
+        .select('*')
+        .eq('challenger_id', challengerId);
+
+    return mission;
+  }
+
+  @override
+  Future<void> setMissionSupporter(
+      String challengerId, String supporterId) async {
+    await supabaseClient.from('challenger_mission_time').update(
+        {'supporter_id': supporterId}).eq('challenger_id', challengerId);
   }
 
   // 미션 시간 설정
