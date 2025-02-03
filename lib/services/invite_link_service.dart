@@ -9,6 +9,12 @@ import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
 import 'package:notiyou/services/dotenv_service.dart';
 
+enum InvitedUserStatus {
+  guest,
+  unregisteredUser,
+  registeredUser,
+}
+
 class InviteLinkService {
   static final _appLinks = AppLinks();
   static final ChallengerCodeService _challengerCodeService =
@@ -58,22 +64,30 @@ class InviteLinkService {
         throw Exception('올바른 초대링크가 아닙니다');
       }
 
-      _navigateUserByStatus(parsedChallengerCode);
+      final userStatus = await _checkUserStatus();
+      switch (userStatus) {
+        case InvitedUserStatus.guest:
+          router.push(LoginPage.routeName, extra: parsedChallengerCode);
+        case InvitedUserStatus.unregisteredUser:
+          router.push(SupporterSignupPage.routeName,
+              extra: parsedChallengerCode);
+        case InvitedUserStatus.registeredUser:
+          router.push(HomePage.routeName);
+      }
     } catch (error) {
       _handleError('초대링크 처리 에러', error);
     }
   }
 
-  static Future<void> _navigateUserByStatus(
-      String? parsedChallengerCode) async {
+  static Future<InvitedUserStatus> _checkUserStatus() async {
     final user = await AuthService.getUser();
 
     if (user == null) {
-      router.push(LoginPage.routeName, extra: parsedChallengerCode);
+      return InvitedUserStatus.guest;
     } else if (AuthService.isRegistrationCompleted(user)) {
-      router.push(HomePage.routeName);
+      return InvitedUserStatus.registeredUser;
     } else {
-      router.push(SupporterSignupPage.routeName, extra: parsedChallengerCode);
+      return InvitedUserStatus.unregisteredUser;
     }
   }
 
