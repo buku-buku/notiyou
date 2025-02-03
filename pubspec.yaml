@@ -20,6 +20,7 @@ dependencies:
   flutter_native_splash: ^2.4.3
   app_links: ^3.5.0
   crypto: ^3.0.6
+  encrypt: ^5.0.3
 
 dev_dependencies:
   flutter_test:
