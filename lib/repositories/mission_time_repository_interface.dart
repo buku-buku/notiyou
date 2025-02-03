@@ -7,7 +7,8 @@ abstract interface class MissionTimeRepository {
   Future<void> clearMissionTime(int missionNumber);
 }
 
-abstract interface class MissionSupporterRepository {
+abstract interface class MissionSupporterRepository
+    implements MissionTimeRepository {
   Future getMissionByUserId(String userId);
   Future<void> setMissionSupporter(String challengerId, String supporterId);
 }

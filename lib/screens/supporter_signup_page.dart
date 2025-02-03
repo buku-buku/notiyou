@@ -8,7 +8,7 @@ import 'dart:async';
 import 'package:notiyou/services/challenger_code/challenger_code_exception.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
-import 'package:notiyou/services/mission_config_service.dart';
+import 'package:notiyou/services/mission_supporter_config_service.dart';
 import 'package:notiyou/services/mission_supporter_exception.dart';
 
 class SupporterSignupPage extends StatefulWidget {
@@ -90,7 +90,8 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
     if (user == null) {
       throw Exception('User not found');
     }
-    await MissionConfigService.saveMissionSupporter(challengerId, user.id);
+    await MissionSupporterConfigService.saveMissionSupporter(
+        challengerId, user.id);
     await AuthService.setRole(UserRole.supporter);
   }
 
