@@ -54,12 +54,12 @@ class InviteLinkService {
 
   static Future<void> _handleLink(Uri uri) async {
     try {
-      String? parsedChallengerCode;
+      String? challengerCode;
       if (uri.scheme.startsWith('kakao')) {
         final uriString = uri.toString();
-        parsedChallengerCode = uriString.split('challenger_code=').last;
+        challengerCode = uriString.split('challenger_code=').last;
       } else if (uri.path.startsWith('/invite/')) {
-        parsedChallengerCode = uri.pathSegments.last;
+        challengerCode = uri.pathSegments.last;
       } else {
         throw Exception('올바른 초대링크가 아닙니다');
       }
@@ -67,10 +67,9 @@ class InviteLinkService {
       final userStatus = await _checkUserStatus();
       switch (userStatus) {
         case InvitedUserStatus.guest:
-          router.push(LoginPage.routeName, extra: parsedChallengerCode);
+          router.push(LoginPage.routeName, extra: challengerCode);
         case InvitedUserStatus.unregisteredUser:
-          router.push(SupporterSignupPage.routeName,
-              extra: parsedChallengerCode);
+          router.push(SupporterSignupPage.routeName, extra: challengerCode);
         case InvitedUserStatus.registeredUser:
           router.push(HomePage.routeName);
       }
