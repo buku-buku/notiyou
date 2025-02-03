@@ -60,4 +60,11 @@ class MissionTimeRepositoryLocal implements MissionTimeRepository {
     final key = _getMissionKey(missionNumber);
     await _prefs!.remove(key);
   }
+
+  @override
+  Future getMissionByUserId(String userId) async {}
+
+  @override
+  Future<void> setMissionSupporter(
+      String challengerId, String supporterId) async {}
 }

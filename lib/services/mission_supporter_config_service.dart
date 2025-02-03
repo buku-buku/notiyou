@@ -1,10 +1,11 @@
 import 'package:notiyou/repositories/mission_time_repository_interface.dart';
+import 'package:notiyou/repositories/mission_time_repository_local.dart';
 import 'package:notiyou/repositories/mission_time_repository_remote.dart';
 import 'package:notiyou/services/mission_supporter_exception.dart';
 
 class MissionSupporterConfigService {
   static bool _isLocalMode = false;
-  static final MissionSupporterRepository _missionTimeRepository =
+  static MissionTimeRepository _missionTimeRepository =
       MissionTimeRepositoryRemote();
 
   static Future<void> init() async {
@@ -29,5 +30,6 @@ class MissionSupporterConfigService {
 
   static switchToLocalRepository() {
     _isLocalMode = true;
+    _missionTimeRepository = MissionTimeRepositoryLocal();
   }
 }

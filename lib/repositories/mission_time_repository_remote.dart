@@ -8,8 +8,7 @@ import 'package:notiyou/utils/time_utils.dart';
 ///
 /// 설정된 미션 시간은 서버에 기록되며, 서버에서 미션을 생성할때 사용됩니다.
 ///
-class MissionTimeRepositoryRemote
-    implements MissionTimeRepository, MissionSupporterRepository {
+class MissionTimeRepositoryRemote implements MissionTimeRepository {
   // 싱글턴 인스턴스
   static final MissionTimeRepositoryRemote _instance =
       MissionTimeRepositoryRemote._internal();
