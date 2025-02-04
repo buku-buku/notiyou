@@ -12,9 +12,6 @@ class ChallengerCodeServiceImpl implements ChallengerCodeService {
   // 테스트용 고정 키
   static final _key =
       encrypt.Key.fromBase64(DotEnvService.getValue('CHALLENGER_CODE_KEY'));
-  // 테스트용 고정 IV
-  static final _iv =
-      encrypt.IV.fromBase64(DotEnvService.getValue('CHALLENGER_CODE_IV'));
 
   @override
   Future<String> generateCode(String userId) async {
@@ -27,7 +24,7 @@ class ChallengerCodeServiceImpl implements ChallengerCodeService {
       }
 
       final encrypter = encrypt.Encrypter(encrypt.AES(_key));
-      final encrypted = encrypter.encrypt(userId, iv: _iv);
+      final encrypted = encrypter.encrypt(userId);
 
       // URL 안전한 base64로 인코딩 ('+' -> '-', '/' -> '_', '=' 제거)
       return base64Url.encode(encrypted.bytes);
@@ -57,10 +54,7 @@ class ChallengerCodeServiceImpl implements ChallengerCodeService {
       final bytes = base64Url.decode(code);
 
       // 복호화
-      final decrypted = encrypter.decrypt(
-        encrypt.Encrypted(bytes),
-        iv: _iv,
-      );
+      final decrypted = encrypter.decrypt(encrypt.Encrypted(bytes));
 
       return decrypted;
     } catch (e) {
