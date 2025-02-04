@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notiyou/repositories/mission_time_repository_interface.dart';
+import 'package:notiyou/repositories/supabase_table_names_constants.dart';
 import 'package:notiyou/services/supabase_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:notiyou/utils/time_utils.dart';
@@ -35,7 +36,7 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
     }
 
     final mission = await supabaseClient
-        .from('challenger_mission_time')
+        .from(SupabaseTableNames.challengerMissionTime)
         .select('mission_at')
         .eq('challenger_id', userId)
         .eq('mission_number', missionNumber);
@@ -53,19 +54,21 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
       throw const AuthException('User not found');
     }
     final hasMission = await supabaseClient
-        .from('challenger_mission_time')
+        .from(SupabaseTableNames.challengerMissionTime)
         .select('id')
         .eq('challenger_id', userId)
         .eq('mission_number', missionNumber);
 
     if (hasMission.isNotEmpty) {
       await supabaseClient
-          .from('challenger_mission_time')
+          .from(SupabaseTableNames.challengerMissionTime)
           .update({'mission_at': TimeUtils.stringifyTime(time)})
           .eq('challenger_id', userId)
           .eq('mission_number', missionNumber);
     } else {
-      await supabaseClient.from('challenger_mission_time').insert({
+      await supabaseClient
+          .from(SupabaseTableNames.challengerMissionTime)
+          .insert({
         'challenger_id': userId,
         'mission_number': missionNumber,
         'mission_at': TimeUtils.stringifyTime(time),
@@ -81,7 +84,7 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
       throw const AuthException('User not found');
     }
     await supabaseClient
-        .from('challenger_mission_time')
+        .from(SupabaseTableNames.challengerMissionTime)
         .delete()
         .eq('challenger_id', userId)
         .eq('mission_number', missionNumber);

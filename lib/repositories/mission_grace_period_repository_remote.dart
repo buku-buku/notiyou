@@ -1,4 +1,5 @@
 import 'package:notiyou/repositories/mission_grace_period_repository_interface.dart';
+import 'package:notiyou/repositories/supabase_table_names_constants.dart';
 import 'package:notiyou/services/supabase_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -23,7 +24,7 @@ class MissionGracePeriodRepositoryRemote
     }
 
     final gracePeriod = await supabaseClient
-        .from('challenger_grace_period')
+        .from(SupabaseTableNames.challengerGracePeriod)
         .select('grace_period')
         .eq('challenger_id', userId);
 
@@ -38,13 +39,13 @@ class MissionGracePeriodRepositoryRemote
     }
 
     final hasGracePeriod = await supabaseClient
-        .from('challenger_grace_period')
+        .from(SupabaseTableNames.challengerGracePeriod)
         .select('id')
         .eq('challenger_id', userId);
 
     if (hasGracePeriod.isNotEmpty) {
       await supabaseClient
-          .from('challenger_grace_period')
+          .from(SupabaseTableNames.challengerGracePeriod)
           .update({'grace_period': gracePeriod}).eq('challenger_id', userId);
     } else {
       await supabaseClient

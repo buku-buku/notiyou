@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notiyou/models/mission.dart';
+import 'package:notiyou/repositories/supabase_table_names_constants.dart';
 import 'package:notiyou/repositories/mission_history_repository_interface.dart';
 import 'package:notiyou/services/supabase_service.dart';
 import 'package:notiyou/utils/time_utils.dart';
@@ -17,18 +18,21 @@ import 'package:notiyou/utils/time_utils.dart';
 class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
   @override
   Future<Mission?> findMissionById(String id) async {
-    final entity =
-        await SupabaseService.client.from('mission_history').select('''
+    final entity = await SupabaseService.client
+        .from(SupabaseTableNames.missionHistory)
+        .select('''
           id,
           done_at,
           created_at,
           mission_at,
-          challenger_mission_time (
+          ${SupabaseTableNames.challengerMissionTime} (
             id,
             mission_number,
             challenger_id
           )
-        ''').eq('id', id).single();
+        ''')
+        .eq('id', id)
+        .single();
 
     return Mission.fromMissionHistoryEntity(entity);
   }
@@ -44,20 +48,25 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
     final today = DateTime.now();
 
     await SupabaseService.client
-        .from('mission_history')
+        .from(SupabaseTableNames.missionHistory)
         .delete()
-        .eq('challenger_mission_time.mission_number', missionNumber)
+        .eq('${SupabaseTableNames.challengerMissionTime}.mission_number',
+            missionNumber)
         .gte('created_at', today.toUtc().toIso8601String());
   }
 
   @override
   Future<void> updateMission(Mission mission) async {
     if (mission.completedAt == null) {
-      await SupabaseService.client.from('mission_history').update({
+      await SupabaseService.client
+          .from(SupabaseTableNames.missionHistory)
+          .update({
         'done_at': null,
       }).eq('id', mission.id);
     } else {
-      await SupabaseService.client.from('mission_history').update({
+      await SupabaseService.client
+          .from(SupabaseTableNames.missionHistory)
+          .update({
         'done_at': mission.completedAt!.toUtc().toIso8601String(),
       }).eq('id', mission.id);
     }
@@ -66,12 +75,14 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
   @override
   Future<void> createTodayMission(int missionNumber) async {
     final newMission = await SupabaseService.client
-        .from('challenger_mission_time')
+        .from(SupabaseTableNames.challengerMissionTime)
         .select('id, mission_at')
         .eq('mission_number', missionNumber)
         .single();
 
-    await SupabaseService.client.from('mission_history').insert({
+    await SupabaseService.client
+        .from(SupabaseTableNames.missionHistory)
+        .insert({
       'mission_id': newMission['id'],
       'mission_at': newMission['mission_at'],
     });
@@ -87,12 +98,14 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
   // TODO: updateMission 메서드에서 처리
   Future<void> updateTodayMissionTime(int missionNumber, TimeOfDay time) async {
     final mission = await SupabaseService.client
-        .from('challenger_mission_time')
+        .from(SupabaseTableNames.challengerMissionTime)
         .select('id')
         .eq('mission_number', missionNumber)
         .single();
 
-    await SupabaseService.client.from('mission_history').update({
+    await SupabaseService.client
+        .from(SupabaseTableNames.missionHistory)
+        .update({
       'mission_at': TimeUtils.stringifyTime(time),
     }).eq('mission_id', mission['id']);
   }
@@ -104,13 +117,13 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
     final tomorrow = today.add(const Duration(days: 1));
 
     final missionHistoryEntities = await SupabaseService.client
-        .from('mission_history')
+        .from(SupabaseTableNames.missionHistory)
         .select('''
           id,
           done_at,
           created_at,
           mission_at,
-          challenger_mission_time (
+          ${SupabaseTableNames.challengerMissionTime} (
             id,
             mission_number,
             challenger_id
@@ -134,13 +147,14 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
 
   @override
   Future<List<Mission>> findAllMissions() async {
-    final missionHistoryEntities =
-        await SupabaseService.client.from('mission_history').select('''
+    final missionHistoryEntities = await SupabaseService.client
+        .from(SupabaseTableNames.missionHistory)
+        .select('''
         id,
         done_at,
         created_at,
         mission_at,
-        challenger_mission_time (
+        ${SupabaseTableNames.challengerMissionTime} (
           id,
           mission_number,
           challenger_id
