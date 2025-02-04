@@ -1,11 +1,27 @@
 class ChallengerCodeException implements Exception {
   final String message;
   final ChallengerCodeExceptionType type;
+  final String? details;
 
   const ChallengerCodeException({
     required this.message,
     required this.type,
+    this.details,
   });
+
+  @override
+  String toString() {
+    final buffer = StringBuffer()
+      ..writeln('ChallengerCodeException:')
+      ..writeln('  Type: $type')
+      ..writeln('  Message: $message');
+
+    if (details != null) {
+      buffer.writeln('  Details: $details');
+    }
+
+    return buffer.toString();
+  }
 }
 
 // 에러 타입 열거형

@@ -32,9 +32,10 @@ class ChallengerCodeServiceImpl implements ChallengerCodeService {
       // URL 안전한 base64로 인코딩 ('+' -> '-', '/' -> '_', '=' 제거)
       return base64Url.encode(encrypted.bytes);
     } catch (e) {
-      throw const ChallengerCodeException(
+      throw ChallengerCodeException(
         message: '도전자 코드 생성에 실패했습니다',
         type: ChallengerCodeExceptionType.creationFailed,
+        details: e.toString(),
       );
     }
   }
@@ -64,9 +65,10 @@ class ChallengerCodeServiceImpl implements ChallengerCodeService {
       return decrypted;
     } catch (e) {
       if (e is ChallengerCodeException) rethrow;
-      throw const ChallengerCodeException(
+      throw ChallengerCodeException(
         message: '사용자 ID 추출에 실패했습니다',
         type: ChallengerCodeExceptionType.unknown,
+        details: e.toString(),
       );
     }
   }
