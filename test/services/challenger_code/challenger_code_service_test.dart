@@ -1,3 +1,4 @@
+import 'package:encrypt/encrypt.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_exception.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
@@ -9,6 +10,10 @@ void main() {
 
   setUp(() async {
     await DotEnvService.init();
+    final secretKey = Encrypted.fromSecureRandom(32).base64;
+    final iv = Encrypted.fromSecureRandom(16).base64;
+    DotEnvService.mockValue('CHALLENGER_CODE_KEY', secretKey);
+    DotEnvService.mockValue('CHALLENGER_CODE_IV', iv);
     service = ChallengerCodeServiceImpl.instance;
   });
 
