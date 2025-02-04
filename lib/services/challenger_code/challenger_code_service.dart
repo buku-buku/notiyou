@@ -79,5 +79,14 @@ class ChallengerCodeServiceImpl implements ChallengerCodeService {
         type: ChallengerCodeExceptionType.empty,
       );
     }
+    try {
+      await extractUserId(code);
+    } catch (e) {
+      throw ChallengerCodeException(
+        message: '도전자 코드 검증에 실패했습니다',
+        type: ChallengerCodeExceptionType.invalid,
+        details: e.toString(),
+      );
+    }
   }
 }
