@@ -36,19 +36,19 @@ class MissionAlarmService {
     if (!await AuthService.isLoggedIn()) {
       return;
     }
-    final firstMissionTime = await _missionTimeRepository.getMissionTime(1);
-    final secondMissionTime = await _missionTimeRepository.getMissionTime(2);
+    final missionTimes = await _missionTimeRepository.getMissionTimes();
 
-    if (firstMissionTime != null) {
-      await scheduleAlarm(1, firstMissionTime);
-    }
-    if (secondMissionTime != null) {
-      await scheduleAlarm(2, secondMissionTime);
+    for (var missionTime in missionTimes) {
+      if (missionTime == null) {
+        continue;
+      }
+
+      scheduleAlarm(missionTime.id, missionTime.missionAt);
     }
   }
 
   static Future<void> scheduleAlarm(
-      int missionNumber, TimeOfDay missionTime) async {
+      int missionId, TimeOfDay missionTime) async {
     final now = DateTime.now();
     var scheduledTime = DateTime(
       now.year,
@@ -63,7 +63,7 @@ class MissionAlarmService {
     }
 
     await LocalNotificationService.scheduleNotification(
-      id: missionNumber,
+      id: missionId,
       title: '미션 알림',
       body: '미션 시간입니다!',
       scheduledTime: scheduledTime,
@@ -71,19 +71,19 @@ class MissionAlarmService {
     );
   }
 
-  static Future<void> cancelAlarm(int missionNumber) async {
-    await LocalNotificationService.cancelNotification(missionNumber);
+  static Future<void> cancelAlarm(int missionId) async {
+    await LocalNotificationService.cancelNotification(missionId);
   }
 
   static Future<void> cancelAllAlarms() async {
     await LocalNotificationService.cancelAllNotifications();
   }
 
-  static Future<void> updateAlarm(int missionNumber, TimeOfDay? time) async {
-    await cancelAlarm(missionNumber);
+  static Future<void> updateAlarm(int missionId, TimeOfDay? time) async {
+    await cancelAlarm(missionId);
 
     if (time != null) {
-      await scheduleAlarm(missionNumber, time);
+      await scheduleAlarm(missionId, time);
     }
   }
 }
