@@ -1,17 +1,20 @@
+import 'package:encrypt/encrypt.dart' as encrypt;
 import 'dart:convert';
-import 'package:crypto/crypto.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_exception.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
-import 'dart:math';
+import 'package:notiyou/services/dotenv_service.dart';
 
 class ChallengerCodeServiceImpl implements ChallengerCodeService {
   ChallengerCodeServiceImpl._();
   static final ChallengerCodeServiceImpl instance =
       ChallengerCodeServiceImpl._();
 
-  static const _codeLength = 18;
-  static const _charset = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
-  static const _radix = 34;
+  // 테스트용 고정 키
+  static final _key =
+      encrypt.Key.fromBase64(DotEnvService.getValue('CHALLENGER_CODE_KEY'));
+  // 테스트용 고정 IV
+  static final _iv =
+      encrypt.IV.fromBase64(DotEnvService.getValue('CHALLENGER_CODE_IV'));
 
   @override
   Future<String> generateCode(String userId) async {
@@ -23,48 +26,22 @@ class ChallengerCodeServiceImpl implements ChallengerCodeService {
         );
       }
 
-      final userIdBytes = utf8.encode(userId);
-      final hash = sha256.convert(userIdBytes).bytes;
+      final encrypter = encrypt.Encrypter(encrypt.AES(_key));
+      final encrypted = encrypter.encrypt(userId, iv: _iv);
 
-      BigInt combinedNumber = BigInt.from(0);
-      for (var i = 0; i < 16; i++) {
-        combinedNumber = combinedNumber << 8;
-        combinedNumber += BigInt.from(hash[i]);
-      }
-
-      // 현재 시간 정보 추가 (마이크로초 단위까지)
-      final now = DateTime.now().microsecondsSinceEpoch;
-      combinedNumber += BigInt.from(now);
-
-      // 추가 엔트로피
-      final random = Random.secure();
-      for (var i = 0; i < 4; i++) {
-        combinedNumber = combinedNumber << 8;
-        combinedNumber += BigInt.from(random.nextInt(256));
-      }
-
-      // 코드 생성 (역순으로 생성)
-      final List<String> codeChars = List.filled(_codeLength, '');
-      final radixBig = BigInt.from(_radix);
-
-      for (var i = _codeLength - 1; i >= 0; i--) {
-        final index = (combinedNumber % radixBig).toInt();
-        final safeIndex = index % _charset.length;
-        codeChars[i] = _charset[safeIndex];
-        combinedNumber = combinedNumber ~/ radixBig;
-      }
-
-      return codeChars.join();
+      // URL 안전한 base64로 인코딩 ('+' -> '-', '/' -> '_', '=' 제거)
+      return base64Url.encode(encrypted.bytes);
     } catch (e) {
-      throw const ChallengerCodeException(
+      throw ChallengerCodeException(
         message: '도전자 코드 생성에 실패했습니다',
         type: ChallengerCodeExceptionType.creationFailed,
+        details: e.toString(),
       );
     }
   }
 
   @override
-  Future<void> verifyCode(String code) async {
+  Future<String> extractUserId(String code) async {
     try {
       if (code.isEmpty) {
         throw const ChallengerCodeException(
@@ -73,56 +50,45 @@ class ChallengerCodeServiceImpl implements ChallengerCodeService {
         );
       }
 
-      if (code.length != _codeLength) {
-        throw const ChallengerCodeException(
-          message: '도전자 코드는 18자리여야 합니다',
-          type: ChallengerCodeExceptionType.invalid,
-        );
-      }
+      // AES 복호화 설정
+      final encrypter = encrypt.Encrypter(encrypt.AES(_key));
 
-      if (!code.split('').every((char) => _charset.contains(char))) {
-        throw const ChallengerCodeException(
-          message: '올바르지 않은 도전자 코드 형식입니다',
-          type: ChallengerCodeExceptionType.invalid,
-        );
-      }
+      // URL 안전한 base64 디코딩
+      final bytes = base64Url.decode(code);
+
+      // 복호화
+      final decrypted = encrypter.decrypt(
+        encrypt.Encrypted(bytes),
+        iv: _iv,
+      );
+
+      return decrypted;
     } catch (e) {
       if (e is ChallengerCodeException) rethrow;
-      throw const ChallengerCodeException(
-        message: '도전자 코드 검증에 실패했습니다',
+      throw ChallengerCodeException(
+        message: '사용자 ID 추출에 실패했습니다',
         type: ChallengerCodeExceptionType.unknown,
+        details: e.toString(),
       );
     }
   }
 
   @override
-  Future<String> extractUserId(String code) async {
-    try {
-      await verifyCode(code);
-
-      // 코드를 숫자로 변환
-      final number = _codeToNumber(code);
-
-      // 숫자를 16진수 문자열로 변환 (userId 해시값으로 사용)
-      final hashHex = number.toRadixString(16).padLeft(8, '0');
-
-      // 이 해시값을 userId로 사용
-      return hashHex;
-    } catch (e) {
-      if (e is ChallengerCodeException) rethrow;
+  Future<void> verifyCode(String code) async {
+    if (code.isEmpty) {
       throw const ChallengerCodeException(
-        message: '사용자 ID 추출에 실패했습니다',
-        type: ChallengerCodeExceptionType.unknown,
+        message: '도전자 코드를 입력해주세요',
+        type: ChallengerCodeExceptionType.empty,
       );
     }
-  }
-
-  BigInt _codeToNumber(String code) {
-    var number = BigInt.from(0);
-    for (var i = code.length - 1; i >= 0; i--) {
-      number =
-          number * BigInt.from(_radix) + BigInt.from(_charset.indexOf(code[i]));
+    try {
+      await extractUserId(code);
+    } catch (e) {
+      throw ChallengerCodeException(
+        message: '도전자 코드 검증에 실패했습니다',
+        type: ChallengerCodeExceptionType.invalid,
+        details: e.toString(),
+      );
     }
-    return number;
   }
 }

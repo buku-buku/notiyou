@@ -1,4 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:meta/meta.dart';
 
 class DotEnvService {
   static Future<void> init() async {
@@ -14,5 +15,15 @@ class DotEnvService {
       throw Exception('Key $key not found in .env file');
     }
     return value;
+  }
+
+  @visibleForTesting
+  static void mockValue(String key, String value) {
+    dotenv.env[key] = value;
+  }
+
+  @visibleForTesting
+  static void resetMocks() {
+    dotenv.env.clear();
   }
 }

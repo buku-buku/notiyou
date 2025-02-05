@@ -130,7 +130,7 @@ packages:
     source: hosted
     version: "2.0.0"
   encrypt:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: encrypt
       sha256: "62d9aa4670cc2a8798bab89b39fc71b6dfbacf615de6cf5001fb39f7e4a996a2"
@@ -449,7 +449,7 @@ packages:
     source: hosted
     version: "0.11.1"
   meta:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: meta
       sha256: bdb68674043280c3428e9ec998512fb681678676b3c54e773629ffe74419f8c7
