@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:notiyou/models/mission_time_model.dart';
 import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
@@ -22,9 +23,16 @@ class ChallengerConfigPage extends StatefulWidget {
   State<ChallengerConfigPage> createState() => _ChallengerConfigPageState();
 }
 
+class _MissionTimeConfig {
+  int? missionId;
+  TimeOfDay? missionTime;
+
+  _MissionTimeConfig({required this.missionId, required this.missionTime});
+}
+
 class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
-  TimeOfDay? _mission1Time;
-  TimeOfDay? _mission2Time;
+  _MissionTimeConfig? _mission1TimeConfig;
+  _MissionTimeConfig? _mission2TimeConfig;
   int _selectedGracePeriod = 0;
   bool _isSubmitLoading = false;
 
@@ -36,13 +44,21 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
   }
 
   Future<void> _loadSavedTimes() async {
-    final results = await Future.wait([
-      MissionConfigService.getMissionTime(1),
-      MissionConfigService.getMissionTime(2),
-    ]);
+    final results = await MissionConfigService.getMissionTimes();
     setState(() {
-      _mission1Time = results[0];
-      _mission2Time = results[1];
+      for (int i = 0; i < results.length; i++) {
+        if (i == 0) {
+          _mission1TimeConfig = _MissionTimeConfig(
+            missionId: results[i]!.id,
+            missionTime: results[i]!.missionAt,
+          );
+        } else if (i == 1) {
+          _mission2TimeConfig = _MissionTimeConfig(
+            missionId: results[i]!.id,
+            missionTime: results[i]!.missionAt,
+          );
+        }
+      }
     });
   }
 
@@ -54,36 +70,57 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
   }
 
   Future<void> _saveTimes() async {
-    final bool hasTimeChanged =
-        _mission1Time != await MissionConfigService.getMissionTime(1) ||
-            _mission2Time != await MissionConfigService.getMissionTime(2) ||
-            _selectedGracePeriod != await MissionConfigService.getGracePeriod();
+    final mission1TimeConfig = _mission1TimeConfig;
+    final mission2TimeConfig = _mission2TimeConfig;
 
-    if (hasTimeChanged == false) {
-      return;
+    if (mission1TimeConfig?.missionTime != null) {
+      await MissionConfigService.saveMissionTime(
+          mission1TimeConfig!.missionTime!, mission1TimeConfig.missionId);
+    } else if (mission1TimeConfig != null &&
+        mission1TimeConfig.missionId != null) {
+      await MissionConfigService.clearMissionTime(
+        missionId: mission1TimeConfig.missionId!,
+        missionAt: mission1TimeConfig.missionTime!.hour * 60 +
+            mission1TimeConfig.missionTime!.minute,
+      );
+    }
+    if (mission2TimeConfig?.missionTime != null) {
+      await MissionConfigService.saveMissionTime(
+          mission2TimeConfig!.missionTime!, mission2TimeConfig.missionId);
+    } else if (mission2TimeConfig != null &&
+        mission2TimeConfig.missionId != null) {
+      await MissionConfigService.clearMissionTime(
+        missionId: mission2TimeConfig.missionId!,
+        missionAt: mission2TimeConfig.missionTime!.hour * 60 +
+            mission2TimeConfig.missionTime!.minute,
+      );
     }
 
-    await MissionConfigService.saveMissionTime(1, _mission1Time);
-    await MissionConfigService.saveMissionTime(2, _mission2Time);
     await MissionConfigService.saveGracePeriod(_selectedGracePeriod);
   }
 
   Future<void> _selectTime(BuildContext context, bool isFirstMission) async {
+    print('selectTime: $isFirstMission');
     final initialTime = isFirstMission
-        ? _mission1Time ?? TimeOfDay.now()
-        : _mission2Time ?? TimeOfDay.now();
+        ? _mission1TimeConfig?.missionTime ?? TimeOfDay.now()
+        : _mission2TimeConfig?.missionTime ?? TimeOfDay.now();
 
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: initialTime,
     );
 
+    print('picked: $picked');
+
     if (picked != null) {
       setState(() {
         if (isFirstMission) {
-          _mission1Time = picked;
+          _mission1TimeConfig = _MissionTimeConfig(
+              missionId: _mission1TimeConfig?.missionId, missionTime: picked);
+          print('mission1Time: $_mission1TimeConfig');
         } else {
-          _mission2Time = picked;
+          _mission2TimeConfig = _MissionTimeConfig(
+              missionId: _mission2TimeConfig?.missionId, missionTime: picked);
         }
       });
     }
@@ -92,9 +129,9 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
   void _resetTime(bool isFirstMission) {
     setState(() {
       if (isFirstMission) {
-        _mission1Time = null;
+        _mission1TimeConfig = null;
       } else {
-        _mission2Time = null;
+        _mission2TimeConfig = null;
       }
     });
   }
@@ -115,7 +152,7 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
   }
 
   bool _isSubmittable() {
-    return _mission1Time != null;
+    return _mission1TimeConfig != null;
   }
 
   Future<void> _handleSubmit() async {
@@ -205,11 +242,12 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
                   TextButton(
                     onPressed: () => _selectTime(context, true),
                     child: Text(
-                      _mission1Time?.format(context) ?? '시간 선택',
+                      _mission1TimeConfig?.missionTime?.format(context) ??
+                          '시간 선택',
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),
-                  if (_mission1Time != null)
+                  if (_mission1TimeConfig != null)
                     IconButton(
                       icon: const Icon(Icons.clear),
                       onPressed: () => _resetTime(true),
@@ -225,11 +263,12 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
                   TextButton(
                     onPressed: () => _selectTime(context, false),
                     child: Text(
-                      _mission2Time?.format(context) ?? '시간 선택',
+                      _mission2TimeConfig?.missionTime?.format(context) ??
+                          '시간 선택',
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),
-                  if (_mission2Time != null)
+                  if (_mission2TimeConfig != null)
                     IconButton(
                       icon: const Icon(Icons.clear),
                       onPressed: () => _resetTime(false),
