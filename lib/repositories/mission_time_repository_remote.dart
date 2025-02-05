@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notiyou/models/mission_time_model.dart';
 import 'package:notiyou/repositories/mission_time_repository_interface.dart';
 import 'package:notiyou/repositories/supabase_table_names_constants.dart';
 import 'package:notiyou/services/supabase_service.dart';
@@ -27,66 +28,107 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
   @override
   Future<void> init() async {}
 
-  // 미션 시간 조회
   @override
-  Future<TimeOfDay?> getMissionTime(int missionNumber) async {
+  Future<List<MissionTime>> getMissionTimes() async {
+    final userId = supabaseClient.auth.currentUser?.id;
+    if (userId == null) {
+      throw const AuthException('User not found');
+    }
+
+    final missionTimes = await supabaseClient
+        .from(SupabaseTableNames.missionTime)
+        .select(
+            'id, created_at, updated_at, challenger_id, mission_at, supporter_id')
+        .eq('challenger_id', userId)
+        .order('mission_at', ascending: true);
+
+    return missionTimes
+        .map((entity) => MissionTime.fromJson(
+              id: entity['id'],
+              createdAt: entity['created_at'],
+              updatedAt: entity['updated_at'],
+              challengerId: entity['challenger_id'],
+              missionAt: entity['mission_at'],
+              supporterId: entity['supporter_id'],
+            ))
+        .toList();
+  }
+
+  @override
+  Future<MissionTime?> getMissionTime(int missionId) async {
     final userId = supabaseClient.auth.currentUser?.id;
     if (userId == null) {
       throw const AuthException('User not found');
     }
 
     final mission = await supabaseClient
-        .from(SupabaseTableNames.challengerMissionTime)
-        .select('mission_at')
+        .from(SupabaseTableNames.missionTime)
+        .select(
+            'id, created_at, updated_at, challenger_id, mission_at, supporter_id')
         .eq('challenger_id', userId)
-        .eq('mission_number', missionNumber);
+        .eq('id', missionId);
 
     return mission.isNotEmpty
-        ? TimeUtils.parseTime(mission.first['mission_at'])
+        ? MissionTime.fromJson(
+            id: mission.first['id'],
+            createdAt: mission.first['created_at'],
+            updatedAt: mission.first['updated_at'],
+            challengerId: mission.first['challenger_id'],
+            missionAt: mission.first['mission_at'],
+            supporterId: mission.first['supporter_id'],
+          )
         : null;
   }
 
   // 미션 시간 설정
   @override
-  Future<void> setMissionTime(int missionNumber, TimeOfDay time) async {
+  Future<MissionTime> setMissionTime(TimeOfDay time) async {
     final userId = supabaseClient.auth.currentUser?.id;
     if (userId == null) {
       throw const AuthException('User not found');
     }
-    final hasMission = await supabaseClient
-        .from(SupabaseTableNames.challengerMissionTime)
-        .select('id')
-        .eq('challenger_id', userId)
-        .eq('mission_number', missionNumber);
 
-    if (hasMission.isNotEmpty) {
-      await supabaseClient
-          .from(SupabaseTableNames.challengerMissionTime)
-          .update({'mission_at': TimeUtils.stringifyTime(time)})
-          .eq('challenger_id', userId)
-          .eq('mission_number', missionNumber);
-    } else {
-      await supabaseClient
-          .from(SupabaseTableNames.challengerMissionTime)
-          .insert({
-        'challenger_id': userId,
-        'mission_number': missionNumber,
-        'mission_at': TimeUtils.stringifyTime(time),
-      });
+    final mission = await supabaseClient
+        .from(SupabaseTableNames.missionTime)
+        .insert({
+          'challenger_id': userId,
+          'mission_at': TimeUtils.stringifyTime(time),
+        })
+        .select(
+            'id, created_at, updated_at, challenger_id, mission_at, supporter_id')
+        .single();
+
+    return MissionTime.fromJson(
+      id: mission['id'],
+      createdAt: mission['created_at'],
+      updatedAt: mission['updated_at'],
+      challengerId: mission['challenger_id'],
+      missionAt: mission['mission_at'],
+      supporterId: mission['supporter_id'],
+    );
+  }
+
+  @override
+  Future<void> updateMissionTime(int missionId, TimeOfDay time) async {
+    final userId = supabaseClient.auth.currentUser?.id;
+    if (userId == null) {
+      throw const AuthException('User not found');
     }
+    await supabaseClient.from(SupabaseTableNames.missionTime).update(
+        {'mission_at': TimeUtils.stringifyTime(time)}).eq('id', missionId);
   }
 
   // 미션 시간 초기화
   @override
-  Future<void> clearMissionTime(int missionNumber) async {
+  Future<void> removeMissionTime(int missionId) async {
     final userId = supabaseClient.auth.currentUser?.id;
     if (userId == null) {
       throw const AuthException('User not found');
     }
     await supabaseClient
-        .from(SupabaseTableNames.challengerMissionTime)
+        .from(SupabaseTableNames.missionTime)
         .delete()
         .eq('challenger_id', userId)
-        .eq('mission_number', missionNumber);
+        .eq('id', missionId);
   }
 }

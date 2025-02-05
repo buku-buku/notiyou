@@ -3,5 +3,5 @@ final class SupabaseTableNames {
   static const challengerGracePeriod = 'challenger_grace_period';
   static const missionHistory = 'mission_history';
   static const missionMessages = 'mission_messages';
-  static const challengerMissionTime = 'challenger_mission_time';
+  static const missionTime = 'mission_time';
 }
