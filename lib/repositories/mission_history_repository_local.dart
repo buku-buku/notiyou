@@ -56,19 +56,19 @@ class MissionHistoryRepositoryLocal implements MissionHistoryRepository {
   }
 
   @override
-  Future<void> createTodayMission(int missionNumber) async {
+  Future<void> createTodayMission(int missionId) async {
     throw UnimplementedError('createTodayMission is not implemented');
   }
 
   @override
-  Future<bool> hasTodayMission(int missionNumber) async {
+  Future<bool> hasTodayMission(int missionId) async {
     final missions = await findMissions(DateTime.now());
-    return missions.any((e) => e.missionNumber == missionNumber);
+    return missions.any((e) => e.id == missionId);
   }
 
   @override
   Future<void> updateTodayMissionTime(
-    int missionNumber,
+    int missionId,
     TimeOfDay time,
   ) async {
     throw UnimplementedError('updateTodayMissionTime is not implemented');
@@ -93,7 +93,7 @@ class MissionHistoryRepositoryLocal implements MissionHistoryRepository {
 
   /// ! 현재는 오늘의 미션에 대한 찾기만 지원함.
   @override
-  Future<Mission?> findMissionById(String id) async {
+  Future<Mission?> findMissionById(int id) async {
     final missions = await findMissions(DateTime.now());
     try {
       return missions.firstWhere((m) => m.id == id);
@@ -102,23 +102,9 @@ class MissionHistoryRepositoryLocal implements MissionHistoryRepository {
     }
   }
 
-  Future<Mission?> _findMissionByMissionNumber(
-      DateTime date, int missionNumber) async {
-    final missions = await findMissions(date);
-    try {
-      return missions.firstWhere((m) => m.missionNumber == missionNumber);
-    } catch (e) {
-      return null;
-    }
-  }
-
   @override
-  Future<void> removeTodayMission(int missionNumber) async {
-    final today = DateTime.now();
-    final mission = await _findMissionByMissionNumber(today, missionNumber);
-    if (mission != null) {
-      await _removeMissionById(today, mission.id);
-    }
+  Future<void> removeTodayMission(int missionId) async {
+    throw UnimplementedError('removeTodayMission is not implemented');
   }
 
   Future<void> _removeMissionById(DateTime date, String id) async {
