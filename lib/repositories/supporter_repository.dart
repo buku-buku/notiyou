@@ -1,5 +1,6 @@
 import 'package:notiyou/services/supabase_service.dart';
 
+// TODO: 사용 여부 확인
 class SupporterRepository {
   static Future<Map<String, dynamic>?> getSupporter(String userId) async {
     try {
