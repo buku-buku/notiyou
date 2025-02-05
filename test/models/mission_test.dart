@@ -8,8 +8,7 @@ void main() {
 
     setUp(() {
       mission = Mission(
-        id: 'test-id',
-        missionNumber: 1,
+        id: 1,
         time: const TimeOfDay(hour: 9, minute: 0),
         isCompleted: false,
         completedAt: null,
@@ -21,7 +20,6 @@ void main() {
       final copied = mission.copyWith();
 
       expect(copied.id, mission.id);
-      expect(copied.missionNumber, mission.missionNumber);
       expect(copied.time, mission.time);
       expect(copied.isCompleted, mission.isCompleted);
       expect(copied.completedAt, mission.completedAt);
