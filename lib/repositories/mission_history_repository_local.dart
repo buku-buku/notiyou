@@ -44,17 +44,6 @@ class MissionHistoryRepositoryLocal implements MissionHistoryRepository {
     return '${_missionStoreKey}_${TimeUtils.stringifyYearMonthDay(date)}';
   }
 
-  /// 미션 데이터 저장
-  /// 이후 해당 메서드는 서버에서 데이터를 받아오는 것을 대비한 캐싱 목적으로만 존재합니다.
-  Future<void> _setMissions(DateTime date, List<Mission> missions) async {
-    final key = _getKeyForDate(date);
-    if (_prefs == null) await init();
-
-    final missionJsonList =
-        missions.map((m) => jsonEncode(m.toJson())).toList();
-    await _prefs!.setStringList(key, missionJsonList);
-  }
-
   @override
   Future<void> createTodayMission(int missionId) async {
     throw UnimplementedError('createTodayMission is not implemented');
@@ -105,12 +94,6 @@ class MissionHistoryRepositoryLocal implements MissionHistoryRepository {
   @override
   Future<void> removeTodayMission(int missionId) async {
     throw UnimplementedError('removeTodayMission is not implemented');
-  }
-
-  Future<void> _removeMissionById(DateTime date, String id) async {
-    final missions = await findMissions(date);
-    final updatedMissions = missions.where((m) => m.id != id).toList();
-    await _setMissions(date, updatedMissions);
   }
 
   @override

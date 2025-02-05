@@ -31,8 +31,6 @@ class MissionTimeRepositoryLocal implements MissionTimeRepository {
     _prefs ??= await SharedPreferences.getInstance();
   }
 
-  String _getMissionKey(String missionId) => 'mission$missionId';
-
   @override
   Future<List<MissionTime>> getMissionTimes() async {
     throw UnimplementedError();

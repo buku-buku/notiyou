@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:notiyou/models/mission_time_model.dart';
 import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
@@ -100,7 +99,6 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
   }
 
   Future<void> _selectTime(BuildContext context, bool isFirstMission) async {
-    print('selectTime: $isFirstMission');
     final initialTime = isFirstMission
         ? _mission1TimeConfig?.missionTime ?? TimeOfDay.now()
         : _mission2TimeConfig?.missionTime ?? TimeOfDay.now();
@@ -110,14 +108,11 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
       initialTime: initialTime,
     );
 
-    print('picked: $picked');
-
     if (picked != null) {
       setState(() {
         if (isFirstMission) {
           _mission1TimeConfig = _MissionTimeConfig(
               missionId: _mission1TimeConfig?.missionId, missionTime: picked);
-          print('mission1Time: $_mission1TimeConfig');
         } else {
           _mission2TimeConfig = _MissionTimeConfig(
               missionId: _mission2TimeConfig?.missionId, missionTime: picked);
