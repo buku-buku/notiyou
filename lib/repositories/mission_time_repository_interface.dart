@@ -8,4 +8,6 @@ abstract interface class MissionTimeRepository {
   Future<MissionTime> setMissionTime(TimeOfDay time);
   Future<void> updateMissionTime(int missionId, TimeOfDay time);
   Future<void> removeMissionTime(int missionId);
+  Future getMissionByUserId(String userId);
+  Future<void> setMissionSupporter(String challengerId, String supporterId);
 }

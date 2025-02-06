@@ -1,5 +1,4 @@
 import 'package:app_links/app_links.dart';
-import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/routes/router.dart';
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/screens/login_page.dart';
@@ -9,6 +8,12 @@ import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
 import 'package:notiyou/services/dotenv_service.dart';
+
+enum InvitedUserStatus {
+  guest,
+  unregisteredUser,
+  registeredUser,
+}
 
 class InviteLinkService {
   static final _appLinks = AppLinks();
@@ -49,34 +54,39 @@ class InviteLinkService {
 
   static Future<void> _handleLink(Uri uri) async {
     try {
-      String? parsedChallengerCode;
+      String? challengerCode;
       if (uri.scheme.startsWith('kakao')) {
         final uriString = uri.toString();
-        parsedChallengerCode = uriString.split('challenger_code=').last;
+        challengerCode = uriString.split('challenger_code=').last;
       } else if (uri.path.startsWith('/invite/')) {
-        parsedChallengerCode = uri.pathSegments.last;
+        challengerCode = uri.pathSegments.last;
       } else {
         throw Exception('올바른 초대링크가 아닙니다');
       }
 
-      final user = await AuthService.getUser();
-      if (user == null) {
-        router.push(
-          LoginPage.routeName,
-          extra: parsedChallengerCode,
-        );
-        return;
+      final userStatus = await _checkUserStatus();
+      switch (userStatus) {
+        case InvitedUserStatus.guest:
+          router.push(LoginPage.routeName, extra: challengerCode);
+        case InvitedUserStatus.unregisteredUser:
+          router.push(SupporterSignupPage.routeName, extra: challengerCode);
+        case InvitedUserStatus.registeredUser:
+          router.push(HomePage.routeName);
       }
-
-      final registrationStatus = AuthService.getRegistrationStatus(user);
-      if (registrationStatus.registeredRole == UserRole.none) {
-        router.push(SupporterSignupPage.routeName, extra: parsedChallengerCode);
-        return;
-      }
-
-      router.push(HomePage.routeName);
     } catch (error) {
       _handleError('초대링크 처리 에러', error);
+    }
+  }
+
+  static Future<InvitedUserStatus> _checkUserStatus() async {
+    final user = await AuthService.getUser();
+
+    if (user == null) {
+      return InvitedUserStatus.guest;
+    } else if (AuthService.isRegistrationCompleted(user)) {
+      return InvitedUserStatus.registeredUser;
+    } else {
+      return InvitedUserStatus.unregisteredUser;
     }
   }
 

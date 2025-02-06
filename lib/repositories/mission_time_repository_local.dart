@@ -57,4 +57,11 @@ class MissionTimeRepositoryLocal implements MissionTimeRepository {
   Future<void> removeMissionTime(int missionId) async {
     throw UnimplementedError();
   }
+
+  @override
+  Future getMissionByUserId(String userId) async {}
+
+  @override
+  Future<void> setMissionSupporter(
+      String challengerId, String supporterId) async {}
 }

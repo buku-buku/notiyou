@@ -80,6 +80,24 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
         : null;
   }
 
+  // TODO: 조력자와 미션(도전자)를 매칭하는 방식 개편 필요
+  @override
+  Future getMissionByUserId(String challengerId) async {
+    final mission = await supabaseClient
+        .from('challenger_mission_time')
+        .select('*')
+        .eq('challenger_id', challengerId);
+
+    return mission;
+  }
+
+  @override
+  Future<void> setMissionSupporter(
+      String challengerId, String supporterId) async {
+    await supabaseClient.from('challenger_mission_time').update(
+        {'supporter_id': supporterId}).eq('challenger_id', challengerId);
+  }
+
   // 미션 시간 설정
   @override
   Future<MissionTime> setMissionTime(TimeOfDay time) async {
