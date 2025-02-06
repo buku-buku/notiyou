@@ -48,7 +48,7 @@ class MissionTimeRepositoryLocal implements MissionTimeRepository {
   }
 
   @override
-  Future<void> updateMissionTime(int missionId, TimeOfDay time) {
+  Future<void> updateMissionTime(int missionId, TimeOfDay time) async {
     throw UnimplementedError();
   }
 
