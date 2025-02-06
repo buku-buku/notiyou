@@ -43,22 +43,33 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
   }
 
   Future<void> _loadSavedTimes() async {
-    final results = await MissionConfigService.getMissionTimes();
-    setState(() {
-      for (int i = 0; i < results.length; i++) {
-        if (i == 0) {
-          _mission1TimeConfig = _MissionTimeConfig(
-            missionId: results[i]!.id,
-            missionTime: results[i]!.missionAt,
-          );
-        } else if (i == 1) {
-          _mission2TimeConfig = _MissionTimeConfig(
-            missionId: results[i]!.id,
-            missionTime: results[i]!.missionAt,
-          );
+    try {
+      final results = await MissionConfigService.getMissionTimes();
+      setState(() {
+        for (int i = 0; i < results.length; i++) {
+          if (i == 0) {
+            _mission1TimeConfig = _MissionTimeConfig(
+              missionId: results[i]!.id,
+              missionTime: results[i]!.missionAt,
+            );
+          } else if (i == 1) {
+            _mission2TimeConfig = _MissionTimeConfig(
+              missionId: results[i]!.id,
+              missionTime: results[i]!.missionAt,
+            );
+          }
         }
+      });
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text('미션 시간을 불러오는 중 오류가 발생했습니다. Error: ${error.toString()}'),
+          ),
+        );
       }
-    });
+    }
   }
 
   Future<void> _loadSavedGracePeriod() async {
@@ -147,16 +158,26 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
   }
 
   Future<void> _handleSubmit() async {
-    if (_isSubmittable() == false) return;
-    setState(() => _isSubmitLoading = true);
-    await _saveTimes();
-    if (widget.isFirstTime) {
-      AuthService.setRole(UserRole.challenger);
+    try {
+      if (_isSubmittable() == false) return;
+      setState(() => _isSubmitLoading = true);
+      await _saveTimes();
+      if (widget.isFirstTime) {
+        AuthService.setRole(UserRole.challenger);
+      }
+      if (mounted) {
+        context.go(HomePage.routeName);
+      }
+      setState(() => _isSubmitLoading = false);
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('설정을 저장하는 중 오류가 발생했습니다. Error: ${error.toString()}'),
+          ),
+        );
+      }
     }
-    if (mounted) {
-      context.go(HomePage.routeName);
-    }
-    setState(() => _isSubmitLoading = false);
   }
 
   Future<void> _showGracePeriodExplanation() async {
