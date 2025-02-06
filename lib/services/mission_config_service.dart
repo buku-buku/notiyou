@@ -31,7 +31,7 @@ class MissionConfigService {
   ) async {
     var missionIdToSave = missionId;
     if (missionId == null) {
-      final mission = await _missionTimeRepository.setMissionTime(time);
+      final mission = await _missionTimeRepository.createMissionTime(time);
       missionIdToSave = mission.id;
     } else {
       await _missionTimeRepository.updateMissionTime(missionId, time);
@@ -53,7 +53,6 @@ class MissionConfigService {
 
   static Future<void> clearMissionTime({
     required int missionId,
-    required int missionAt,
   }) async {
     await _missionTimeRepository.removeMissionTime(missionId);
     await _missionHistoryRepository.removeTodayMission(missionId);

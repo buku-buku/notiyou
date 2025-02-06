@@ -15,7 +15,7 @@ class MissionTime {
     required this.updatedAt,
     required this.challengerId,
     required this.missionAt,
-    required this.supporterId,
+    this.supporterId,
   });
 
   factory MissionTime.fromJson({

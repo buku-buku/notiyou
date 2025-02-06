@@ -79,8 +79,6 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
         mission1TimeConfig.missionId != null) {
       await MissionConfigService.clearMissionTime(
         missionId: mission1TimeConfig.missionId!,
-        missionAt: mission1TimeConfig.missionTime!.hour * 60 +
-            mission1TimeConfig.missionTime!.minute,
       );
     }
     if (mission2TimeConfig?.missionTime != null) {
@@ -90,8 +88,6 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
         mission2TimeConfig.missionId != null) {
       await MissionConfigService.clearMissionTime(
         missionId: mission2TimeConfig.missionId!,
-        missionAt: mission2TimeConfig.missionTime!.hour * 60 +
-            mission2TimeConfig.missionTime!.minute,
       );
     }
 

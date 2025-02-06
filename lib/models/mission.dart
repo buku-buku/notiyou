@@ -19,7 +19,6 @@ class Mission {
 
   Mission copyWith({
     int? id,
-    int? missionNumber,
     TimeOfDay? time,
     bool? isCompleted,
     DateTime? completedAt,

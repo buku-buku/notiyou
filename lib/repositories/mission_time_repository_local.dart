@@ -32,7 +32,7 @@ class MissionTimeRepositoryLocal implements MissionTimeRepository {
   }
 
   @override
-  Future<List<MissionTime>> getMissionTimes() async {
+  Future<List<MissionTime?>> getMissionTimes() async {
     throw UnimplementedError();
   }
 
@@ -43,7 +43,7 @@ class MissionTimeRepositoryLocal implements MissionTimeRepository {
 
   // 미션 시간 설정
   @override
-  Future<MissionTime> setMissionTime(TimeOfDay time) async {
+  Future<MissionTime> createMissionTime(TimeOfDay time) async {
     throw UnimplementedError();
   }
 

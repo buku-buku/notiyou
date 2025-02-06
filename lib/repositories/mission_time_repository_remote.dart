@@ -100,7 +100,7 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
 
   // 미션 시간 설정
   @override
-  Future<MissionTime> setMissionTime(TimeOfDay time) async {
+  Future<MissionTime> createMissionTime(TimeOfDay time) async {
     final userId = supabaseClient.auth.currentUser?.id;
     if (userId == null) {
       throw const AuthException('User not found');
@@ -132,8 +132,11 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
     if (userId == null) {
       throw const AuthException('User not found');
     }
-    await supabaseClient.from(SupabaseTableNames.missionTime).update(
-        {'mission_at': TimeUtils.stringifyTime(time)}).eq('id', missionId);
+    await supabaseClient
+        .from(SupabaseTableNames.missionTime)
+        .update({'mission_at': TimeUtils.stringifyTime(time)})
+        .eq('id', missionId)
+        .eq('challenger_id', userId);
   }
 
   // 미션 시간 초기화
