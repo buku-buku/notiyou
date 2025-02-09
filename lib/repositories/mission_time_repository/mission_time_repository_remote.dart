@@ -123,7 +123,6 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
   // 미션 시간 설정
   @override
   Future<MissionTime> createMissionTime(TimeOfDay time) async {
-    print('createMissionTime');
     final userId = supabaseClient.auth.currentUser?.id;
     if (userId == null) {
       throw const AuthException('User not found');
