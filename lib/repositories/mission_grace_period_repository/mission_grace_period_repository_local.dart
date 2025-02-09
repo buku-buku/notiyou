@@ -1,4 +1,4 @@
-import 'package:notiyou/repositories/mission_grace_period_repository_interface.dart';
+import 'package:notiyou/repositories/mission_grace_period_repository/mission_grace_period_repository_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MissionGracePeriodRepositoryLocal

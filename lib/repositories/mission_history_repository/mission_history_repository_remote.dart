@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notiyou/models/mission.dart';
 import 'package:notiyou/repositories/supabase_table_names_constants.dart';
-import 'package:notiyou/repositories/mission_history_repository_interface.dart';
+import 'package:notiyou/repositories/mission_history_repository/mission_history_repository_interface.dart';
 import 'package:notiyou/services/supabase_service.dart';
 import 'package:notiyou/utils/time_utils.dart';
 

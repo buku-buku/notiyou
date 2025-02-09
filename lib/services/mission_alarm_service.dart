@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:notiyou/repositories/mission_time_repository_interface.dart';
-import 'package:notiyou/repositories/mission_time_repository_remote.dart';
+import 'package:notiyou/repositories/mission_time_repository/mission_time_repository_interface.dart';
+import 'package:notiyou/repositories/mission_time_repository/mission_time_repository_remote.dart';
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/local_notification_service.dart';
