@@ -4,4 +4,5 @@ final class SupabaseTableNames {
   static const missionHistory = 'mission_history';
   static const missionMessages = 'mission_messages';
   static const missionTime = 'mission_time';
+  static const challengerSupporter = 'challenger_supporter';
 }
