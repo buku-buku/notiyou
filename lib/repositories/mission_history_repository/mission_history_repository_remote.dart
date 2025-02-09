@@ -14,7 +14,6 @@ import 'package:notiyou/utils/time_utils.dart';
 ///
 /// ⚠️: 로컬의 데이터는 오늘의 데이터만 저장됩니다.
 /// 오늘 이후의 모든 데이터는 앱 실행 시 삭제됩니다.
-/// TODO(무호): supabas의 테이블 명칭을 상수로 관리한다.
 class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
   @override
   Future<Mission?> findMissionById(int id) async {
@@ -26,8 +25,7 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
           created_at,
           mission_at,
           ${SupabaseTableNames.missionTime} (
-            id,
-            challenger_id
+            id
           )
         ''')
         .eq('id', id)
@@ -118,32 +116,36 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
     final yesterday = today.subtract(const Duration(days: 1));
     final tomorrow = today.add(const Duration(days: 1));
 
-    final missionHistoryEntities = await SupabaseService.client
-        .from(SupabaseTableNames.missionHistory)
-        .select('''
+    try {
+      final missionHistoryEntities = await SupabaseService.client
+          .from(SupabaseTableNames.missionHistory)
+          .select('''
           id,
           done_at,
           created_at,
           mission_at,
           ${SupabaseTableNames.missionTime} (
-            id,
-            challenger_id
+            id
           )
         ''')
-        .gte('created_at', yesterday.toUtc().toIso8601String())
-        .lt('created_at', tomorrow.toUtc().toIso8601String())
-        .order('mission_at', ascending: true);
+          .gte('created_at', yesterday.toUtc().toIso8601String())
+          .lt('created_at', tomorrow.toUtc().toIso8601String())
+          .order('mission_at', ascending: true);
 
-    return missionHistoryEntities
-        .map((e) => _syncEntityTimeZone(entity: e, baseDate: date))
-        .where((e) {
-          final createdAt = DateTime.parse(e['created_at']);
-          return createdAt.year == date.year &&
-              createdAt.month == date.month &&
-              createdAt.day == date.day;
-        })
-        .map((e) => Mission.fromMissionHistoryEntity(e))
-        .toList();
+      return missionHistoryEntities
+          .map((e) => _syncEntityTimeZone(entity: e, baseDate: date))
+          .where((e) {
+            final createdAt = DateTime.parse(e['created_at']);
+            return createdAt.year == date.year &&
+                createdAt.month == date.month &&
+                createdAt.day == date.day;
+          })
+          .map((e) => Mission.fromMissionHistoryEntity(e))
+          .toList();
+    } catch (e) {
+      debugPrint(e.toString());
+      return [];
+    }
   }
 
   @override
@@ -156,8 +158,7 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
         created_at,
         mission_at,
         ${SupabaseTableNames.missionTime} (
-          id,
-          challenger_id
+          id
         )
       ''');
 

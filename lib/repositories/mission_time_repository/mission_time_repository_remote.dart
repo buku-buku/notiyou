@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:notiyou/models/challenger_supporter_model.dart';
 import 'package:notiyou/models/mission_time_model.dart';
+import 'package:notiyou/repositories/challenger_supporter/challenger_supporter_repository_remote.dart';
 import 'package:notiyou/repositories/mission_time_repository/mission_time_repository_interface.dart';
 import 'package:notiyou/repositories/supabase_table_names_constants.dart';
 import 'package:notiyou/services/supabase_service.dart';
@@ -24,6 +26,8 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
   MissionTimeRepositoryRemote._internal();
 
   static final supabaseClient = SupabaseService.client;
+  static final challengerSupporterRepository =
+      ChallengerSupporterRepositoryRemote();
 
   @override
   Future<void> init() async {}
@@ -37,9 +41,14 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
 
     final missionTimes = await supabaseClient
         .from(SupabaseTableNames.missionTime)
-        .select(
-            'id, created_at, updated_at, challenger_id, mission_at, supporter_id')
-        .eq('challenger_id', userId)
+        .select('''
+            id, 
+            created_at, 
+            updated_at, 
+            mission_at, 
+            ${SupabaseTableNames.challengerSupporter} (challenger_id, supporter_id)
+            ''')
+        .eq('${SupabaseTableNames.challengerSupporter}.challenger_id', userId)
         .order('mission_at', ascending: true);
 
     return missionTimes
@@ -47,9 +56,11 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
               id: entity['id'],
               createdAt: entity['created_at'],
               updatedAt: entity['updated_at'],
-              challengerId: entity['challenger_id'],
+              challengerId: entity[SupabaseTableNames.challengerSupporter]
+                  ['challenger_id'],
               missionAt: entity['mission_at'],
-              supporterId: entity['supporter_id'],
+              supporterId: entity[SupabaseTableNames.challengerSupporter]
+                  ['supporter_id'],
             ))
         .toList();
   }
@@ -63,9 +74,14 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
 
     final mission = await supabaseClient
         .from(SupabaseTableNames.missionTime)
-        .select(
-            'id, created_at, updated_at, challenger_id, mission_at, supporter_id')
-        .eq('challenger_id', userId)
+        .select('''
+            id, 
+            created_at, 
+            updated_at, 
+            mission_at, 
+            ${SupabaseTableNames.challengerSupporter} (challenger_id, supporter_id)
+            ''')
+        .eq('${SupabaseTableNames.challengerSupporter}.challenger_id', userId)
         .eq('id', missionId);
 
     return mission.isNotEmpty
@@ -73,9 +89,11 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
             id: mission.first['id'],
             createdAt: mission.first['created_at'],
             updatedAt: mission.first['updated_at'],
-            challengerId: mission.first['challenger_id'],
+            challengerId: mission.first[SupabaseTableNames.challengerSupporter]
+                ['challenger_id'],
             missionAt: mission.first['mission_at'],
-            supporterId: mission.first['supporter_id'],
+            supporterId: mission.first[SupabaseTableNames.challengerSupporter]
+                ['supporter_id'],
           )
         : null;
   }
@@ -83,10 +101,14 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
   // TODO: 조력자와 미션(도전자)를 매칭하는 방식 개편 필요
   @override
   Future getMissionByUserId(String challengerId) async {
-    final mission = await supabaseClient
-        .from('challenger_mission_time')
-        .select('*')
-        .eq('challenger_id', challengerId);
+    final mission =
+        await supabaseClient.from(SupabaseTableNames.missionTime).select('''
+            id, 
+            created_at, 
+            updated_at, 
+            mission_at, 
+            ${SupabaseTableNames.challengerSupporter} (challenger_id, supporter_id)
+            ''').eq('challenger_id', challengerId);
 
     return mission;
   }
@@ -94,35 +116,50 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
   @override
   Future<void> setMissionSupporter(
       String challengerId, String supporterId) async {
-    await supabaseClient.from('challenger_mission_time').update(
+    await supabaseClient.from(SupabaseTableNames.challengerSupporter).update(
         {'supporter_id': supporterId}).eq('challenger_id', challengerId);
   }
 
   // 미션 시간 설정
   @override
   Future<MissionTime> createMissionTime(TimeOfDay time) async {
+    print('createMissionTime');
     final userId = supabaseClient.auth.currentUser?.id;
     if (userId == null) {
       throw const AuthException('User not found');
     }
 
-    final mission = await supabaseClient
-        .from(SupabaseTableNames.missionTime)
-        .insert({
-          'challenger_id': userId,
-          'mission_at': TimeUtils.stringifyTime(time),
-        })
-        .select(
-            'id, created_at, updated_at, challenger_id, mission_at, supporter_id')
-        .single();
+    ChallengerSupporter challengerSupporter;
+
+    try {
+      challengerSupporter = await challengerSupporterRepository
+          .getChallengerSupporterByChallengerId(userId);
+    } catch (e) {
+      challengerSupporter = await challengerSupporterRepository
+          .addChallengerSupporter(userId, null);
+    }
+
+    final mission =
+        await supabaseClient.from(SupabaseTableNames.missionTime).insert({
+      'challenger_supporter_id': challengerSupporter.id,
+      'mission_at': TimeUtils.stringifyTime(time),
+    }).select('''
+            id, 
+            created_at, 
+            updated_at, 
+            mission_at, 
+            ${SupabaseTableNames.challengerSupporter} (challenger_id, supporter_id)
+            ''').single();
 
     return MissionTime.fromJson(
       id: mission['id'],
       createdAt: mission['created_at'],
       updatedAt: mission['updated_at'],
-      challengerId: mission['challenger_id'],
+      challengerId: mission[SupabaseTableNames.challengerSupporter]
+          ['challenger_id'],
       missionAt: mission['mission_at'],
-      supporterId: mission['supporter_id'],
+      supporterId: mission[SupabaseTableNames.challengerSupporter]
+          ['supporter_id'],
     );
   }
 
@@ -132,11 +169,22 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
     if (userId == null) {
       throw const AuthException('User not found');
     }
-    await supabaseClient
+
+    final mission = await supabaseClient
         .from(SupabaseTableNames.missionTime)
-        .update({'mission_at': TimeUtils.stringifyTime(time)})
+        .select('''
+            id, 
+            created_at, 
+            updated_at, 
+            mission_at, 
+            ${SupabaseTableNames.challengerSupporter} (challenger_id, supporter_id)
+            ''')
         .eq('id', missionId)
-        .eq('challenger_id', userId);
+        .eq('${SupabaseTableNames.challengerSupporter}.challenger_id', userId)
+        .single();
+
+    await supabaseClient.from(SupabaseTableNames.missionTime).update(
+        {'mission_at': TimeUtils.stringifyTime(time)}).eq('id', mission['id']);
   }
 
   // 미션 시간 초기화
@@ -146,10 +194,22 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
     if (userId == null) {
       throw const AuthException('User not found');
     }
+    final mission = await supabaseClient
+        .from(SupabaseTableNames.missionTime)
+        .select('''
+            id, 
+            created_at, 
+            updated_at, 
+            mission_at, 
+            ${SupabaseTableNames.challengerSupporter} (challenger_id, supporter_id)
+            ''')
+        .eq('${SupabaseTableNames.challengerSupporter}.challenger_id', userId)
+        .eq('id', missionId)
+        .single();
+
     await supabaseClient
         .from(SupabaseTableNames.missionTime)
         .delete()
-        .eq('challenger_id', userId)
-        .eq('id', missionId);
+        .eq('id', mission['id']);
   }
 }
