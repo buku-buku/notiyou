@@ -4,14 +4,12 @@ import 'package:notiyou/models/mission.dart';
 abstract interface class MissionHistoryRepository {
   Future<void> init();
 
-  // TODO: missionId로 생성하도록 변경
-  Future<void> createTodayMission(int missionNumber);
+  Future<void> createTodayMission(int missionId);
 
-  Future<bool> hasTodayMission(int missionNumber);
+  Future<bool> hasTodayMission(int missionId);
 
-// TODO: missionNumber가 아닌 id로 업데이트
   Future<void> updateTodayMissionTime(
-    int missionNumber,
+    int missionId,
     TimeOfDay time,
   );
 
@@ -20,10 +18,9 @@ abstract interface class MissionHistoryRepository {
   // TODO: findMissions에 날짜 범위로 조회 기능 추가
   Future<List<Mission>> findMissions(DateTime date);
 
-  Future<Mission?> findMissionById(String id);
+  Future<Mission?> findMissionById(int missionId);
 
-  // TODO: removeMissionById를 제공하고 해당 메서드 삭제
-  Future<void> removeTodayMission(int missionNumber);
+  Future<void> removeTodayMission(int missionId);
 
   Future<List<Mission>> findAllMissions();
 }

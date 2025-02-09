@@ -23,7 +23,7 @@ class KakaoAuthService {
     try {
       return await _kakaoUserApi.loginWithKakaoAccount();
     } catch (error) {
-      return null;
+      rethrow;
     }
   }
 

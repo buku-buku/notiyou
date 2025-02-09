@@ -2,6 +2,7 @@ import 'package:notiyou/services/auth/auth_service.dart';
 
 import 'package:notiyou/repositories/supporter_repository.dart';
 
+// TODO: 사용 여부 확인
 class SupporterService {
   static Future<Map<String, dynamic>?> getSupporter() async {
     final user = await AuthService.getUser();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notiyou/models/mission.dart';
+import 'package:notiyou/repositories/supabase_table_names_constants.dart';
 import 'package:notiyou/repositories/mission_history_repository_interface.dart';
 import 'package:notiyou/services/supabase_service.dart';
 import 'package:notiyou/utils/time_utils.dart';
@@ -16,19 +17,21 @@ import 'package:notiyou/utils/time_utils.dart';
 /// TODO(무호): supabas의 테이블 명칭을 상수로 관리한다.
 class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
   @override
-  Future<Mission?> findMissionById(String id) async {
-    final entity =
-        await SupabaseService.client.from('mission_history').select('''
+  Future<Mission?> findMissionById(int id) async {
+    final entity = await SupabaseService.client
+        .from(SupabaseTableNames.missionHistory)
+        .select('''
           id,
           done_at,
           created_at,
           mission_at,
-          challenger_mission_time (
+          ${SupabaseTableNames.missionTime} (
             id,
-            mission_number,
             challenger_id
           )
-        ''').eq('id', id).single();
+        ''')
+        .eq('id', id)
+        .single();
 
     return Mission.fromMissionHistoryEntity(entity);
   }
@@ -40,61 +43,73 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
   }
 
   @override
-  Future<void> removeTodayMission(int missionNumber) async {
-    final today = DateTime.now();
+  Future<void> removeTodayMission(int missionId) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
 
     await SupabaseService.client
-        .from('mission_history')
+        .from(SupabaseTableNames.missionHistory)
         .delete()
-        .eq('challenger_mission_time.mission_number', missionNumber)
+        .eq('mission_id', missionId)
         .gte('created_at', today.toUtc().toIso8601String());
   }
 
   @override
   Future<void> updateMission(Mission mission) async {
     if (mission.completedAt == null) {
-      await SupabaseService.client.from('mission_history').update({
+      await SupabaseService.client
+          .from(SupabaseTableNames.missionHistory)
+          .update({
         'done_at': null,
       }).eq('id', mission.id);
     } else {
-      await SupabaseService.client.from('mission_history').update({
+      await SupabaseService.client
+          .from(SupabaseTableNames.missionHistory)
+          .update({
         'done_at': mission.completedAt!.toUtc().toIso8601String(),
       }).eq('id', mission.id);
     }
   }
 
   @override
-  Future<void> createTodayMission(int missionNumber) async {
-    final newMission = await SupabaseService.client
-        .from('challenger_mission_time')
+  Future<void> createTodayMission(int missionId) async {
+    final missionTime = await SupabaseService.client
+        .from(SupabaseTableNames.missionTime)
         .select('id, mission_at')
-        .eq('mission_number', missionNumber)
+        .eq('id', missionId)
         .single();
 
-    await SupabaseService.client.from('mission_history').insert({
-      'mission_id': newMission['id'],
-      'mission_at': newMission['mission_at'],
+    await SupabaseService.client
+        .from(SupabaseTableNames.missionHistory)
+        .insert({
+      'mission_id': missionTime['id'],
+      'mission_at': missionTime['mission_at'],
     });
   }
 
   @override
-  Future<bool> hasTodayMission(int missionNumber) async {
+  Future<bool> hasTodayMission(int missionId) async {
     final missions = await findMissions(DateTime.now());
-    return missions.any((e) => e.missionNumber == missionNumber);
+    return missions.any((e) => e.id == missionId);
   }
 
   @override
-  // TODO: updateMission 메서드에서 처리
-  Future<void> updateTodayMissionTime(int missionNumber, TimeOfDay time) async {
+  Future<void> updateTodayMissionTime(int missionId, TimeOfDay time) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
     final mission = await SupabaseService.client
-        .from('challenger_mission_time')
+        .from(SupabaseTableNames.missionTime)
         .select('id')
-        .eq('mission_number', missionNumber)
+        .eq('id', missionId)
         .single();
 
-    await SupabaseService.client.from('mission_history').update({
-      'mission_at': TimeUtils.stringifyTime(time),
-    }).eq('mission_id', mission['id']);
+    await SupabaseService.client
+        .from(SupabaseTableNames.missionHistory)
+        .update({
+          'mission_at': TimeUtils.stringifyTime(time),
+        })
+        .eq('mission_id', mission['id'])
+        .gte('created_at', today.toUtc().toIso8601String());
   }
 
   @override
@@ -104,15 +119,14 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
     final tomorrow = today.add(const Duration(days: 1));
 
     final missionHistoryEntities = await SupabaseService.client
-        .from('mission_history')
+        .from(SupabaseTableNames.missionHistory)
         .select('''
           id,
           done_at,
           created_at,
           mission_at,
-          challenger_mission_time (
+          ${SupabaseTableNames.missionTime} (
             id,
-            mission_number,
             challenger_id
           )
         ''')
@@ -134,15 +148,15 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
 
   @override
   Future<List<Mission>> findAllMissions() async {
-    final missionHistoryEntities =
-        await SupabaseService.client.from('mission_history').select('''
+    final missionHistoryEntities = await SupabaseService.client
+        .from(SupabaseTableNames.missionHistory)
+        .select('''
         id,
         done_at,
         created_at,
         mission_at,
-        challenger_mission_time (
+        ${SupabaseTableNames.missionTime} (
           id,
-          mission_number,
           challenger_id
         )
       ''');
@@ -151,7 +165,7 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
         .map((e) => Mission.fromMissionHistoryEntity(e))
         .toList();
 
-    missions.sort((a, b) => int.parse(a.id).compareTo(int.parse(b.id)));
+    missions.sort((a, b) => a.id.compareTo(b.id));
 
     return missions;
   }

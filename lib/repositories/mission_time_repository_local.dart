@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:notiyou/models/mission_time_model.dart';
 import 'package:notiyou/repositories/mission_time_repository_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:notiyou/utils/time_utils.dart';
 
 /// 미션 시간 데이터를 관리하는 저장소입니다.
 ///
@@ -31,34 +31,31 @@ class MissionTimeRepositoryLocal implements MissionTimeRepository {
     _prefs ??= await SharedPreferences.getInstance();
   }
 
-  String _getMissionKey(int missionNumber) => 'mission$missionNumber';
-
-  // 미션 시간 조회
   @override
-  Future<TimeOfDay?> getMissionTime(int missionNumber) async {
-    await init();
-    final key = _getMissionKey(missionNumber);
-    final timeStr = _prefs!.getString(key);
+  Future<List<MissionTime?>> getMissionTimes() async {
+    throw UnimplementedError();
+  }
 
-    if (timeStr == null) return null;
-
-    return TimeUtils.parseTime(timeStr);
+  @override
+  Future<MissionTime?> getMissionTime(int missionId) async {
+    throw UnimplementedError();
   }
 
   // 미션 시간 설정
   @override
-  Future<void> setMissionTime(int missionNumber, TimeOfDay time) async {
-    await init();
-    final key = _getMissionKey(missionNumber);
-    await _prefs!.setString(key, TimeUtils.stringifyTime(time));
+  Future<MissionTime> createMissionTime(TimeOfDay time) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> updateMissionTime(int missionId, TimeOfDay time) async {
+    throw UnimplementedError();
   }
 
   // 미션 시간 초기화
   @override
-  Future<void> clearMissionTime(int missionNumber) async {
-    await init();
-    final key = _getMissionKey(missionNumber);
-    await _prefs!.remove(key);
+  Future<void> removeMissionTime(int missionId) async {
+    throw UnimplementedError();
   }
 
   @override

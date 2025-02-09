@@ -83,7 +83,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> _toggleMissionComplete(String missionId) async {
+  Future<void> _toggleMissionComplete(int missionId) async {
     final newState =
         await MissionHistoryService.toggleMissionComplete(missionId);
     setState(() {
@@ -91,7 +91,6 @@ class _HomePageState extends State<HomePage> {
         if (mission.id == missionId) {
           return Mission(
             id: mission.id,
-            missionNumber: mission.missionNumber,
             time: mission.time,
             isCompleted: newState,
             completedAt: newState ? DateTime.now() : null,

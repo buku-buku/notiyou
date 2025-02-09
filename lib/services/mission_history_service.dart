@@ -17,7 +17,7 @@ class MissionHistoryService {
   }
 
   // 미션 완료 상태 토글 및 히스토리 저장
-  static Future<bool> toggleMissionComplete(String missionId) async {
+  static Future<bool> toggleMissionComplete(int missionId) async {
     final mission = await _missionHistoryRepository.findMissionById(missionId);
 
     if (mission == null) {

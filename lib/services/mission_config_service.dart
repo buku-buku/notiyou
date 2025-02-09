@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notiyou/models/mission_time_model.dart';
 import 'package:notiyou/repositories/mission_grace_period_repository_remote.dart';
 import 'package:notiyou/repositories/mission_grace_period_repository_interface.dart';
 import 'package:notiyou/repositories/mission_grace_period_repository_local.dart';
@@ -24,31 +25,48 @@ class MissionConfigService {
     await _missionHistoryRepository.init();
   }
 
-  // 미션 시간 저장
   static Future<void> saveMissionTime(
-    int missionNumber,
-    TimeOfDay? time,
+    TimeOfDay time,
+    int? missionId,
   ) async {
-    if (time != null) {
-      await _missionTimeRepository.setMissionTime(missionNumber, time);
-      if (await _missionHistoryRepository.hasTodayMission(missionNumber)) {
-        await _missionHistoryRepository.updateTodayMissionTime(
-            missionNumber, time);
-      } else {
-        await _missionHistoryRepository.createTodayMission(missionNumber);
-      }
+    var missionIdToSave = missionId;
+    if (missionId == null) {
+      final mission = await _missionTimeRepository.createMissionTime(time);
+      missionIdToSave = mission.id;
     } else {
-      await _missionTimeRepository.clearMissionTime(missionNumber);
-      // 미션 시간 삭제시 오늘의 미션 삭제
-      await _missionHistoryRepository.removeTodayMission(missionNumber);
+      await _missionTimeRepository.updateMissionTime(missionId, time);
     }
 
-    await MissionAlarmService.updateAlarm(missionNumber, time);
+    if (missionIdToSave == null) {
+      throw Exception('missionIdToSave is null');
+    }
+
+    if (await _missionHistoryRepository.hasTodayMission(missionIdToSave)) {
+      await _missionHistoryRepository.updateTodayMissionTime(
+          missionIdToSave, time);
+    } else {
+      await _missionHistoryRepository.createTodayMission(missionIdToSave);
+    }
+
+    await MissionAlarmService.updateAlarm(missionIdToSave, time);
   }
 
-  // 미션 시간 불러오기
-  static Future<TimeOfDay?> getMissionTime(int missionNumber) async {
-    final time = await _missionTimeRepository.getMissionTime(missionNumber);
+  static Future<void> clearMissionTime({
+    required int missionId,
+  }) async {
+    await _missionTimeRepository.removeMissionTime(missionId);
+    await _missionHistoryRepository.removeTodayMission(missionId);
+    await MissionAlarmService.cancelAlarm(missionId);
+  }
+
+  static Future<List<MissionTime?>> getMissionTimes() async {
+    final times = await _missionTimeRepository.getMissionTimes();
+
+    return times;
+  }
+
+  static Future<MissionTime?> getMissionTime(int missionId) async {
+    final time = await _missionTimeRepository.getMissionTime(missionId);
 
     return time;
   }
