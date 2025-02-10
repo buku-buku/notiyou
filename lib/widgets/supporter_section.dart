@@ -48,35 +48,50 @@ class _SupporterSectionState extends State<SupporterSection>
   }
 
   Future<void> _loadChallengerSupporterInfo() async {
-    final challengerSupporter =
-        await ChallengerSupporterService.getChallengerSupporter();
+    try {
+      final challengerSupporter =
+          await ChallengerSupporterService.getChallengerSupporter();
 
-    setState(() {
-      _challengerSupporterInfo = challengerSupporter;
-    });
+      setState(() {
+        _challengerSupporterInfo = challengerSupporter;
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('도전자 정보를 불러오는 도중 오류가 발생했습니다'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _deleteSupporter() async {
     if (_challengerSupporterInfo?.id == null) return;
 
-    final updatedChallengerSupporterInfo =
-        await ChallengerSupporterService.dissmissSupporter(
-            _challengerSupporterInfo!.id);
-    if (updatedChallengerSupporterInfo.supporterId == null) {
+    try {
+      final updatedChallengerSupporterInfo =
+          await ChallengerSupporterService.dissmissSupporter(
+              _challengerSupporterInfo!.id);
       setState(() {
         _challengerSupporterInfo = updatedChallengerSupporterInfo;
       });
-    } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('서포터를 삭제하는 도중 오류가 발생했습니다'),
-          backgroundColor: Colors.red,
-        ),
-      );
+    } catch (e) {
+      debugPrint(e.toString());
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('서포터를 삭제하는 도중 오류가 발생했습니다'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
-  Future<void> _shareLinkToSupporter() async {
+  Future<void> shareLinkToSupporter() async {
     try {
       final user = await AuthService.getUser();
       if (user == null) {
@@ -182,7 +197,7 @@ class _SupporterSectionState extends State<SupporterSection>
         const SizedBox(height: 20),
         if (_challengerSupporterInfo?.supporterId == null) ...[
           ElevatedButton(
-            onPressed: _shareLinkToSupporter,
+            onPressed: shareLinkToSupporter,
             child: const Text('서포터 초대하기'),
           ),
           if (_isKakaoTalkReturned)
