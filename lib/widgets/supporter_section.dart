@@ -210,7 +210,7 @@ class _SupporterSectionState extends State<SupporterSection>
               TextButton(
                 onPressed: _deleteSupporter,
                 child: Text(
-                  '교체하기',
+                  '서포터 해제하기',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.red[400],
