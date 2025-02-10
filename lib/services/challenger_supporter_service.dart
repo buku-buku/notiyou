@@ -3,27 +3,28 @@ import 'package:notiyou/repositories/challenger_supporter/challenger_supporter_r
 import 'package:notiyou/services/auth/auth_service.dart';
 
 class ChallengerSupporterService {
-  static Future<ChallengerSupporter> getChallengerSupporter() async {
+  static final _repository = ChallengerSupporterRepositoryRemote();
+
+  static Future<String> _getAuthorizedUserId() async {
     final user = await AuthService.getUser();
     if (user == null) {
       throw Exception('Unauthorized');
     }
-    final challengerSupporterRepository = ChallengerSupporterRepositoryRemote();
-    final challengerSupporter = await challengerSupporterRepository
-        .getChallengerSupporterByChallengerId(user.id);
+    return user.id;
+  }
+
+  static Future<ChallengerSupporter> getChallengerSupporter() async {
+    final userId = await _getAuthorizedUserId();
+    final challengerSupporter =
+        await _repository.getChallengerSupporterByChallengerId(userId);
     return challengerSupporter;
   }
 
   static Future<ChallengerSupporter> dissmissSupporter(String id) async {
-    final user = await AuthService.getUser();
-    if (user == null) {
-      throw Exception('Unauthorized');
-    }
-    final challengerSupporterRepository = ChallengerSupporterRepositoryRemote();
-    final result =
-        await challengerSupporterRepository.updateChallengerSupporter(
+    final userId = await _getAuthorizedUserId();
+    final result = await _repository.updateChallengerSupporter(
       id,
-      challengerId: user.id,
+      challengerId: userId,
       supporterId: null,
     );
     return result;
