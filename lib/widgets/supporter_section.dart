@@ -202,7 +202,8 @@ class _SupporterSectionState extends State<SupporterSection>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                _challengerSupporterInfo?.supporterId ?? '(이름 없음)',
+                _challengerSupporterInfo?.supporterId ??
+                    '(이름 없음)', // TODO: Supabase Authentication에서 조력자 이름 가져오기
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(width: 8),
