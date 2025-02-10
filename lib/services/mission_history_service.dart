@@ -1,7 +1,7 @@
 import 'package:notiyou/models/mission.dart';
-import 'package:notiyou/repositories/mission_history_repository_interface.dart';
-import 'package:notiyou/repositories/mission_history_repository_local.dart';
-import 'package:notiyou/repositories/mission_history_repository_remote.dart';
+import 'package:notiyou/repositories/mission_history_repository/mission_history_repository_interface.dart';
+import 'package:notiyou/repositories/mission_history_repository/mission_history_repository_local.dart';
+import 'package:notiyou/repositories/mission_history_repository/mission_history_repository_remote.dart';
 
 class MissionHistoryService {
   static MissionHistoryRepository _missionHistoryRepository =

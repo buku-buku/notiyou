@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:notiyou/repositories/mission_history_repository_interface.dart';
-import 'package:notiyou/repositories/mission_time_repository_interface.dart';
-import 'package:notiyou/repositories/mission_time_repository_local.dart';
+import 'package:notiyou/repositories/mission_history_repository/mission_history_repository_interface.dart';
+import 'package:notiyou/repositories/mission_time_repository/mission_time_repository_interface.dart';
+import 'package:notiyou/repositories/mission_time_repository/mission_time_repository_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:notiyou/models/mission.dart';
