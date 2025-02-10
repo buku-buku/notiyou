@@ -54,7 +54,7 @@ class Mission {
 
   factory Mission.fromMissionHistoryEntity(Map<String, dynamic> json) =>
       Mission(
-        id: json['id'],
+        id: json['mission_id'],
         time: TimeUtils.parseTime(json['mission_at']),
         isCompleted: json['done_at'] != null,
         completedAt:
@@ -87,5 +87,25 @@ extension MissionHelpers on Mission {
       completedAt: completedAt?.toLocal(),
       date: date.toLocal(),
     );
+  }
+}
+
+/// @example
+/// ```dart
+/// final missions = await findMissions<Future<List<Mission>>>(DateTime.now());
+/// print('missions: ${missions.map((e) => e.debugString())}');
+/// ```
+extension MissionDebug on Mission {
+  // 🤓 debugString()이라는 임의의 메서드를 만들고, 원하는 문자열 형태로 나오도록 작성합니다
+  String debugString() {
+    return '''
+Mission {
+  id: $id,
+  time: $time,
+  isCompleted: $isCompleted,
+  completedAt: $completedAt,
+  date: $date
+}
+''';
   }
 }

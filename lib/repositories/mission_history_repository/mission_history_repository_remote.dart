@@ -24,9 +24,7 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
           done_at,
           created_at,
           mission_at,
-          ${SupabaseTableNames.missionTime} (
-            id
-          )
+          mission_id
         ''')
         .eq('id', id)
         .single();
@@ -124,9 +122,7 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
           done_at,
           created_at,
           mission_at,
-          ${SupabaseTableNames.missionTime} (
-            id
-          )
+          mission_id
         ''')
           .gte('created_at', yesterday.toUtc().toIso8601String())
           .lt('created_at', tomorrow.toUtc().toIso8601String())
@@ -157,9 +153,7 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
         done_at,
         created_at,
         mission_at,
-        ${SupabaseTableNames.missionTime} (
-          id
-        )
+        mission_id
       ''');
 
     final missions = missionHistoryEntities
