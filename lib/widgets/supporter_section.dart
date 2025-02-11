@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
+import 'package:notiyou/models/challenger_supporter_model.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/invite_link_service.dart';
-import 'package:notiyou/services/supporter_service.dart';
+import 'package:notiyou/services/challenger_supporter_service.dart';
 
 class SupporterSection extends StatefulWidget {
   const SupporterSection({super.key});
@@ -14,7 +15,7 @@ class SupporterSection extends StatefulWidget {
 
 class _SupporterSectionState extends State<SupporterSection>
     with WidgetsBindingObserver {
-  Map<String, dynamic>? _supporterInfo;
+  ChallengerSupporter? _challengerSupporterInfo;
   bool _isWaitingForKakaoTalkReturn = false;
   bool _isKakaoTalkReturned = false;
 
@@ -22,7 +23,7 @@ class _SupporterSectionState extends State<SupporterSection>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _loadSupporterInfo();
+    _loadChallengerSupporterInfo();
   }
 
   @override
@@ -46,26 +47,40 @@ class _SupporterSectionState extends State<SupporterSection>
     }
   }
 
-  Future<void> _loadSupporterInfo() async {
-    final supporter = await SupporterService.getSupporter();
+  Future<void> _loadChallengerSupporterInfo() async {
+    try {
+      final challengerSupporter =
+          await ChallengerSupporterService.getChallengerSupporter();
 
-    if (supporter != null) {
       setState(() {
-        _supporterInfo = supporter;
+        _challengerSupporterInfo = challengerSupporter;
       });
+    } catch (e) {
+      debugPrint(e.toString());
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('도전자 정보를 불러오는 도중 오류가 발생했습니다'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
   Future<void> _deleteSupporter() async {
-    final user = await AuthService.getUser();
-    if (user != null) {
-      final isDeleted = await SupporterService.deleteSupporter(user.id);
+    if (_challengerSupporterInfo?.id == null) return;
 
-      if (isDeleted) {
-        setState(() {
-          _supporterInfo = null;
-        });
-      } else if (mounted) {
+    try {
+      final updatedChallengerSupporterInfo =
+          await ChallengerSupporterService.dismissSupporter(
+              _challengerSupporterInfo!.id);
+      setState(() {
+        _challengerSupporterInfo = updatedChallengerSupporterInfo;
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('서포터를 삭제하는 도중 오류가 발생했습니다'),
@@ -76,7 +91,7 @@ class _SupporterSectionState extends State<SupporterSection>
     }
   }
 
-  Future<void> _shareLinkToSupporter() async {
+  Future<void> shareLinkToSupporter() async {
     try {
       final user = await AuthService.getUser();
       if (user == null) {
@@ -180,9 +195,9 @@ class _SupporterSectionState extends State<SupporterSection>
     return Column(
       children: [
         const SizedBox(height: 20),
-        if (_supporterInfo == null) ...[
+        if (_challengerSupporterInfo?.supporterId == null) ...[
           ElevatedButton(
-            onPressed: _shareLinkToSupporter,
+            onPressed: shareLinkToSupporter,
             child: const Text('서포터 초대하기'),
           ),
           if (_isKakaoTalkReturned)
@@ -202,14 +217,15 @@ class _SupporterSectionState extends State<SupporterSection>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                _supporterInfo?['supporter_name'] ?? '(이름 없음)',
+                _challengerSupporterInfo?.supporterId ??
+                    '(이름 없음)', // TODO: Supabase Authentication에서 조력자 이름 가져오기
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(width: 8),
               TextButton(
                 onPressed: _deleteSupporter,
                 child: Text(
-                  '교체하기',
+                  '서포터 해제하기',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.red[400],

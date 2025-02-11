@@ -105,52 +105,28 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
     await MissionConfigService.saveGracePeriod(_selectedGracePeriod);
   }
 
-  Future<void> _selectTime(BuildContext context, bool isFirstMission) async {
-    final initialTime = isFirstMission
-        ? _mission1TimeConfig?.missionTime ?? TimeOfDay.now()
-        : _mission2TimeConfig?.missionTime ?? TimeOfDay.now();
-
-    final TimeOfDay? picked = await showTimePicker(
+  Future<void> _selectTime(
+      BuildContext context, _MissionTimeConfig? config) async {
+    final selectedTime = await showTimePicker(
       context: context,
-      initialTime: initialTime,
+      initialTime: config?.missionTime ?? TimeOfDay.now(),
     );
 
-    if (picked != null) {
+    if (selectedTime != null) {
       setState(() {
-        if (isFirstMission) {
+        if (config == _mission1TimeConfig) {
           _mission1TimeConfig = _MissionTimeConfig(
-              missionId: _mission1TimeConfig?.missionId, missionTime: picked);
+            missionId: _mission1TimeConfig?.missionId,
+            missionTime: selectedTime,
+          );
         } else {
           _mission2TimeConfig = _MissionTimeConfig(
-              missionId: _mission2TimeConfig?.missionId, missionTime: picked);
+            missionId: _mission2TimeConfig?.missionId,
+            missionTime: selectedTime,
+          );
         }
       });
     }
-  }
-
-  void _resetTime(bool isFirstMission) {
-    setState(() {
-      if (isFirstMission) {
-        _mission1TimeConfig = null;
-      } else {
-        _mission2TimeConfig = null;
-      }
-    });
-  }
-
-  Future<void> _showNotificationTemplateModal() async {
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: const NotificationTemplateConfig(),
-        );
-      },
-    );
   }
 
   bool _isSubmittable() {
@@ -180,7 +156,105 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
     }
   }
 
-  Future<void> _showGracePeriodExplanation() async {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Config')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            buildMissionTimeField(
+              context: context,
+              label: '미션 시간 1',
+              required: true,
+              value: _mission1TimeConfig?.missionTime,
+              onSelectTime: (context) =>
+                  _selectTime(context, _mission1TimeConfig),
+              onReset: () => setState(() => _mission1TimeConfig = null),
+            ),
+            buildMissionTimeField(
+              context: context,
+              label: '미션 시간 2',
+              value: _mission2TimeConfig?.missionTime,
+              onSelectTime: (context) =>
+                  _selectTime(context, _mission2TimeConfig),
+              onReset: () => setState(() => _mission2TimeConfig = null),
+            ),
+            buildGracePeriodField(
+              context: context,
+              value: _selectedGracePeriod,
+              onChanged: (newValue) => setState(() {
+                _selectedGracePeriod = newValue ?? 0;
+              }),
+            ),
+            const SupporterSection(),
+            buildSettingButton(
+              context: context,
+              label: '알림 메시지 설정',
+            ),
+            const SizedBox(height: 20),
+            buildSubmitButton(
+              context: context,
+              label: '설정 완료',
+              isLoading: _isSubmitLoading,
+              isEnabled: _isSubmittable() && !_isSubmitLoading,
+              onSubmit: _handleSubmit,
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Widget buildMissionTimeField({
+  required BuildContext context,
+  required String label,
+  required TimeOfDay? value,
+  required Function(BuildContext) onSelectTime,
+  bool required = false,
+  VoidCallback? onReset,
+}) {
+  return ListTile(
+    title: Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: label),
+          if (required)
+            const TextSpan(
+              text: ' (필수 선택)',
+              style: TextStyle(color: Colors.red, fontSize: 12),
+            ),
+        ],
+      ),
+    ),
+    trailing: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextButton(
+          onPressed: () => onSelectTime(context),
+          child: Text(
+            value?.format(context) ?? '시간 선택',
+            style: const TextStyle(fontSize: 16),
+          ),
+        ),
+        if (value != null && onReset != null)
+          IconButton(
+            icon: const Icon(Icons.clear),
+            onPressed: onReset,
+          ),
+      ],
+    ),
+  );
+}
+
+Widget buildGracePeriodField({
+  required BuildContext context,
+  required int value,
+  required Function(int?) onChanged,
+}) {
+  Future<void> showGracePeriodExplanation(BuildContext context) async {
     await showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext context) {
@@ -225,130 +299,82 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Config')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            ListTile(
-              title: const Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(text: '미션 시간 1 '),
-                    TextSpan(
-                      text: '(필수 선택)',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextButton(
-                    onPressed: () => _selectTime(context, true),
-                    child: Text(
-                      _mission1TimeConfig?.missionTime?.format(context) ??
-                          '시간 선택',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ),
-                  if (_mission1TimeConfig != null)
-                    IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () => _resetTime(true),
-                    ),
-                ],
-              ),
-            ),
-            ListTile(
-              title: const Text('미션 시간 2'),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextButton(
-                    onPressed: () => _selectTime(context, false),
-                    child: Text(
-                      _mission2TimeConfig?.missionTime?.format(context) ??
-                          '시간 선택',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ),
-                  if (_mission2TimeConfig != null)
-                    IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () => _resetTime(false),
-                    ),
-                ],
-              ),
-            ),
-            ListTile(
-              title: Row(
-                children: [
-                  const Text('유예 시간'),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.help_outline,
-                      size: 20,
-                    ),
-                    onPressed: _showGracePeriodExplanation,
-                  ),
-                ],
-              ),
-              trailing: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: DropdownButton<int>(
-                  value: _selectedGracePeriod,
-                  items: List.generate(13, (index) => index * 5)
-                      .map((value) => DropdownMenuItem<int>(
-                            value: value,
-                            child: Text('$value 분'),
-                          ))
-                      .toList(),
-                  onChanged: (int? newValue) {
-                    setState(() {
-                      _selectedGracePeriod = newValue ?? 0;
-                    });
-                  },
-                ),
-              ),
-            ),
-            const SupporterSection(),
-            ElevatedButton(
-              onPressed: _showNotificationTemplateModal,
-              child: const Text('알림 메시지 설정'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed:
-                  _isSubmittable() && !_isSubmitLoading ? _handleSubmit : null,
-              child: _isSubmitLoading
-                  ? const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('설정 완료'),
-                        SizedBox(width: 10),
-                        SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    )
-                  : const Text('설정 완료'),
-            ),
-          ],
+  return ListTile(
+    title: Row(
+      children: [
+        const Text('유예 시간'),
+        IconButton(
+          icon: const Icon(Icons.help_outline, size: 20),
+          onPressed: () => showGracePeriodExplanation(context),
         ),
+      ],
+    ),
+    trailing: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: DropdownButton<int>(
+        value: value,
+        items: List.generate(13, (index) => index * 5)
+            .map((value) => DropdownMenuItem<int>(
+                  value: value,
+                  child: Text('$value 분'),
+                ))
+            .toList(),
+        onChanged: onChanged,
       ),
+    ),
+  );
+}
+
+Widget buildSettingButton({
+  required BuildContext context,
+  required String label,
+}) {
+  Future<void> showNotificationTemplateModal() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: const NotificationTemplateConfig(),
+        );
+      },
     );
   }
+
+  return ElevatedButton(
+    onPressed: () => showNotificationTemplateModal(),
+    child: Text(label),
+  );
+}
+
+Widget buildSubmitButton({
+  required BuildContext context,
+  required String label,
+  required bool isLoading,
+  required bool isEnabled,
+  required VoidCallback onSubmit,
+}) {
+  return ElevatedButton(
+    onPressed: isEnabled ? onSubmit : null,
+    child: isLoading
+        ? Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(label),
+              const SizedBox(width: 10),
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          )
+        : Text(label),
+  );
 }
