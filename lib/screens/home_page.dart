@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:notiyou/models/challenger_supporter_model.dart';
 import 'package:notiyou/models/mission.dart';
+import 'package:notiyou/screens/challenger_config_page.dart';
 import 'package:notiyou/services/mission_history_service.dart';
+import 'package:notiyou/services/challenger_supporter_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,11 +17,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Mission> missions = [];
+  ChallengerSupporter? _supporter;
 
   @override
   void initState() {
     super.initState();
     _loadMissions();
+    _loadSupporter();
   }
 
   Future<void> _loadMissions() async {
@@ -27,12 +33,23 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> _loadSupporter() async {
+    final supporter = await ChallengerSupporterService.getChallengerSupporter();
+    setState(() {
+      _supporter = supporter;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Home')),
       body: ListView(
         children: [
+          buildSupporterAlertBanner(
+            context: context,
+            supporter: _supporter,
+          ),
           if (missions.isNotEmpty) ...[
             for (var mission in missions) ...[
               if (mission.expired)
@@ -105,4 +122,53 @@ class _HomePageState extends State<HomePage> {
     // 미션 상태 변경 후 만료 상태와 완료 시간 다시 로드
     _loadMissions();
   }
+}
+
+Widget buildSupporterAlertBanner({
+  required BuildContext context,
+  required ChallengerSupporter? supporter,
+}) {
+  final hasSupporter = supporter?.supporterId != null;
+
+  return Container(
+    color: hasSupporter ? Colors.green[100] : Colors.red[100],
+    padding: const EdgeInsets.all(16.0),
+    child: hasSupporter
+        ? Text(
+            '조력자 ${supporter?.supporterId}님과 함께 하고 있습니다.',
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded, color: Colors.red),
+                  SizedBox(width: 8),
+                  Text(
+                    '아직 조력자가 설정되지 않았습니다',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                '조력자가 초대를 수락하기 전까지는 혼자 미션을 수행하게 됩니다. 조력자와 함께 미션을 수행해보세요.',
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () {
+                  context.go(ChallengerConfigPage.routeName);
+                },
+                child: const Text('조력자 초대하러 가기'),
+              ),
+            ],
+          ),
+  );
 }

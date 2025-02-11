@@ -188,7 +188,7 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
                 _selectedGracePeriod = newValue ?? 0;
               }),
             ),
-            const SupporterSection(),
+            if (!widget.isFirstTime) const SupporterSection(),
             buildSettingButton(
               context: context,
               label: '알림 메시지 설정',
