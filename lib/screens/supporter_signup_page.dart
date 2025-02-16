@@ -8,7 +8,7 @@ import 'dart:async';
 import 'package:notiyou/services/challenger_code/challenger_code_exception.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
-import 'package:notiyou/services/mission_supporter_config_service.dart';
+import 'package:notiyou/services/challenger_supporter_service.dart';
 import 'package:notiyou/services/mission_supporter_exception.dart';
 
 class SupporterSignupPage extends StatefulWidget {
@@ -90,8 +90,16 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
     if (user == null) {
       throw Exception('User not found');
     }
-    await MissionSupporterConfigService.saveMissionSupporter(
-        challengerId, user.id);
+
+    final challengerSupporter =
+        await ChallengerSupporterService.getChallengerSupporterByChallengerId(
+            challengerId);
+    if (challengerSupporter.supporterId != null) {
+      throw MissionSupporterException('이미 등록된 서포터가 있습니다.');
+    }
+
+    await ChallengerSupporterService.setSupporter(
+        challengerSupporter.id, challengerId, user.id);
     await AuthService.setRole(UserRole.supporter);
   }
 
