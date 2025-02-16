@@ -35,13 +35,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadSupporter() async {
-    final user = await AuthService.getUser();
-    if (user == null) {
-      throw Exception('Unauthorized');
-    }
-
+    final userId = await AuthService.getUserId();
     final supporter =
-        await ChallengerSupporterService.getChallengerSupporter(user.id);
+        await ChallengerSupporterService.getChallengerSupporter(userId);
     setState(() {
       _supporter = supporter;
     });

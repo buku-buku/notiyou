@@ -86,10 +86,6 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
   Future<void> _registerMissionSupporter(String code) async {
     // TODO: 추출 로직 오류로 동작 안 함
     final challengerId = await _challengerCodeService.extractUserId(code);
-    final user = await AuthService.getUser();
-    if (user == null) {
-      throw Exception('User not found');
-    }
 
     final challengerSupporter =
         await ChallengerSupporterService.getChallengerSupporter(challengerId);
@@ -97,8 +93,9 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
       throw MissionSupporterException('이미 등록된 서포터가 있습니다.');
     }
 
+    final userId = await AuthService.getUserId();
     await ChallengerSupporterService.setSupporter(
-        challengerSupporter.id, challengerId, user.id);
+        challengerSupporter.id, challengerId, userId);
     await AuthService.setRole(UserRole.supporter);
   }
 
