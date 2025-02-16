@@ -49,8 +49,13 @@ class _SupporterSectionState extends State<SupporterSection>
 
   Future<void> _loadChallengerSupporterInfo() async {
     try {
+      final user = await AuthService.getUser();
+      if (user == null) {
+        throw Exception('Unauthorized');
+      }
+
       final challengerSupporter =
-          await ChallengerSupporterService.getChallengerSupporter();
+          await ChallengerSupporterService.getChallengerSupporter(user.id);
 
       setState(() {
         _challengerSupporterInfo = challengerSupporter;
