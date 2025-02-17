@@ -17,7 +17,7 @@ final routes = <RouteBase>[
   GoRoute(
     path: LoginPage.routeName,
     builder: (context, state) => LoginPage(
-      initialChallengerCode: state.extra as String?,
+      initialChallengerCode: state.uri.queryParameters['challengerId'],
     ),
   ),
   GoRoute(
@@ -27,13 +27,7 @@ final routes = <RouteBase>[
   GoRoute(
     path: SupporterSignupPage.routeName,
     builder: (context, state) => SupporterSignupPage(
-      initialChallengerCode: state.extra as String?,
-    ),
-  ),
-  GoRoute(
-    path: ChallengerConfigPage.onboardingRouteName,
-    builder: (context, state) => const ChallengerConfigPage(
-      isFirstTime: true,
+      initialChallengerCode: state.uri.queryParameters['challengerId'],
     ),
   ),
   ShellRoute(
