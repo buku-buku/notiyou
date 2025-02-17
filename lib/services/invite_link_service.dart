@@ -63,13 +63,15 @@ class InviteLinkService {
       } else {
         throw Exception('올바른 초대링크가 아닙니다');
       }
-
+      final extractedChallengerId =
+          await _challengerCodeService.extractUserId(challengerCode);
       final userStatus = await _checkUserStatus();
       switch (userStatus) {
         case InvitedUserStatus.guest:
-          router.push(LoginPage.routeName, extra: challengerCode);
+          router.push(LoginPage.routeName, extra: extractedChallengerId);
         case InvitedUserStatus.unregisteredUser:
-          router.push(SupporterSignupPage.routeName, extra: challengerCode);
+          router.push(SupporterSignupPage.routeName,
+              extra: extractedChallengerId);
         case InvitedUserStatus.registeredUser:
           router.push(HomePage.routeName);
       }

@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadSupporter() async {
     if (_userRole != UserRole.challenger) return;
 
-    final supporter = await ChallengerSupporterService.getChallengerSupporter();
+    final supporter = await ChallengerSupporterService.getSupporter();
     setState(() {
       _supporter = supporter;
     });

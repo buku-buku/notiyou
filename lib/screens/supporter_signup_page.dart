@@ -8,8 +8,8 @@ import 'dart:async';
 import 'package:notiyou/services/challenger_code/challenger_code_exception.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
-import 'package:notiyou/services/mission_supporter_config_service.dart';
-import 'package:notiyou/services/mission_supporter_exception.dart';
+import 'package:notiyou/services/challenger_supporter_service.dart';
+import 'package:notiyou/services/challenger_supporter_exception.dart';
 
 class SupporterSignupPage extends StatefulWidget {
   const SupporterSignupPage({
@@ -84,14 +84,15 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
   }
 
   Future<void> _registerMissionSupporter(String code) async {
-    // TODO: 추출 로직 오류로 동작 안 함
     final challengerId = await _challengerCodeService.extractUserId(code);
-    final user = await AuthService.getUser();
-    if (user == null) {
-      throw Exception('User not found');
+
+    final challengerSupporter =
+        await ChallengerSupporterService.getChallengerSupporter(challengerId);
+    if (challengerSupporter.supporterId != null) {
+      throw ChallengerSupporterException('이미 등록된 서포터가 있습니다.');
     }
-    await MissionSupporterConfigService.saveMissionSupporter(
-        challengerId, user.id);
+
+    await ChallengerSupporterService.registerSupporter(challengerId);
     await AuthService.setRole(UserRole.supporter);
   }
 
@@ -110,7 +111,7 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
     try {
       await _registerMissionSupporter(code);
       router.push(HomePage.routeName);
-    } on MissionSupporterException catch (e) {
+    } on ChallengerSupporterException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
