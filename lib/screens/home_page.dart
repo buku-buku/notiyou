@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:notiyou/models/challenger_supporter_model.dart';
 import 'package:notiyou/models/mission.dart';
 import 'package:notiyou/screens/challenger_config_page.dart';
-import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/mission_history_service.dart';
 import 'package:notiyou/services/challenger_supporter_service.dart';
 

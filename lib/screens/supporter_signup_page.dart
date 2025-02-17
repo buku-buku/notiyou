@@ -87,7 +87,8 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
     final challengerId = await _challengerCodeService.extractUserId(code);
 
     final challengerSupporter =
-        await ChallengerSupporterService.getChallengerSupporter(challengerId);
+        await ChallengerSupporterService.getSupporterByChallengerId(
+            challengerId);
     if (challengerSupporter.supporterId != null) {
       throw ChallengerSupporterException('이미 등록된 서포터가 있습니다.');
     }

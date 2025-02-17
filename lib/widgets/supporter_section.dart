@@ -49,9 +49,8 @@ class _SupporterSectionState extends State<SupporterSection>
 
   Future<void> _loadChallengerSupporterInfo() async {
     try {
-      final userId = await AuthService.getUserId();
       final challengerSupporter =
-          await ChallengerSupporterService.getChallengerSupporter(userId);
+          await ChallengerSupporterService.getSupporter();
 
       setState(() {
         _challengerSupporterInfo = challengerSupporter;
