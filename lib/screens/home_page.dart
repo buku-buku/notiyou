@@ -4,6 +4,7 @@ import 'package:notiyou/models/challenger_supporter_model.dart';
 import 'package:notiyou/models/mission.dart';
 import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/screens/challenger_config_page.dart';
+import 'package:notiyou/screens/signup_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/mission_history_service.dart';
 import 'package:notiyou/services/challenger_supporter_service.dart';
@@ -25,9 +26,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _loadUserRole();
-    _loadMissions();
-    _loadSupporter();
+    _initializePageByRole();
   }
 
   Future<void> _loadUserRole() async {
@@ -36,6 +35,14 @@ class _HomePageState extends State<HomePage> {
       throw Exception('Unauthorized');
     }
     final role = AuthService.getRegistrationStatus(user);
+
+    if (!mounted) return;
+
+    if (role.registeredRole == UserRole.none) {
+      context.go(SignupPage.routeName);
+      return;
+    }
+
     setState(() {
       _userRole = role.registeredRole;
     });
@@ -55,6 +62,16 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _supporter = supporter;
     });
+  }
+
+  Future<void> _initializePageByRole() async {
+    await _loadUserRole();
+    if (_userRole != UserRole.none) {
+      await Future.wait([
+        _loadMissions(),
+        _loadSupporter(),
+      ]);
+    }
   }
 
   @override
