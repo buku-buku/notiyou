@@ -74,8 +74,7 @@ class _SupporterSectionState extends State<SupporterSection>
 
     try {
       final updatedChallengerSupporterInfo =
-          await ChallengerSupporterService.dismissSupporter(
-              _challengerSupporterInfo!.id);
+          await ChallengerSupporterService.dismissSupporter();
       setState(() {
         _challengerSupporterInfo = updatedChallengerSupporterInfo;
       });

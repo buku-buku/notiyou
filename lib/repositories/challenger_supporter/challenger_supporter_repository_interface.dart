@@ -4,8 +4,8 @@ abstract interface class ChallengerSupporterRepository {
   Future<ChallengerSupporter> addChallengerSupporter(
       String challengerId, String? supporterId);
   Future<void> removeChallengerSupporter(String id);
-  Future<ChallengerSupporter> updateChallengerSupporter(String id,
-      {String? challengerId, String? supporterId});
+  Future<ChallengerSupporter> updateChallengerSupporter(
+      {required String challengerId, String? supporterId});
   Future<ChallengerSupporter> getChallengerSupporterById(String id);
   Future<ChallengerSupporter> getChallengerSupporterByChallengerId(
       String challengerId);
