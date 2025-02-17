@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:notiyou/models/challenger_supporter_model.dart';
 import 'package:notiyou/models/mission.dart';
+import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/screens/challenger_config_page.dart';
+import 'package:notiyou/screens/signup_page.dart';
+import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/mission_history_service.dart';
 import 'package:notiyou/services/challenger_supporter_service.dart';
 
@@ -18,12 +21,31 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Mission> missions = [];
   ChallengerSupporter? _supporter;
+  UserRole? _userRole;
 
   @override
   void initState() {
     super.initState();
-    _loadMissions();
-    _loadSupporter();
+    _initializePageByRole();
+  }
+
+  Future<void> _loadUserRole() async {
+    final user = await AuthService.getUser();
+    if (user == null) {
+      throw Exception('Unauthorized');
+    }
+    final role = AuthService.getRegistrationStatus(user);
+
+    if (!mounted) return;
+
+    if (role.registeredRole == UserRole.none) {
+      context.go(SignupPage.routeName);
+      return;
+    }
+
+    setState(() {
+      _userRole = role.registeredRole;
+    });
   }
 
   Future<void> _loadMissions() async {
@@ -34,10 +56,22 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadSupporter() async {
-    final supporter = await ChallengerSupporterService.getChallengerSupporter();
+    if (_userRole != UserRole.challenger) return;
+
+    final supporter = await ChallengerSupporterService.getSupporter();
     setState(() {
       _supporter = supporter;
     });
+  }
+
+  Future<void> _initializePageByRole() async {
+    await _loadUserRole();
+    if (_userRole != UserRole.none) {
+      await Future.wait([
+        _loadMissions(),
+        _loadSupporter(),
+      ]);
+    }
   }
 
   @override
@@ -46,10 +80,11 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(title: const Text('Home')),
       body: ListView(
         children: [
-          buildSupporterAlertBanner(
-            context: context,
-            supporter: _supporter,
-          ),
+          if (_userRole == UserRole.challenger)
+            buildSupporterAlertBanner(
+              context: context,
+              supporter: _supporter,
+            ),
           if (missions.isNotEmpty) ...[
             for (var mission in missions) ...[
               if (mission.expired)
@@ -76,23 +111,27 @@ class _HomePageState extends State<HomePage> {
                 subtitle: mission.isCompleted && mission.completedAt != null
                     ? Text('완료 시간: ${mission.formattedCompletedTime ?? ''}')
                     : null,
-                trailing: Checkbox(
-                  value: mission.isCompleted,
-                  onChanged: (bool? value) {
-                    _toggleMissionComplete(mission.id);
-                  },
-                ),
+                trailing: _userRole == UserRole.challenger
+                    ? Checkbox(
+                        value: mission.isCompleted,
+                        onChanged: (bool? value) {
+                          _toggleMissionComplete(mission.id);
+                        },
+                      )
+                    : null,
               ),
             ],
           ],
           if (missions.isEmpty)
-            const Center(
+            Center(
               child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text(
-                  '설정된 미션이 없습니다.\n설정 메뉴에서 미션 시간을 설정해주세요.',
-                  textAlign: TextAlign.center,
-                ),
+                padding: const EdgeInsets.all(16.0),
+                child: _userRole == UserRole.challenger
+                    ? const Text(
+                        '설정된 미션이 없습니다.\n설정 메뉴에서 미션 시간을 설정해주세요.',
+                        textAlign: TextAlign.center,
+                      )
+                    : const Text('도전자가 설정한 미션이 없습니다.'),
               ),
             ),
         ],

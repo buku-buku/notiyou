@@ -44,6 +44,14 @@ class AuthService {
     return await SupabaseAuthService.getUser();
   }
 
+  static Future<String> getUserId() async {
+    final user = await getUser();
+    if (user == null) {
+      throw Exception('Unauthorized');
+    }
+    return user.id;
+  }
+
   static bool isRegistrationCompleted(supabase.User user) {
     return SupabaseAuthService.isRegistrationCompleted(user);
   }

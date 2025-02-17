@@ -46,15 +46,17 @@ class ChallengerSupporterRepositoryRemote
   }
 
   @override
-  Future<ChallengerSupporter> updateChallengerSupporter(String id,
-      {String? challengerId, String? supporterId}) async {
+  Future<ChallengerSupporter> updateChallengerSupporter({
+    required String challengerId,
+    String? supporterId,
+  }) async {
     final entity = await supabaseClient
         .from(SupabaseTableNames.challengerSupporter)
         .update({
           'challenger_id': challengerId,
           'supporter_id': supporterId,
         })
-        .eq('id', id)
+        .eq('challenger_id', challengerId)
         .select('''
       id,
       challenger_id,

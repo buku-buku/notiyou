@@ -13,17 +13,33 @@ class ChallengerSupporterService {
     return user.id;
   }
 
-  static Future<ChallengerSupporter> getChallengerSupporter() async {
+  static Future<ChallengerSupporter> getSupporter() async {
     final userId = await _getAuthorizedUserId();
     final challengerSupporter =
         await _repository.getChallengerSupporterByChallengerId(userId);
     return challengerSupporter;
   }
 
-  static Future<ChallengerSupporter> dismissSupporter(String id) async {
+  static Future<ChallengerSupporter> getSupporterByChallengerId(
+      String challengerId) async {
+    final challengerSupporter =
+        await _repository.getChallengerSupporterByChallengerId(challengerId);
+    return challengerSupporter;
+  }
+
+  static Future<ChallengerSupporter> registerSupporter(
+      String targetChallengerId) async {
+    final userId = await _getAuthorizedUserId();
+    final challengerSupporter = await _repository.updateChallengerSupporter(
+      challengerId: targetChallengerId,
+      supporterId: userId,
+    );
+    return challengerSupporter;
+  }
+
+  static Future<ChallengerSupporter> dismissSupporter() async {
     final userId = await _getAuthorizedUserId();
     final result = await _repository.updateChallengerSupporter(
-      id,
       challengerId: userId,
       supporterId: null,
     );
