@@ -3,7 +3,7 @@ import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:notiyou/models/challenger_supporter_model.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
-import 'package:notiyou/services/invite_link_service.dart';
+import 'package:notiyou/services/invite_deep_link_service.dart';
 import 'package:notiyou/services/challenger_supporter_service.dart';
 
 class SupporterSection extends StatefulWidget {
@@ -106,7 +106,7 @@ class _SupporterSectionState extends State<SupporterSection>
 
       final challengerCode =
           await ChallengerCodeServiceImpl.instance.generateCode(user.id);
-      final inviteLink = await InviteLinkService.generateInviteLink(user.id);
+      final inviteLink = await InviteDeepLinkService.generateDeepLink(user.id);
       final TextTemplate defaultText = TextTemplate(
         objectType: 'text',
         text: '${user.id}님의 미션 서포터가 되어주시겠습니까?',

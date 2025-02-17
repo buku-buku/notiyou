@@ -7,7 +7,7 @@ import 'package:notiyou/services/dotenv_service.dart';
 import 'package:notiyou/services/mission_alarm_service.dart';
 import 'package:notiyou/services/mission_config_service.dart';
 import 'package:notiyou/services/supabase_service.dart';
-import 'package:notiyou/services/invite_link_service.dart';
+import 'package:notiyou/services/invite_deep_link_service.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +20,7 @@ void main() async {
     nativeAppKey: DotEnvService.getValue('KAKAO_NATIVE_APP_KEY'),
   );
   await SupabaseService.init();
-  await InviteLinkService.init();
+  await InviteDeepLinkService.init();
   await MissionConfigService.init();
   await MissionAlarmService.init();
   runApp(const MyApp());
