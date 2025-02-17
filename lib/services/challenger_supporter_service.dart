@@ -13,10 +13,10 @@ class ChallengerSupporterService {
     return user.id;
   }
 
-  static Future<ChallengerSupporter> getChallengerSupporter(
-      String challengerId) async {
+  static Future<ChallengerSupporter> getSupporter() async {
+    final userId = await _getAuthorizedUserId();
     final challengerSupporter =
-        await _repository.getChallengerSupporterByChallengerId(challengerId);
+        await _repository.getChallengerSupporterByChallengerId(userId);
     return challengerSupporter;
   }
 
