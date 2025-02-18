@@ -43,7 +43,7 @@ class UserMetadataRepositoryRemote implements UserMetadataRepository {
   Future<String?> getFCMToken() async {
     final userId = supabaseClient.auth.currentUser?.id;
     if (userId == null) {
-      throw const AuthException('User not found');
+      return null;
     }
 
     final userMetadata = await supabaseClient
