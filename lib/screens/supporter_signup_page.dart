@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:notiyou/models/registration_status.dart';
-import 'package:notiyou/routes/router.dart';
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'dart:async';
@@ -85,14 +85,6 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
 
   Future<void> _registerMissionSupporter(String code) async {
     final challengerId = await _challengerCodeService.extractUserId(code);
-
-    final challengerSupporter =
-        await ChallengerSupporterService.getSupporterByChallengerId(
-            challengerId);
-    if (challengerSupporter.supporterId != null) {
-      throw ChallengerSupporterException('이미 등록된 서포터가 있습니다.');
-    }
-
     await ChallengerSupporterService.registerSupporter(challengerId);
     await AuthService.setRole(UserRole.supporter);
   }
@@ -107,11 +99,14 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
           behavior: SnackBarBehavior.floating,
         ),
       );
+      return;
     }
 
     try {
       await _registerMissionSupporter(code);
-      router.push(HomePage.routeName);
+      if (mounted) {
+        context.go(HomePage.routeName);
+      }
     } on ChallengerSupporterException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

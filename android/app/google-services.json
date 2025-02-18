@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "584290974916",
+    "project_id": "notiyou",
+    "storage_bucket": "notiyou.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:584290974916:android:562062fd680bedf9871d91",
+        "android_client_info": {
+          "package_name": "com.example.notiyou"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFnC7bXzwU0brOYU66CDtLaDhtwI82O2g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
