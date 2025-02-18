@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:notiyou/repositories/user_metadata_repository/user_metadata_repository_remote.dart';
+import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/firebase/firebase_options.dart';
 
 class FirebaseService {
@@ -30,6 +31,7 @@ class FirebaseService {
   }
 
   static Future<void> _syncFCMToken() async {
+    await _waitUntilUserIsAuthenticated();
     final token = await userMetadataRepository.getFCMToken();
     if (token == null) {
       final newToken = await FirebaseMessaging.instance.getToken();
@@ -42,5 +44,11 @@ class FirebaseService {
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
       userMetadataRepository.setFCMToken(newToken);
     });
+  }
+
+  static Future<void> _waitUntilUserIsAuthenticated() async {
+    while (await AuthService.getUser() == null) {
+      await Future.delayed(const Duration(seconds: 3));
+    }
   }
 }
