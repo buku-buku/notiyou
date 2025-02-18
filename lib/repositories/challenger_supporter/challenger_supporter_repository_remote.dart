@@ -1,6 +1,7 @@
 import 'package:notiyou/models/challenger_supporter_model.dart';
 import 'package:notiyou/repositories/challenger_supporter/challenger_supporter_repository_interface.dart';
 import 'package:notiyou/repositories/supabase_table_names_constants.dart';
+import 'package:notiyou/services/challenger_supporter_exception.dart';
 import 'package:notiyou/services/supabase_service.dart';
 
 class ChallengerSupporterRepositoryRemote
@@ -46,15 +47,17 @@ class ChallengerSupporterRepositoryRemote
   }
 
   @override
-  Future<ChallengerSupporter> updateChallengerSupporter(String id,
-      {String? challengerId, String? supporterId}) async {
+  Future<ChallengerSupporter> updateChallengerSupporter({
+    required String challengerId,
+    String? supporterId,
+  }) async {
     final entity = await supabaseClient
         .from(SupabaseTableNames.challengerSupporter)
         .update({
           'challenger_id': challengerId,
           'supporter_id': supporterId,
         })
-        .eq('id', id)
+        .eq('challenger_id', challengerId)
         .select('''
       id,
       challenger_id,
@@ -91,21 +94,25 @@ class ChallengerSupporterRepositoryRemote
   @override
   Future<ChallengerSupporter> getChallengerSupporterByChallengerId(
       String challengerId) async {
-    final entity = await supabaseClient
-        .from(SupabaseTableNames.challengerSupporter)
-        .select('''
-      id,
-      challenger_id,
-      supporter_id
-    ''')
-        .eq('challenger_id', challengerId)
-        .single();
+    try {
+      final entity = await supabaseClient
+          .from(SupabaseTableNames.challengerSupporter)
+          .select('''
+        id,
+        challenger_id,
+        supporter_id
+      ''')
+          .eq('challenger_id', challengerId)
+          .single();
 
-    return ChallengerSupporter(
-      id: entity['id'],
-      challengerId: entity['challenger_id'],
-      supporterId: entity['supporter_id'],
-    );
+      return ChallengerSupporter(
+        id: entity['id'],
+        challengerId: entity['challenger_id'],
+        supporterId: entity['supporter_id'],
+      );
+    } catch (e) {
+      throw ChallengerSupporterException('해당 코드의 도전자를 찾을 수 없습니다.');
+    }
   }
 
   @override

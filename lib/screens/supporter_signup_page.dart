@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:notiyou/models/registration_status.dart';
-import 'package:notiyou/routes/router.dart';
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'dart:async';
@@ -8,8 +8,8 @@ import 'dart:async';
 import 'package:notiyou/services/challenger_code/challenger_code_exception.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
-import 'package:notiyou/services/mission_supporter_config_service.dart';
-import 'package:notiyou/services/mission_supporter_exception.dart';
+import 'package:notiyou/services/challenger_supporter_service.dart';
+import 'package:notiyou/services/challenger_supporter_exception.dart';
 
 class SupporterSignupPage extends StatefulWidget {
   const SupporterSignupPage({
@@ -84,14 +84,8 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
   }
 
   Future<void> _registerMissionSupporter(String code) async {
-    // TODO: 추출 로직 오류로 동작 안 함
     final challengerId = await _challengerCodeService.extractUserId(code);
-    final user = await AuthService.getUser();
-    if (user == null) {
-      throw Exception('User not found');
-    }
-    await MissionSupporterConfigService.saveMissionSupporter(
-        challengerId, user.id);
+    await ChallengerSupporterService.registerSupporter(challengerId);
     await AuthService.setRole(UserRole.supporter);
   }
 
@@ -105,12 +99,15 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
           behavior: SnackBarBehavior.floating,
         ),
       );
+      return;
     }
 
     try {
       await _registerMissionSupporter(code);
-      router.push(HomePage.routeName);
-    } on MissionSupporterException catch (e) {
+      if (mounted) {
+        context.go(HomePage.routeName);
+      }
+    } on ChallengerSupporterException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
