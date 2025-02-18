@@ -54,7 +54,7 @@ class UserMetadataRepositoryRemote implements UserMetadataRepository {
     if (userMetadata.isEmpty) {
       return null;
     }
-
-    return userMetadata[0]['fcm_token'];
+    final data = userMetadata.first;
+    return data['fcm_token'];
   }
 }
