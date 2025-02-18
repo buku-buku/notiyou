@@ -30,6 +30,12 @@ final routes = <RouteBase>[
       initialChallengerCode: state.uri.queryParameters['challengerId'],
     ),
   ),
+  GoRoute(
+    path: ChallengerConfigPage.onboardingRouteName,
+    builder: (context, state) => const ChallengerConfigPage(
+      isFirstTime: true,
+    ),
+  ),
   ShellRoute(
     builder: (context, state, child) {
       return Scaffold(
