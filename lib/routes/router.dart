@@ -14,7 +14,9 @@ final router = GoRouter(
 
     final inviteDeepLink = InviteDeepLinkService.pendingDeepLink;
     if (inviteDeepLink != null) {
-      return _getRouteFromInviteDeepLink(inviteDeepLink);
+      final routeName = _getRouteFromInviteDeepLink(inviteDeepLink);
+      InviteDeepLinkService.clearPendingDeepLink();
+      return routeName;
     }
 
     return null;
@@ -23,8 +25,6 @@ final router = GoRouter(
 );
 
 String? _getRouteFromInviteDeepLink(InviteDeepLinkInfo deepLink) {
-  InviteDeepLinkService.clearPendingDeepLink();
-
   return switch (deepLink.userStatus) {
     InvitedUserStatus.guest =>
       '${LoginPage.routeName}?challengerId=${deepLink.challengerCode}',
