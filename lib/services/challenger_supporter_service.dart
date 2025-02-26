@@ -14,11 +14,18 @@ class ChallengerSupporterService {
     return user.id;
   }
 
+  static Future<ChallengerSupporter> getChallenger() async {
+    final userId = await _getAuthorizedUserId();
+    final challenger =
+        await _repository.getChallengerSupporterBySupporterId(userId);
+    return challenger;
+  }
+
   static Future<ChallengerSupporter> getSupporter() async {
     final userId = await _getAuthorizedUserId();
-    final challengerSupporter =
+    final supporter =
         await _repository.getChallengerSupporterByChallengerId(userId);
-    return challengerSupporter;
+    return supporter;
   }
 
   static Future<ChallengerSupporter> getSupporterByChallengerId(
@@ -55,4 +62,11 @@ class ChallengerSupporterService {
     );
     return result;
   }
+
+  // static Future<ChallengerSupporter> quitSupporter() async {
+  //   final userId = await _getAuthorizedUserId();
+  //   final challengerSupporter =
+  //       await _repository.deleteSupporterBySupporterId(userId);
+  //   return challengerSupporter;
+  // }
 }
