@@ -63,10 +63,10 @@ class ChallengerSupporterService {
     return result;
   }
 
-  // static Future<ChallengerSupporter> quitSupporter() async {
-  //   final userId = await _getAuthorizedUserId();
-  //   final challengerSupporter =
-  //       await _repository.deleteSupporterBySupporterId(userId);
-  //   return challengerSupporter;
-  // }
+  static Future<ChallengerSupporter> quitSupporter() async {
+    final userId = await _getAuthorizedUserId();
+    final result =
+        await _repository.updateChallengerSupporterBySupporterId(userId);
+    return result;
+  }
 }
