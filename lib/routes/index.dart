@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:notiyou/models/registration_status.dart';
+import 'package:notiyou/screens/supporter_config_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/screens/login_page.dart';
@@ -58,6 +60,20 @@ final routes = <RouteBase>[
               if (context.mounted) {
                 context.go(LoginPage.routeName);
               }
+            } else if (index == 2) {
+              final user = await AuthService.getUser();
+              if (user == null) {
+                throw Exception('Unauthorized');
+              }
+              final userRole =
+                  AuthService.getRegistrationStatus(user).registeredRole;
+              if (context.mounted) {
+                if (userRole == UserRole.challenger) {
+                  context.go(ChallengerConfigPage.routeName);
+                } else {
+                  context.go(SupporterConfigPage.routeName);
+                }
+              }
             } else {
               context.go(bottomNavigationRoutes[index].path);
             }
@@ -81,6 +97,10 @@ final List<GoRoute> bottomNavigationRoutes = [
   GoRoute(
     path: ChallengerConfigPage.routeName,
     builder: (context, state) => const ChallengerConfigPage(),
+  ),
+  GoRoute(
+    path: SupporterConfigPage.routeName,
+    builder: (context, state) => const SupporterConfigPage(),
   ),
 ];
 
