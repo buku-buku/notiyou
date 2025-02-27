@@ -1,4 +1,5 @@
 import 'package:notiyou/models/challenger_supporter_model.dart';
+import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/repositories/challenger_supporter/challenger_supporter_repository_remote.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/challenger_supporter_exception.dart';
@@ -63,10 +64,9 @@ class ChallengerSupporterService {
     return result;
   }
 
-  static Future<ChallengerSupporter> quitSupporter() async {
+  static Future<void> quitSupporter() async {
     final userId = await _getAuthorizedUserId();
-    final result =
-        await _repository.updateChallengerSupporterBySupporterId(userId);
-    return result;
+    await _repository.updateChallengerSupporterBySupporterId(userId);
+    await AuthService.setRole(UserRole.none);
   }
 }
