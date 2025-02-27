@@ -134,4 +134,19 @@ class ChallengerSupporterRepositoryRemote
       supporterId: entity['supporter_id'],
     );
   }
+
+  Future<ChallengerSupporter> updateChallengerSupporterBySupporterId(
+      String supporterId) async {
+    final entity = await supabaseClient
+        .from(SupabaseTableNames.challengerSupporter)
+        .update({'supporter_id': null})
+        .eq('supporter_id', supporterId)
+        .select()
+        .single();
+
+    return ChallengerSupporter(
+      id: entity['id'],
+      challengerId: entity['challenger_id'],
+    );
+  }
 }
