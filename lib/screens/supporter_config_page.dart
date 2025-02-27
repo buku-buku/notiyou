@@ -64,7 +64,6 @@ class SupporterConfigPage extends StatelessWidget {
                 );
 
                 if (confirm == true) {
-                  print('quitSupporter');
                   await ChallengerSupporterService.quitSupporter();
                   if (context.mounted) {
                     context.go(SignupPage.routeName);
