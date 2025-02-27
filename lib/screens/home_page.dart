@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    final results = await Future.wait([
+    final [missions, partner] = await Future.wait([
       _loadMissions(),
       _loadPartner(),
     ]);
@@ -50,8 +50,8 @@ class _HomePageState extends State<HomePage> {
     if (!mounted) return;
     setState(() {
       _userRole = userRole;
-      _missions = results[0] as List<Mission>;
-      _missionPartner = results[1] as ChallengerSupporter?;
+      _missions = missions as List<Mission>;
+      _missionPartner = partner as ChallengerSupporter?;
     });
   }
 
