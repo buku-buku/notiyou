@@ -68,7 +68,7 @@ class ChallengerSupporterService {
       try {
         await _repository.dismissChallengerSupporterBySupporterId(userId);
       } catch (e) {
-        AuthService.setRole(UserRole.supporter);
+        await AuthService.setRole(UserRole.supporter);
         throw ChallengerSupporterException('서포터 해제 중 오류가 발생했습니다: $e');
       }
     } catch (e) {
