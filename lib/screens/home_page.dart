@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:notiyou/models/challenger_supporter_model.dart';
 import 'package:notiyou/models/mission.dart';
+import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/screens/challenger_config_page.dart';
+import 'package:notiyou/screens/signup_page.dart';
+import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/mission_history_service.dart';
 import 'package:notiyou/services/challenger_supporter_service.dart';
 
@@ -16,28 +19,50 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Mission> missions = [];
-  ChallengerSupporter? _supporter;
+  List<Mission> _missions = [];
+  ChallengerSupporter? _missionPartner;
+  UserRole? _userRole;
 
   @override
   void initState() {
     super.initState();
-    _loadMissions();
-    _loadSupporter();
+    _initPageViewByRole();
   }
 
-  Future<void> _loadMissions() async {
-    final todaysMissions = await MissionHistoryService.getTodaysMissions();
+  Future<void> _initPageViewByRole() async {
+    final user = await AuthService.getUser();
+    if (user == null) {
+      throw Exception('Unauthorized');
+    }
+
+    final userRole = AuthService.getRegistrationStatus(user).registeredRole;
+    if (userRole == UserRole.none) {
+      if (!mounted) return;
+      context.go(SignupPage.routeName);
+      return;
+    }
+
+    final [missions, partner] = await Future.wait([
+      _loadMissions(),
+      _loadPartner(),
+    ]);
+
+    if (!mounted) return;
     setState(() {
-      missions = todaysMissions;
+      _userRole = userRole;
+      _missions = missions as List<Mission>;
+      _missionPartner = partner as ChallengerSupporter?;
     });
   }
 
-  Future<void> _loadSupporter() async {
-    final supporter = await ChallengerSupporterService.getSupporter();
-    setState(() {
-      _supporter = supporter;
-    });
+  Future<List<Mission>> _loadMissions() async {
+    return await MissionHistoryService.getTodaysMissions();
+  }
+
+  Future<ChallengerSupporter?> _loadPartner() async {
+    return _userRole == UserRole.challenger
+        ? await ChallengerSupporterService.getSupporter()
+        : await ChallengerSupporterService.getChallenger();
   }
 
   @override
@@ -46,54 +71,18 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(title: const Text('Home')),
       body: ListView(
         children: [
-          buildSupporterAlertBanner(
-            context: context,
-            supporter: _supporter,
-          ),
-          if (missions.isNotEmpty) ...[
-            for (var mission in missions) ...[
-              if (mission.expired)
-                Container(
-                  color: Colors.red[100],
-                  padding: const EdgeInsets.all(16.0),
-                  child: const Text(
-                    '⚠️ 미션이 완료되지 않았습니다!!!',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ListTile(
-                title: Text(
-                  '미션 시간 ${mission.id} (${mission.time.format(context)})',
-                  style: TextStyle(
-                    color: mission.expired ? Colors.red : null,
-                  ),
-                ),
-                subtitle: mission.isCompleted && mission.completedAt != null
-                    ? Text('완료 시간: ${mission.formattedCompletedTime ?? ''}')
-                    : null,
-                trailing: Checkbox(
-                  value: mission.isCompleted,
-                  onChanged: (bool? value) {
-                    _toggleMissionComplete(mission.id);
-                  },
-                ),
-              ),
-            ],
-          ],
-          if (missions.isEmpty)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text(
-                  '설정된 미션이 없습니다.\n설정 메뉴에서 미션 시간을 설정해주세요.',
-                  textAlign: TextAlign.center,
-                ),
-              ),
+          if (_userRole == UserRole.challenger)
+            buildChallengerView(
+              context,
+              _missionPartner,
+              _missions,
+              _toggleMissionComplete,
+            ),
+          if (_userRole == UserRole.supporter)
+            buildSupporterView(
+              context,
+              _missionPartner,
+              _missions,
             ),
         ],
       ),
@@ -104,7 +93,7 @@ class _HomePageState extends State<HomePage> {
     final newState =
         await MissionHistoryService.toggleMissionComplete(missionId);
     setState(() {
-      final updatedMissions = missions.map((mission) {
+      final updatedMissions = _missions.map((mission) {
         if (mission.id == missionId) {
           return Mission(
             id: mission.id,
@@ -116,7 +105,7 @@ class _HomePageState extends State<HomePage> {
         }
         return mission;
       }).toList();
-      missions = updatedMissions;
+      _missions = updatedMissions;
     });
 
     // 미션 상태 변경 후 만료 상태와 완료 시간 다시 로드
@@ -124,7 +113,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-Widget buildSupporterAlertBanner({
+Widget buildSupporterAlertBannerForChallenger({
   required BuildContext context,
   required ChallengerSupporter? supporter,
 }) {
@@ -170,5 +159,130 @@ Widget buildSupporterAlertBanner({
               ),
             ],
           ),
+  );
+}
+
+Widget buildChallengerView(
+  BuildContext context,
+  ChallengerSupporter? supporter,
+  List<Mission> missions,
+  Future<void> Function(int) onToggleMissionComplete,
+) {
+  return Column(
+    children: [
+      buildSupporterAlertBannerForChallenger(
+          context: context, supporter: supporter),
+      if (missions.isNotEmpty) ...[
+        for (var mission in missions) ...[
+          if (mission.expired)
+            Container(
+              color: Colors.red[100],
+              padding: const EdgeInsets.all(16.0),
+              child: const Text(
+                '⚠️ 미션이 완료되지 않았습니다!!!',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ListTile(
+              title: Text(
+                '미션 시간 ${mission.id} (${mission.time.format(context)})',
+                style: TextStyle(
+                  color: mission.expired ? Colors.red : null,
+                ),
+              ),
+              subtitle: mission.isCompleted && mission.completedAt != null
+                  ? Text('완료 시간: ${mission.formattedCompletedTime ?? ''}')
+                  : null,
+              trailing: Checkbox(
+                value: mission.isCompleted,
+                onChanged: (bool? value) {
+                  onToggleMissionComplete(mission.id);
+                },
+              )),
+        ],
+      ],
+      if (missions.isEmpty)
+        const Center(
+          child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                '설정된 미션이 없습니다.\n설정 메뉴에서 미션 시간을 설정해주세요.',
+                textAlign: TextAlign.center,
+              )),
+        ),
+    ],
+  );
+}
+
+Widget buildChallengerInfoBannerForSupporter({
+  required BuildContext context,
+  required ChallengerSupporter? challenger,
+}) {
+  return Container(
+      color: Colors.green[100],
+      padding: const EdgeInsets.all(16.0),
+      child: Text(
+        '도전자 ${challenger?.challengerId}님과 함께 하고 있습니다.',
+      ));
+}
+
+Widget buildSupporterView(
+  BuildContext context,
+  ChallengerSupporter? challenger,
+  List<Mission> missions,
+) {
+  return Column(
+    children: [
+      buildChallengerInfoBannerForSupporter(
+          context: context, challenger: challenger),
+      if (missions.isNotEmpty) ...[
+        for (var mission in missions) ...[
+          if (mission.expired)
+            Container(
+              color: Colors.red[100],
+              padding: const EdgeInsets.all(16.0),
+              child: const Text(
+                '⚠️ 미션이 완료되지 않았습니다!!!',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ListTile(
+              title: Text(
+                '미션 시간 ${mission.id} (${mission.time.format(context)})',
+                style: TextStyle(
+                  color: mission.expired ? Colors.red : null,
+                ),
+              ),
+              subtitle: mission.isCompleted && mission.completedAt != null
+                  ? Text('완료 시간: ${mission.formattedCompletedTime ?? ''}')
+                  : null,
+              trailing: Text(
+                mission.isCompleted ? '완료' : '미완료',
+                style: TextStyle(
+                  color: mission.isCompleted ? Colors.green : Colors.red,
+                ),
+              )),
+        ],
+      ],
+      if (missions.isEmpty)
+        const Center(
+          child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                '설정된 미션이 없습니다.\n설정 메뉴에서 미션 시간을 설정해주세요.',
+                textAlign: TextAlign.center,
+              )),
+        ),
+    ],
   );
 }
