@@ -42,13 +42,15 @@ class FirebaseService {
   static Future<void> _syncFCMToken() async {
     try {
       await _waitUntilUserIsAuthenticated();
-      final token = await userMetadataRepository.getFCMToken();
-      if (token == null) {
-        final newToken = await FirebaseMessaging.instance.getToken();
-        if (newToken == null) {
-          throw Exception('firebase_service: token is null');
-        }
-        await userMetadataRepository.setFCMToken(newToken);
+      final serviceStoredToken = await userMetadataRepository.getFCMToken();
+      final currentFcmToken = await FirebaseMessaging.instance.getToken();
+      if (currentFcmToken == null) {
+        throw Exception('firebase_service: token is null');
+      }
+
+      final isTokenChanged = serviceStoredToken != currentFcmToken;
+      if (isTokenChanged) {
+        await userMetadataRepository.setFCMToken(currentFcmToken);
       }
 
       FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
