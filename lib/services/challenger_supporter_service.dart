@@ -62,8 +62,17 @@ class ChallengerSupporterService {
   }
 
   static Future<void> quitSupporter() async {
-    final userId = await _getAuthorizedUserId();
-    await _repository.dismissChallengerSupporterBySupporterId(userId);
-    await AuthService.setRole(UserRole.none);
+    try {
+      final userId = await AuthService.getUserId();
+      await AuthService.setRole(UserRole.none);
+      try {
+        await _repository.dismissChallengerSupporterBySupporterId(userId);
+      } catch (e) {
+        AuthService.setRole(UserRole.supporter);
+        throw ChallengerSupporterException('서포터 해제 중 오류가 발생했습니다: $e');
+      }
+    } catch (e) {
+      throw ChallengerSupporterException('사용자 역할 변경 중 오류가 발생했습니다: $e');
+    }
   }
 }
