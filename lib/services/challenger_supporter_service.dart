@@ -8,10 +8,7 @@ class ChallengerSupporterService {
   static final _repository = ChallengerSupporterRepositoryRemote();
 
   static Future<String> _getAuthorizedUserId() async {
-    final user = await AuthService.getUser();
-    if (user == null) {
-      throw Exception('Unauthorized');
-    }
+    final user = await AuthService.getUserSafe();
     return user.id;
   }
 
