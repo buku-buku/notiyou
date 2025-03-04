@@ -66,7 +66,7 @@ class ChallengerSupporterService {
 
   static Future<void> quitSupporter() async {
     final userId = await _getAuthorizedUserId();
-    await _repository.updateChallengerSupporterBySupporterId(userId);
+    await _repository.dismissChallengerSupporterBySupporterId(userId);
     await AuthService.setRole(UserRole.none);
   }
 }

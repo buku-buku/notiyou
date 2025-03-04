@@ -11,4 +11,6 @@ abstract interface class ChallengerSupporterRepository {
       String challengerId);
   Future<ChallengerSupporter> getChallengerSupporterBySupporterId(
       String supporterId);
+  Future<ChallengerSupporter> dismissChallengerSupporterBySupporterId(
+      String supporterId);
 }
