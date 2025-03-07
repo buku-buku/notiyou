@@ -24,10 +24,7 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<void> _checkLoginStatus() async {
     try {
-      final user = await AuthService.getUser();
-      if (user == null) {
-        throw Exception('User not found');
-      }
+      final user = await AuthService.getUserSafe();
 
       final isRegistrationComplete = AuthService.isRegistrationCompleted(user);
       if (!mounted) {

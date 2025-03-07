@@ -61,10 +61,7 @@ final routes = <RouteBase>[
                 context.go(LoginPage.routeName);
               }
             } else if (index == 2) {
-              final user = await AuthService.getUser();
-              if (user == null) {
-                throw Exception('Unauthorized');
-              }
+              final user = await AuthService.getUserSafe();
               final userRole =
                   AuthService.getRegistrationStatus(user).registeredRole;
               if (context.mounted) {

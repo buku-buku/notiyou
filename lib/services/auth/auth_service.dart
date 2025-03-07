@@ -4,6 +4,14 @@ import 'package:notiyou/services/auth/kakao_auth_service.dart';
 import 'package:notiyou/services/auth/supabase_auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
+class AuthException implements Exception {
+  final String message;
+  AuthException(this.message);
+
+  @override
+  String toString() => message;
+}
+
 // TODO: 자체 User 객체 생성 및 관리 필요.
 class AuthService {
   static Future<supabase.User?> loginWithKakao() async {
@@ -42,6 +50,14 @@ class AuthService {
 
   static Future<supabase.User?> getUser() async {
     return await SupabaseAuthService.getUser();
+  }
+
+  static Future<supabase.User> getUserSafe() async {
+    final user = await getUser();
+    if (user == null) {
+      throw AuthException('사용자 인증이 필요합니다.');
+    }
+    return user;
   }
 
   static Future<String> getUserId() async {
