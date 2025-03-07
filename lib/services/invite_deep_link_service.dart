@@ -89,7 +89,11 @@ class InviteDeepLinkService {
   }
 
   static Future<InvitedUserStatus> _getUserStatus() async {
-    final user = await AuthService.getUserSafe();
+    final user = await AuthService.getUser();
+
+    if (user == null) {
+      return InvitedUserStatus.guest;
+    }
 
     if (AuthService.isRegistrationCompleted(user)) {
       return InvitedUserStatus.registeredUser;
