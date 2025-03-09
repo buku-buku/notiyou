@@ -3,6 +3,7 @@ import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
 import 'package:notiyou/services/dotenv_service.dart';
+import 'package:notiyou/routes/router.dart';
 
 enum InvitedUserStatus {
   guest,
@@ -58,7 +59,10 @@ class InviteDeepLinkService {
 
   static void _listenToDeepLinks() {
     _appLinks.uriLinkStream.listen(
-      _processDeepLink,
+      (uri) async {
+        await _processDeepLink(uri);
+        routerRefreshNotifier.value = !routerRefreshNotifier.value;
+      },
       onError: (error) => _resetToDefaultState(error),
     );
   }
