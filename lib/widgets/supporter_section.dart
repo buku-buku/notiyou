@@ -92,16 +92,7 @@ class _SupporterSectionState extends State<SupporterSection>
 
   Future<void> shareLinkToSupporter() async {
     try {
-      final user = await AuthService.getUser();
-      if (user == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('사용자 정보를 가져올 수 없습니다.')),
-          );
-        }
-        return;
-      }
-
+      final user = await AuthService.getUserSafe();
       final challengerCode =
           await ChallengerCodeServiceImpl.instance.generateCode(user.id);
       final inviteLink = await InviteDeepLinkService.generateDeepLink(user.id);
@@ -177,6 +168,16 @@ class _SupporterSectionState extends State<SupporterSection>
           }
         }
       }
+    } on AuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

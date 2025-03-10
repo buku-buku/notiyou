@@ -135,7 +135,8 @@ class ChallengerSupporterRepositoryRemote
     );
   }
 
-  Future<ChallengerSupporter> updateChallengerSupporterBySupporterId(
+  @override
+  Future<ChallengerSupporter> dismissChallengerSupporterBySupporterId(
       String supporterId) async {
     final entity = await supabaseClient
         .from(SupabaseTableNames.challengerSupporter)
