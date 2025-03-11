@@ -32,7 +32,7 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
   Timer? _debounceTimer;
   bool _isValidated = false;
 
-  void _initializeCode(String? code) {
+  void _updateCode(String? code) {
     if (code?.isNotEmpty ?? false) {
       _challengerCodeController.text = code!;
       _validateChallengerCode(code);
@@ -44,14 +44,14 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
     super.initState();
     _challengerCodeController = TextEditingController();
     _challengerCodeController.addListener(_onCodeChanged);
-    _initializeCode(widget.initialChallengerCode);
+    _updateCode(widget.initialChallengerCode);
   }
 
   @override
   void didUpdateWidget(SupporterSignupPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.initialChallengerCode != oldWidget.initialChallengerCode) {
-      _initializeCode(widget.initialChallengerCode);
+      _updateCode(widget.initialChallengerCode);
     }
   }
 
