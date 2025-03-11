@@ -32,16 +32,26 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
   Timer? _debounceTimer;
   bool _isValidated = false;
 
+  void _updateCode(String? code) {
+    if (code?.isNotEmpty ?? false) {
+      _challengerCodeController.text = code!;
+      _validateChallengerCode(code);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    _challengerCodeController =
-        TextEditingController(text: widget.initialChallengerCode);
+    _challengerCodeController = TextEditingController();
     _challengerCodeController.addListener(_onCodeChanged);
+    _updateCode(widget.initialChallengerCode);
+  }
 
-    // 초기 코드가 있는 경우 검증 실행
-    if (widget.initialChallengerCode?.isNotEmpty ?? false) {
-      _validateChallengerCode(widget.initialChallengerCode!);
+  @override
+  void didUpdateWidget(SupporterSignupPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialChallengerCode != oldWidget.initialChallengerCode) {
+      _updateCode(widget.initialChallengerCode);
     }
   }
 

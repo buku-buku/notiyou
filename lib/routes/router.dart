@@ -5,9 +5,13 @@ import 'package:notiyou/screens/login_page.dart';
 import 'package:notiyou/screens/splash_page.dart';
 import 'package:notiyou/screens/supporter_signup_page.dart';
 import 'package:notiyou/services/invite_deep_link_service.dart';
+import 'package:flutter/foundation.dart';
+
+final routerRefreshNotifier = ValueNotifier<bool>(false);
 
 final router = GoRouter(
   initialLocation: SplashPage.routeName,
+  refreshListenable: routerRefreshNotifier,
   redirect: (context, state) async {
     final inviteDeepLink = InviteDeepLinkService.pendingDeepLink;
 
