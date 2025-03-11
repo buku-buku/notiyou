@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
 
     final [missions, partner] = await Future.wait([
       _loadMissions(),
-      _loadPartner(),
+      _loadPartner(userRole),
     ]);
 
     if (!mounted) return;
@@ -56,10 +56,33 @@ class _HomePageState extends State<HomePage> {
     return await MissionHistoryService.getTodaysMissions();
   }
 
-  Future<ChallengerSupporter?> _loadPartner() async {
-    return _userRole == UserRole.challenger
+  Future<ChallengerSupporter?> _loadPartner(UserRole userRole) async {
+    return userRole == UserRole.challenger
         ? await ChallengerSupporterService.getSupporter()
         : await ChallengerSupporterService.getChallenger();
+  }
+
+  Future<void> _toggleMissionComplete(int missionId) async {
+    final newState =
+        await MissionHistoryService.toggleMissionComplete(missionId);
+    setState(() {
+      final updatedMissions = _missions.map((mission) {
+        if (mission.id == missionId) {
+          return Mission(
+            id: mission.id,
+            time: mission.time,
+            isCompleted: newState,
+            completedAt: newState ? DateTime.now() : null,
+            date: mission.date,
+          );
+        }
+        return mission;
+      }).toList();
+      _missions = updatedMissions;
+    });
+
+    // 미션 상태 변경 후 만료 상태와 완료 시간 다시 로드
+    _loadMissions();
   }
 
   @override
@@ -84,29 +107,6 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
-  }
-
-  Future<void> _toggleMissionComplete(int missionId) async {
-    final newState =
-        await MissionHistoryService.toggleMissionComplete(missionId);
-    setState(() {
-      final updatedMissions = _missions.map((mission) {
-        if (mission.id == missionId) {
-          return Mission(
-            id: mission.id,
-            time: mission.time,
-            isCompleted: newState,
-            completedAt: newState ? DateTime.now() : null,
-            date: mission.date,
-          );
-        }
-        return mission;
-      }).toList();
-      _missions = updatedMissions;
-    });
-
-    // 미션 상태 변경 후 만료 상태와 완료 시간 다시 로드
-    _loadMissions();
   }
 }
 
