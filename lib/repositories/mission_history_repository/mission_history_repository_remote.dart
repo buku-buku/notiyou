@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notiyou/models/mission.dart';
-import 'package:notiyou/repositories/supabase_table_names_constants.dart';
 import 'package:notiyou/repositories/mission_history_repository/mission_history_repository_interface.dart';
+import 'package:notiyou/repositories/supabase_table_names_constants.dart';
 import 'package:notiyou/services/supabase_service.dart';
 import 'package:notiyou/utils/time_utils.dart';
 
@@ -64,7 +64,7 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
   @override
   Future<void> updateMission(Mission mission) async {
     final (today, tomorrow) = _getTodayAndTomorrow();
-    var result;
+    dynamic result;
     if (mission.completedAt == null) {
       result = await SupabaseService.client
           .from(SupabaseTableNames.missionHistory)
@@ -83,7 +83,7 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
           .gte('created_at', today.toUtc().toIso8601String());
     }
 
-    print('result: $result');
+    return result;
   }
 
   @override
