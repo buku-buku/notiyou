@@ -6,8 +6,8 @@ import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/screens/challenger_config_page.dart';
 import 'package:notiyou/screens/signup_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
+import 'package:notiyou/services/challenger_config_service.dart';
 import 'package:notiyou/services/mission_history_service.dart';
-import 'package:notiyou/services/challenger_supporter_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -58,8 +58,8 @@ class _HomePageState extends State<HomePage> {
 
   Future<ChallengerSupporter?> _loadPartner(UserRole userRole) async {
     return userRole == UserRole.challenger
-        ? await ChallengerSupporterService.getSupporter()
-        : await ChallengerSupporterService.getChallenger();
+        ? await ChallengerConfigService.getSupporter()
+        : await ChallengerConfigService.getChallenger();
   }
 
   Future<void> _toggleMissionComplete(int missionId) async {
