@@ -2,7 +2,7 @@ import 'package:notiyou/models/challenger_supporter_model.dart';
 import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/repositories/challenger_supporter/challenger_supporter_repository_remote.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
-import 'package:notiyou/services/challenger_supporter_exception.dart';
+import 'package:notiyou/exceptions/challenger_supporter_exception.dart';
 
 class ChallengerConfigService {
   static final _repository = ChallengerSupporterRepositoryRemote();
