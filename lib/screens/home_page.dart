@@ -22,6 +22,7 @@ class _HomePageState extends State<HomePage> {
   List<Mission> _missions = [];
   ChallengerSupporter? _missionPartner;
   UserRole? _userRole;
+  String? _name;
 
   @override
   void initState() {
@@ -31,6 +32,10 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _initPageViewByRole() async {
     final user = await AuthService.getUserSafe();
+    final userMetadata = user.userMetadata;
+    final name = userMetadata?['name'];
+
+    print('user: $user');
 
     final userRole = AuthService.getRegistrationStatus(user).registeredRole;
     if (userRole == UserRole.none) {
@@ -44,11 +49,14 @@ class _HomePageState extends State<HomePage> {
       _loadPartner(userRole),
     ]);
 
+    print('partner: ${(partner as ChallengerSupporter?)?.debugString()}');
+
     if (!mounted) return;
     setState(() {
       _userRole = userRole;
       _missions = missions as List<Mission>;
-      _missionPartner = partner as ChallengerSupporter?;
+      _missionPartner = partner;
+      _name = name;
     });
   }
 
@@ -88,7 +96,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
+      appBar: AppBar(title: Text(_name == null ? 'Home' : '$_name님의 Home')),
       body: ListView(
         children: [
           if (_userRole == UserRole.challenger)
