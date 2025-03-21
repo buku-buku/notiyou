@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notiyou/models/mission.dart';
-import 'package:notiyou/repositories/supabase_table_names_constants.dart';
 import 'package:notiyou/repositories/mission_history_repository/mission_history_repository_interface.dart';
+import 'package:notiyou/repositories/supabase_table_names_constants.dart';
 import 'package:notiyou/services/supabase_service.dart';
 import 'package:notiyou/utils/time_utils.dart';
 
@@ -15,8 +15,17 @@ import 'package:notiyou/utils/time_utils.dart';
 /// ⚠️: 로컬의 데이터는 오늘의 데이터만 저장됩니다.
 /// 오늘 이후의 모든 데이터는 앱 실행 시 삭제됩니다.
 class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
+  (DateTime, DateTime) _getTodayAndTomorrow() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+    return (today, tomorrow);
+  }
+
   @override
   Future<Mission?> findMissionById(int id) async {
+    final (today, tomorrow) = _getTodayAndTomorrow();
+
     final entity = await SupabaseService.client
         .from(SupabaseTableNames.missionHistory)
         .select('''
@@ -26,7 +35,9 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
           mission_at,
           mission_id
         ''')
-        .eq('id', id)
+        .eq('mission_id', id)
+        .gte('created_at', today.toUtc().toIso8601String())
+        .lt('created_at', tomorrow.toUtc().toIso8601String())
         .single();
 
     return Mission.fromMissionHistoryEntity(entity);
@@ -52,19 +63,27 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
 
   @override
   Future<void> updateMission(Mission mission) async {
+    final (today, tomorrow) = _getTodayAndTomorrow();
+    dynamic result;
     if (mission.completedAt == null) {
-      await SupabaseService.client
+      result = await SupabaseService.client
           .from(SupabaseTableNames.missionHistory)
           .update({
-        'done_at': null,
-      }).eq('id', mission.id);
+            'done_at': null,
+          })
+          .eq('mission_id', mission.id)
+          .gte('created_at', today.toUtc().toIso8601String());
     } else {
-      await SupabaseService.client
+      result = await SupabaseService.client
           .from(SupabaseTableNames.missionHistory)
           .update({
-        'done_at': mission.completedAt!.toUtc().toIso8601String(),
-      }).eq('id', mission.id);
+            'done_at': mission.completedAt!.toUtc().toIso8601String(),
+          })
+          .eq('mission_id', mission.id)
+          .gte('created_at', today.toUtc().toIso8601String());
     }
+
+    return result;
   }
 
   @override
@@ -72,7 +91,7 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
     final missionTime = await SupabaseService.client
         .from(SupabaseTableNames.missionTime)
         .select('id, mission_at')
-        .eq('id', missionId)
+        .eq('mission_id', missionId)
         .single();
 
     await SupabaseService.client
@@ -91,8 +110,8 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
 
   @override
   Future<void> updateTodayMissionTime(int missionId, TimeOfDay time) async {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    final (today, tomorrow) = _getTodayAndTomorrow();
+
     final mission = await SupabaseService.client
         .from(SupabaseTableNames.missionTime)
         .select('id')
@@ -102,7 +121,7 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
     await SupabaseService.client
         .from(SupabaseTableNames.missionHistory)
         .update({
-          'mission_at': TimeUtils.stringifyTime(time),
+          'mission_at': TimeUtils.stringifyTimeWithUTC(time),
         })
         .eq('mission_id', mission['id'])
         .gte('created_at', today.toUtc().toIso8601String());

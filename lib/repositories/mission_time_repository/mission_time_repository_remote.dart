@@ -141,7 +141,7 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
     final mission =
         await supabaseClient.from(SupabaseTableNames.missionTime).insert({
       'challenger_supporter_id': challengerSupporter.id,
-      'mission_at': TimeUtils.stringifyTime(time),
+      'mission_at': TimeUtils.stringifyTimeWithUTC(time),
     }).select('''
             id, 
             created_at, 
@@ -182,8 +182,10 @@ class MissionTimeRepositoryRemote implements MissionTimeRepository {
         .eq('${SupabaseTableNames.challengerSupporter}.challenger_id', userId)
         .single();
 
-    await supabaseClient.from(SupabaseTableNames.missionTime).update(
-        {'mission_at': TimeUtils.stringifyTime(time)}).eq('id', mission['id']);
+    await supabaseClient
+        .from(SupabaseTableNames.missionTime)
+        .update({'mission_at': TimeUtils.stringifyTimeWithUTC(time)}).eq(
+            'id', mission['id']);
   }
 
   // 미션 시간 초기화
