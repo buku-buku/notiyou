@@ -4,7 +4,7 @@ import 'package:notiyou/models/challenger_supporter_model.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/invite_deep_link_service.dart';
-import 'package:notiyou/services/challenger_supporter_service.dart';
+import 'package:notiyou/services/challenger_config_service.dart';
 
 class SupporterSection extends StatefulWidget {
   const SupporterSection({super.key});
@@ -49,8 +49,7 @@ class _SupporterSectionState extends State<SupporterSection>
 
   Future<void> _loadChallengerSupporterInfo() async {
     try {
-      final challengerSupporter =
-          await ChallengerSupporterService.getSupporter();
+      final challengerSupporter = await ChallengerConfigService.getSupporter();
 
       setState(() {
         _challengerSupporterInfo = challengerSupporter;
@@ -73,7 +72,7 @@ class _SupporterSectionState extends State<SupporterSection>
 
     try {
       final updatedChallengerSupporterInfo =
-          await ChallengerSupporterService.dismissSupporter();
+          await ChallengerConfigService.dismissSupporter();
       setState(() {
         _challengerSupporterInfo = updatedChallengerSupporterInfo;
       });

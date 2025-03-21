@@ -5,11 +5,11 @@ import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'dart:async';
 
-import 'package:notiyou/services/challenger_code/challenger_code_exception.dart';
+import 'package:notiyou/exceptions/challenger_code_exception.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
-import 'package:notiyou/services/challenger_supporter_service.dart';
-import 'package:notiyou/services/challenger_supporter_exception.dart';
+import 'package:notiyou/services/challenger_config_service.dart';
+import 'package:notiyou/exceptions/challenger_supporter_exception.dart';
 
 class SupporterSignupPage extends StatefulWidget {
   const SupporterSignupPage({
@@ -95,7 +95,7 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
 
   Future<void> _registerMissionSupporter(String code) async {
     final challengerId = await _challengerCodeService.extractUserId(code);
-    await ChallengerSupporterService.registerSupporter(challengerId);
+    await ChallengerConfigService.registerSupporter(challengerId);
     await AuthService.setRole(UserRole.supporter);
   }
 
