@@ -1,7 +1,7 @@
 import 'package:notiyou/models/challenger_supporter_model.dart';
 import 'package:notiyou/repositories/challenger_supporter/challenger_supporter_repository_interface.dart';
 import 'package:notiyou/repositories/supabase_table_names_constants.dart';
-import 'package:notiyou/services/challenger_supporter_exception.dart';
+import 'package:notiyou/exceptions/challenger_supporter_exception.dart';
 import 'package:notiyou/services/supabase_service.dart';
 
 class ChallengerSupporterRepositoryRemote

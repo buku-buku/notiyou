@@ -5,11 +5,11 @@ import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'dart:async';
 
-import 'package:notiyou/services/challenger_code/challenger_code_exception.dart';
+import 'package:notiyou/exceptions/challenger_code_exception.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
-import 'package:notiyou/services/challenger_supporter_service.dart';
-import 'package:notiyou/services/challenger_supporter_exception.dart';
+import 'package:notiyou/services/challenger_config_service.dart';
+import 'package:notiyou/exceptions/challenger_supporter_exception.dart';
 
 class SupporterSignupPage extends StatefulWidget {
   const SupporterSignupPage({
@@ -32,16 +32,26 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
   Timer? _debounceTimer;
   bool _isValidated = false;
 
+  void _updateCode(String? code) {
+    if (code?.isNotEmpty ?? false) {
+      _challengerCodeController.text = code!;
+      _validateChallengerCode(code);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    _challengerCodeController =
-        TextEditingController(text: widget.initialChallengerCode);
+    _challengerCodeController = TextEditingController();
     _challengerCodeController.addListener(_onCodeChanged);
+    _updateCode(widget.initialChallengerCode);
+  }
 
-    // 초기 코드가 있는 경우 검증 실행
-    if (widget.initialChallengerCode?.isNotEmpty ?? false) {
-      _validateChallengerCode(widget.initialChallengerCode!);
+  @override
+  void didUpdateWidget(SupporterSignupPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialChallengerCode != oldWidget.initialChallengerCode) {
+      _updateCode(widget.initialChallengerCode);
     }
   }
 
@@ -85,7 +95,7 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
 
   Future<void> _registerMissionSupporter(String code) async {
     final challengerId = await _challengerCodeService.extractUserId(code);
-    await ChallengerSupporterService.registerSupporter(challengerId);
+    await ChallengerConfigService.registerSupporter(challengerId);
     await AuthService.setRole(UserRole.supporter);
   }
 

@@ -1,6 +1,6 @@
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'dart:convert';
-import 'package:notiyou/services/challenger_code/challenger_code_exception.dart';
+import 'package:notiyou/exceptions/challenger_code_exception.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
 import 'package:notiyou/services/dotenv_service.dart';
 

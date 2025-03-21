@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:notiyou/screens/signup_page.dart';
-import 'package:notiyou/services/challenger_supporter_service.dart';
+import 'package:notiyou/services/challenger_config_service.dart';
 
 class SupporterConfigPage extends StatelessWidget {
   const SupporterConfigPage({super.key});
@@ -64,7 +64,7 @@ class SupporterConfigPage extends StatelessWidget {
                 );
 
                 if (confirm == true) {
-                  await ChallengerSupporterService.quitSupporter();
+                  await ChallengerConfigService.quitSupporter();
                   if (context.mounted) {
                     context.go(SignupPage.routeName);
                   }

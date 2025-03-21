@@ -7,11 +7,34 @@ class TimeUtils {
     return '${time.hour}:${time.minute}';
   }
 
+  static String stringifyTimeWithUTC(TimeOfDay time) {
+    final now = DateTime.now();
+    final offset = now.timeZoneOffset;
+    final utcTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      time.hour,
+      time.minute,
+    ).subtract(offset);
+    return '${utcTime.hour}:${utcTime.minute}';
+  }
+
   // 문자열을 시간 객체로 변환
   static TimeOfDay parseTime(String timeStr) {
     final hour = int.parse(timeStr.split(':')[0]);
     final minute = int.parse(timeStr.split(':')[1]);
-    return TimeOfDay(hour: hour, minute: minute);
+    final offset = int.parse(timeStr.split('+')[1]);
+    final now = DateTime.now();
+    final localOffset = now.timeZoneOffset;
+    final localTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      hour,
+      minute,
+    ).add(Duration(hours: (offset - localOffset.inHours).abs()));
+    return TimeOfDay(hour: localTime.hour, minute: localTime.minute);
   }
 
   static bool isDateString(String dateStr) {

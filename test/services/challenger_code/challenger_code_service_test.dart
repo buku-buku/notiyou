@@ -1,6 +1,6 @@
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:notiyou/services/challenger_code/challenger_code_exception.dart';
+import 'package:notiyou/exceptions/challenger_code_exception.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/dotenv_service.dart';
 
