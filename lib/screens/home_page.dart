@@ -7,7 +7,6 @@ import 'package:notiyou/screens/signup_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/mission_history_service.dart';
 import 'package:notiyou/services/participant_service.dart';
-import 'package:notiyou/repositories/participant_repository/participant_repository_remote.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,7 +20,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Mission> _missions = [];
   Participant? _participant;
-  final _participantService = ParticipantService(ParticipantRepositoryRemote());
+  final _participantService = ParticipantService.getInstance();
 
   @override
   void initState() {
