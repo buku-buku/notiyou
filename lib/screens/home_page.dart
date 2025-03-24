@@ -4,7 +4,6 @@ import 'package:notiyou/models/challenger_supporter_model.dart';
 import 'package:notiyou/models/mission.dart';
 import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/screens/challenger_config_page.dart';
-import 'package:notiyou/screens/signup_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/challenger_config_service.dart';
 import 'package:notiyou/services/mission_history_service.dart';
@@ -33,12 +32,6 @@ class _HomePageState extends State<HomePage> {
     final user = await AuthService.getUserSafe();
 
     final userRole = AuthService.getRegistrationStatus(user).registeredRole;
-    if (userRole == UserRole.none) {
-      if (!mounted) return;
-      context.go(SignupPage.routeName);
-      return;
-    }
-
     final [missions, partner] = await Future.wait([
       _loadMissions(),
       _loadPartner(userRole),
