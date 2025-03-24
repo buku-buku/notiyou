@@ -118,8 +118,11 @@ Widget buildSupporterAlertBannerForChallenger({
     color: hasSupporter ? Colors.green[100] : Colors.red[100],
     padding: const EdgeInsets.all(16.0),
     child: hasSupporter
-        ? Text(
-            '조력자 ${supporter.name}님과 함께 하고 있습니다.',
+        ? SizedBox(
+            width: double.infinity,
+            child: Text(
+              '조력자 ${supporter.name}님과 함께 하고 있습니다.',
+            ),
           )
         : Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
