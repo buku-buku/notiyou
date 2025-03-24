@@ -33,6 +33,10 @@ class KakaoAuthService {
         : _loginWithKakaoAccount();
   }
 
+  static Future<kakao.User?> getUser() async {
+    return await _kakaoUserApi.me();
+  }
+
   static void validateTokenForSupabaseLink(kakao.OAuthToken token) {
     final userIdToken = token.idToken;
     if (userIdToken == null) {

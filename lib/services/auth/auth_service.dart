@@ -1,5 +1,6 @@
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk_talk.dart';
 import 'package:notiyou/models/registration_status.dart';
+import 'package:notiyou/repositories/user_metadata_repository/user_metadata_repository_remote.dart';
 import 'package:notiyou/services/auth/kakao_auth_service.dart';
 import 'package:notiyou/services/auth/supabase_auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
@@ -14,6 +15,8 @@ class AuthException implements Exception {
 
 // TODO: 자체 User 객체 생성 및 관리 필요.
 class AuthService {
+  static final userMetadataRepository = UserMetadataRepositoryRemote();
+
   static Future<supabase.User?> loginWithKakao() async {
     // * 기존 로그인 상태 초기화
     if (await isLoggedIn()) {
@@ -23,11 +26,25 @@ class AuthService {
     final OAuthToken? token = await KakaoAuthService.login();
 
     if (token == null) {
-      throw Exception('카카오 로그인에 실패하였습니다.');
+      throw Exception('token == null, 카카오 로그인에 실패하였습니다.');
+    }
+
+    final kakaoUser = await KakaoAuthService.getUser();
+    if (kakaoUser == null) {
+      throw Exception('kakaoUser == null, 카카오 유저 정보를 가져오는데 실패하였습니다.');
+    }
+
+    final name = kakaoUser.kakaoAccount?.profile?.nickname;
+    if (name == null) {
+      throw Exception('name == null, 카카오 유저 정보에서 nickname을 가져오는데 실패하였습니다.');
     }
 
     KakaoAuthService.validateTokenForSupabaseLink(token);
-    return await SupabaseAuthService.signInWithKakaoToken(token.idToken!);
+    final user = await SupabaseAuthService.signInWithKakaoToken(token.idToken!);
+
+    await userMetadataRepository.setName(name);
+
+    return user;
   }
 
   static Future<void> logout() async {
