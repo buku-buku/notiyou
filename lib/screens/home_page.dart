@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:notiyou/models/challenger_supporter_model.dart';
+import 'package:notiyou/entities/current_participant.dart';
 import 'package:notiyou/models/mission.dart';
-import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/screens/challenger_config_page.dart';
 import 'package:notiyou/screens/signup_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
-import 'package:notiyou/services/challenger_config_service.dart';
 import 'package:notiyou/services/mission_history_service.dart';
+import 'package:notiyou/services/participant_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,46 +19,37 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Mission> _missions = [];
-  ChallengerSupporter? _missionPartner;
-  UserRole? _userRole;
+  CurrentParticipant? _participant;
+  final _participantService = ParticipantService.getInstance();
 
   @override
   void initState() {
     super.initState();
-    _initPageViewByRole();
+    _initPageView();
   }
 
-  Future<void> _initPageViewByRole() async {
+  Future<void> _initPageView() async {
     final user = await AuthService.getUserSafe();
-
-    final userRole = AuthService.getRegistrationStatus(user).registeredRole;
-    if (userRole == UserRole.none) {
+    if (user.userMetadata == null) {
       if (!mounted) return;
       context.go(SignupPage.routeName);
       return;
     }
 
-    final [missions, partner] = await Future.wait([
+    final [missions, participant] = await Future.wait([
       _loadMissions(),
-      _loadPartner(userRole),
+      _participantService.getCurrentParticipant(),
     ]);
 
     if (!mounted) return;
     setState(() {
-      _userRole = userRole;
       _missions = missions as List<Mission>;
-      _missionPartner = partner as ChallengerSupporter?;
+      _participant = participant as CurrentParticipant;
     });
   }
 
   Future<List<Mission>> _loadMissions() async {
     return await MissionHistoryService.getTodaysMissions();
-  }
-
-  Future<ChallengerSupporter?> _loadPartner(UserRole userRole) async {
-    return userRole == UserRole.challenger
-        ? await ChallengerConfigService.getSupporter()
-        : await ChallengerConfigService.getChallenger();
   }
 
   Future<void> _toggleMissionComplete(int missionId) async {
@@ -87,21 +77,29 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_participant == null) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
+      appBar: AppBar(title: Text('${_participant!.name}님의 Home')),
       body: ListView(
         children: [
-          if (_userRole == UserRole.challenger)
+          if (_participant!.isChallenger)
             buildChallengerView(
               context,
-              _missionPartner,
+              _participant!.partner,
               _missions,
               _toggleMissionComplete,
             ),
-          if (_userRole == UserRole.supporter)
+          if (_participant!.isSupporter)
             buildSupporterView(
               context,
-              _missionPartner,
+              _participant!.partner,
               _missions,
             ),
         ],
@@ -112,16 +110,16 @@ class _HomePageState extends State<HomePage> {
 
 Widget buildSupporterAlertBannerForChallenger({
   required BuildContext context,
-  required ChallengerSupporter? supporter,
+  required Partner? supporter,
 }) {
-  final hasSupporter = supporter?.supporterId != null;
+  final hasSupporter = supporter != null;
 
   return Container(
     color: hasSupporter ? Colors.green[100] : Colors.red[100],
     padding: const EdgeInsets.all(16.0),
     child: hasSupporter
         ? Text(
-            '조력자 ${supporter?.supporterId}님과 함께 하고 있습니다.',
+            '조력자 ${supporter.name}님과 함께 하고 있습니다.',
           )
         : Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -161,7 +159,7 @@ Widget buildSupporterAlertBannerForChallenger({
 
 Widget buildChallengerView(
   BuildContext context,
-  ChallengerSupporter? supporter,
+  Partner? supporter,
   List<Mission> missions,
   Future<void> Function(int) onToggleMissionComplete,
 ) {
@@ -218,19 +216,19 @@ Widget buildChallengerView(
 
 Widget buildChallengerInfoBannerForSupporter({
   required BuildContext context,
-  required ChallengerSupporter? challenger,
+  required Partner? challenger,
 }) {
   return Container(
       color: Colors.green[100],
       padding: const EdgeInsets.all(16.0),
       child: Text(
-        '도전자 ${challenger?.challengerId}님과 함께 하고 있습니다.',
+        '도전자 ${challenger?.name}님과 함께 하고 있습니다.',
       ));
 }
 
 Widget buildSupporterView(
   BuildContext context,
-  ChallengerSupporter? challenger,
+  Partner? challenger,
   List<Mission> missions,
 ) {
   return Column(
