@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
+import 'package:notiyou/entities/current_participant.dart';
 import 'package:notiyou/models/challenger_supporter_model.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/invite_deep_link_service.dart';
 import 'package:notiyou/services/challenger_config_service.dart';
+import 'package:notiyou/services/participant_service.dart';
 
 class SupporterSection extends StatefulWidget {
   const SupporterSection({super.key});
@@ -19,11 +21,15 @@ class _SupporterSectionState extends State<SupporterSection>
   bool _isWaitingForKakaoTalkReturn = false;
   bool _isKakaoTalkReturned = false;
 
+  CurrentParticipant? _participant;
+  final _participantService = ParticipantService.getInstance();
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _loadChallengerSupporterInfo();
+    _loadParticipant();
   }
 
   @override
@@ -67,6 +73,17 @@ class _SupporterSectionState extends State<SupporterSection>
     }
   }
 
+  Future<void> _loadParticipant() async {
+    try {
+      final participant = await _participantService.getCurrentParticipant();
+      setState(() {
+        _participant = participant;
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
   Future<void> _deleteSupporter() async {
     if (_challengerSupporterInfo?.id == null) return;
 
@@ -95,9 +112,10 @@ class _SupporterSectionState extends State<SupporterSection>
       final challengerCode =
           await ChallengerCodeServiceImpl.instance.generateCode(user.id);
       final inviteLink = await InviteDeepLinkService.generateDeepLink(user.id);
+
       final TextTemplate defaultText = TextTemplate(
         objectType: 'text',
-        text: '${user.id}님의 미션 서포터가 되어주시겠습니까?',
+        text: '${_participant?.name}님의 미션 서포터가 되어주시겠습니까?',
         buttonTitle: '서포터 등록하기',
         link: Link(
             mobileWebUrl: Uri.parse(inviteLink),
@@ -216,8 +234,7 @@ class _SupporterSectionState extends State<SupporterSection>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                _challengerSupporterInfo?.supporterId ??
-                    '(이름 없음)', // TODO: Supabase Authentication에서 조력자 이름 가져오기
+                _participant?.partner?.name ?? '(이름 없음)',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(width: 8),

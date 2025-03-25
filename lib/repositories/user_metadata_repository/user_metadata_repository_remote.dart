@@ -57,4 +57,48 @@ class UserMetadataRepositoryRemote implements UserMetadataRepository {
     final data = userMetadata.first;
     return data['fcm_token'];
   }
+
+  @override
+  Future<void> setName(String name) async {
+    final userId = supabaseClient.auth.currentUser?.id;
+    if (userId == null) {
+      throw const AuthException('User not found');
+    }
+
+    final userMetadata = await supabaseClient
+        .from(SupabaseTableNames.userMetadata)
+        .select()
+        .eq('id', userId);
+
+    if (userMetadata.isEmpty) {
+      await supabaseClient.from(SupabaseTableNames.userMetadata).insert({
+        'id': userId,
+        'name': name,
+      });
+    } else {
+      await supabaseClient.from(SupabaseTableNames.userMetadata).update({
+        'name': name,
+      }).eq('id', userId);
+    }
+  }
+
+  @override
+  Future<String?> getName() async {
+    final userId = supabaseClient.auth.currentUser?.id;
+    if (userId == null) {
+      return null;
+    }
+
+    final userMetadata = await supabaseClient
+        .from(SupabaseTableNames.userMetadata)
+        .select()
+        .eq('id', userId);
+
+    if (userMetadata.isEmpty) {
+      return null;
+    }
+
+    final data = userMetadata.first;
+    return data['name'];
+  }
 }
