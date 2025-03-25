@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:notiyou/entities/current_participant.dart';
 import 'package:notiyou/models/mission.dart';
 import 'package:notiyou/screens/challenger_config_page.dart';
-import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/mission_history_service.dart';
 import 'package:notiyou/services/participant_service.dart';
 
@@ -28,8 +27,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _initPageView() async {
-    final user = await AuthService.getUserSafe();
-
     final [missions, participant] = await Future.wait([
       _loadMissions(),
       _participantService.getCurrentParticipant(),
