@@ -1,4 +1,7 @@
+// ignore_for_file: invalid_visibility_annotation
+
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk_talk.dart';
+import 'package:meta/meta.dart';
 import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/repositories/user_metadata_repository/user_metadata_repository_remote.dart';
 import 'package:notiyou/services/auth/kakao_auth_service.dart';
@@ -14,6 +17,7 @@ class AuthException implements Exception {
 }
 
 // TODO: 자체 User 객체 생성 및 관리 필요.
+// TODO: 테스트 용이성을 위해 static class 제거 필요. 이를 위해선 어플리케이션 레이어에서 DI Container 사용 필요.
 class AuthService {
   static final userMetadataRepository = UserMetadataRepositoryRemote();
 
@@ -65,7 +69,51 @@ class AuthService {
     return SupabaseAuthService.setRole(role);
   }
 
-  static Future<supabase.User?> getUser() async {
+  // TODO: static class 제거 이후 메서드 제거
+  @visibleForTesting
+  static dynamic _testUser;
+  // TODO: static class 제거 이후 메서드 제거
+  @visibleForTesting
+  static bool _alwaysReturnNull = false;
+  @visibleForTesting
+  static UserRole? _testRole;
+
+  // TODO: static class 제거 이후 메서드 제거
+  @visibleForTesting
+  static void setUserForTesting(dynamic user) {
+    _testUser = user;
+  }
+
+  @visibleForTesting
+  static void setRoleForTesting(UserRole role) {
+    _testRole = role;
+  }
+
+  // TODO: static class 제거 이후 메서드 제거
+  @visibleForTesting
+  static void setAlwaysReturnNullForTesting() {
+    _alwaysReturnNull = true;
+  }
+
+// TODO: static class 제거 이후 메서드 제거
+  @visibleForTesting
+  static void clearUserForTesting() {
+    _testUser = null;
+  }
+
+  static Future<dynamic> getUser() async {
+    // for testing
+    // TODO: static class 제거 이후 제거
+    if (_testUser != null) {
+      return _testUser;
+    }
+    // for testing
+    // TODO: static class 제거 이후 제거
+    if (_alwaysReturnNull) {
+      return null;
+    }
+
+    // 실제 구현 코드
     return await SupabaseAuthService.getUser();
   }
 
@@ -90,6 +138,12 @@ class AuthService {
   }
 
   static RegistrationStatus getRegistrationStatus(supabase.User user) {
+    // for testing
+    // TODO: static class 제거 이후 제거
+    if (_testRole != null) {
+      return RegistrationStatus(registeredRole: _testRole!);
+    }
+
     return SupabaseAuthService.getRegistrationStatus(user);
   }
 }
