@@ -91,7 +91,7 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
     final missionTime = await SupabaseService.client
         .from(SupabaseTableNames.missionTime)
         .select('id, mission_at')
-        .eq('mission_id', missionId)
+        .eq('id', missionId)
         .single();
 
     await SupabaseService.client
