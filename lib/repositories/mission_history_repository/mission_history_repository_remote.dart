@@ -179,7 +179,7 @@ class MissionHistoryRepositoryRemote implements MissionHistoryRepository {
         .map((e) => Mission.fromMissionHistoryEntity(e))
         .toList();
 
-    missions.sort((a, b) => a.id.compareTo(b.id));
+    missions.sort((a, b) => b.date.compareTo(a.date));
 
     return missions;
   }
