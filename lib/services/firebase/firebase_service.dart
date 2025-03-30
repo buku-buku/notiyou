@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:notiyou/repositories/user_metadata_repository/user_metadata_repository_remote.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/firebase/firebase_options.dart';
+import 'package:notiyou/services/local_notification_service.dart';
 
 class FirebaseService {
   static final userMetadataRepository = UserMetadataRepositoryRemote();
@@ -30,6 +31,16 @@ class FirebaseService {
             throw Exception('firebase_service: apnsToken is null');
           }
         }
+
+        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+          if (message.notification == null) {
+            throw Exception('firebase_service: message.notification is null');
+          }
+
+          LocalNotificationService.showNotification(
+              title: message.notification?.title,
+              body: message.notification?.body);
+        });
 
         _syncFCMToken();
       }
