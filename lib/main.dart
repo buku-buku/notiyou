@@ -4,6 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk_talk.dart';
 import 'package:notiyou/routes/router.dart';
 import 'package:notiyou/services/dotenv_service.dart';
+import 'package:notiyou/services/local_notification_service.dart';
 import 'package:notiyou/services/mission_alarm_service.dart';
 import 'package:notiyou/services/mission_config_service.dart';
 import 'package:notiyou/services/supabase_service.dart';
@@ -23,6 +24,7 @@ void main() async {
   await SupabaseService.init();
   await FirebaseService.init();
   await InviteDeepLinkService.init();
+  await LocalNotificationService.init();
   await MissionConfigService.init();
   await MissionAlarmService.init();
   runApp(const MyApp());

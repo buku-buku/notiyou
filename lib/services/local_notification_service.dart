@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:notiyou/routes/router.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -55,8 +56,8 @@ class LocalNotificationService {
     await _notifications.initialize(
       settings,
       onDidReceiveNotificationResponse: (NotificationResponse details) {
-        if (onNotificationTap != null) {
-          onNotificationTap!(details.payload);
+        if (details.payload != null) {
+          router.push(details.payload!);
         }
       },
     );

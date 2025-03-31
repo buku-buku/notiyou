@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:notiyou/repositories/user_metadata_repository/user_metadata_repository_remote.dart';
+import 'package:notiyou/routes/router.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/firebase/firebase_options.dart';
 import 'package:notiyou/services/local_notification_service.dart';
@@ -39,7 +40,8 @@ class FirebaseService {
 
           LocalNotificationService.showNotification(
               title: message.notification?.title,
-              body: message.notification?.body);
+              body: message.notification?.body,
+              payload: message.data['destination']);
         });
 
         _syncFCMToken();

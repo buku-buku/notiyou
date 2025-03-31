@@ -5,7 +5,6 @@ import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/local_notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:notiyou/routes/router.dart';
 
 class MissionAlarmService {
   static final MissionTimeRepository _missionTimeRepository =
@@ -14,14 +13,6 @@ class MissionAlarmService {
   static const String _pushAlarmSetupKey = 'push_alarm_setup';
 
   static Future<void> init() async {
-    await LocalNotificationService.init(
-      onNotificationTapped: (String? payload) {
-        if (payload != null) {
-          router.push(payload);
-        }
-      },
-    );
-
     final prefs = await SharedPreferences.getInstance();
     final isAlreadySetup = prefs.getBool(_pushAlarmSetupKey) ?? false;
 
