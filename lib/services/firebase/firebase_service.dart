@@ -33,6 +33,16 @@ class FirebaseService {
           }
         }
 
+        FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+          if (message.notification == null) {
+            throw Exception('firebase_service: message.notification is null');
+          }
+
+          if (message.data['destination'] != null) {
+            router.push(message.data['destination']);
+          }
+        });
+
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
           if (message.notification == null) {
             throw Exception('firebase_service: message.notification is null');
