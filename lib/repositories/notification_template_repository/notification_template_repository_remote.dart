@@ -33,9 +33,9 @@ class NotificationTemplateRepositoryRemote
         .from(SupabaseTableNames.missionMessages)
         .select('success_message')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
-    return missionMessage['success_message'] ?? defaultSuccessMessageTemplate;
+    return missionMessage?['success_message'] ?? defaultSuccessMessageTemplate;
   }
 
   @override
@@ -49,9 +49,9 @@ class NotificationTemplateRepositoryRemote
         .from(SupabaseTableNames.missionMessages)
         .select('fail_message')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
-    return missionMessage['fail_message'] ?? defaultFailureMessageTemplate;
+    return missionMessage?['fail_message'] ?? defaultFailureMessageTemplate;
   }
 
   @override
