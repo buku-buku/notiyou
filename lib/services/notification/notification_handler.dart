@@ -24,8 +24,6 @@ class NotificationHandlerImpl implements NotificationHandler {
       case NotificationEvent.missionAlarm:
         _handleMissionAlarmNotification(data);
         break;
-      default:
-        break;
     }
   }
 

@@ -101,19 +101,4 @@ class FirebaseService {
     }
     throw Exception('firebase_service: 사용자 인증 대기 시간이 초과되었습니다.');
   }
-
-  static void _handleRemoteMessage(RemoteMessage message,
-      {required bool showLocalNotification}) {
-    if (message.notification == null) {
-      throw Exception('firebase_service: message.notification is null');
-    }
-
-    if (showLocalNotification) {
-      LocalNotificationService.showNotification(
-        title: message.notification?.title,
-        body: message.notification?.body,
-        notificationType: message.data['notification_type'],
-      );
-    }
-  }
 }
