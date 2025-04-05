@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-class NotificationTemplateRepository {
+class NotificationTemplateRepositoryLocal {
   static SharedPreferences? _prefs;
   static const String _successMessageTemplateKey =
       'notification_success_message_template';
