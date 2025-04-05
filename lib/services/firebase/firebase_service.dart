@@ -4,15 +4,20 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:notiyou/repositories/user_metadata_repository/user_metadata_repository_remote.dart';
-import 'package:notiyou/routes/router.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/firebase/firebase_options.dart';
 import 'package:notiyou/services/local_notification_service.dart';
+import 'package:notiyou/services/notification/notification_event.dart';
+import 'package:notiyou/services/notification/notification_handler_interface.dart';
 
 class FirebaseService {
   static final userMetadataRepository = UserMetadataRepositoryRemote();
+  static NotificationHandler? _notificationHandler;
 
-  static Future<void> init() async {
+  static Future<void> init({
+    NotificationHandler? notificationHandler,
+  }) async {
+    _notificationHandler = notificationHandler;
     try {
       if (Firebase.apps.isEmpty) {
         await Firebase.initializeApp(
@@ -38,9 +43,10 @@ class FirebaseService {
             throw Exception('firebase_service: message.notification is null');
           }
 
-          if (message.data['destination'] != null) {
-            router.push(message.data['destination']);
-          }
+          final event = NotificationEvent.getNotificationEvent(
+              message.data['notification_type']);
+
+          _notificationHandler?.handleNotification(event, message.data);
         });
 
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
@@ -49,9 +55,10 @@ class FirebaseService {
           }
 
           LocalNotificationService.showNotification(
-              title: message.notification?.title,
-              body: message.notification?.body,
-              payload: message.data['destination']);
+            title: message.notification?.title,
+            body: message.notification?.body,
+            notificationType: message.data['notification_type'],
+          );
         });
 
         _syncFCMToken();
@@ -93,5 +100,20 @@ class FirebaseService {
       await Future.delayed(const Duration(seconds: 10));
     }
     throw Exception('firebase_service: 사용자 인증 대기 시간이 초과되었습니다.');
+  }
+
+  static void _handleRemoteMessage(RemoteMessage message,
+      {required bool showLocalNotification}) {
+    if (message.notification == null) {
+      throw Exception('firebase_service: message.notification is null');
+    }
+
+    if (showLocalNotification) {
+      LocalNotificationService.showNotification(
+        title: message.notification?.title,
+        body: message.notification?.body,
+        notificationType: message.data['notification_type'],
+      );
+    }
   }
 }
