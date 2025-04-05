@@ -36,7 +36,7 @@ class _HistoryPageState extends State<HistoryPage> {
     for (var mission in missions) {
       final dateKey = TimeUtils.formatDateTime(
         date: mission.date,
-        format: 'yyyy-MM-dd (E)',
+        format: 'yyyy.MM.dd (E)',
       );
 
       if (groupedMissions.containsKey(dateKey)) {

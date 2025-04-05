@@ -59,9 +59,22 @@ class LoginPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Login')),
       body: Center(
-        child: ElevatedButton(
-          onPressed: () => _handleKakaoLogin(context),
-          child: const Text('카카오톡으로 시작하기'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () => _handleKakaoLogin(context),
+              child: const Text('카카오톡으로 시작하기'),
+            ),
+            const SizedBox(height: 8), // 버튼과 텍스트 사이 간격
+            const Text(
+              '카카오톡 프로필에 설정된 이름으로 가입됩니다',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+              ),
+            ),
+          ],
         ),
       ),
     );
