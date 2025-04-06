@@ -3,4 +3,5 @@ abstract class UserMetadataRepository {
   Future<String?> getFCMToken();
   Future<void> setName(String name);
   Future<String?> getName();
+  Future<Map<String, dynamic>> getUserMetadataByUserId(String userId);
 }
