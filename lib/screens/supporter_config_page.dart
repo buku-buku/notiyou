@@ -65,9 +65,14 @@ class SupporterConfigPage extends StatelessWidget {
 
                 if (confirm == true) {
                   await ChallengerConfigService.quitSupporter();
-                  if (context.mounted) {
-                    context.go(SignupPage.routeName);
-                  }
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('서포터를 그만두었습니다.'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                  context.go(SignupPage.routeName);
                 }
               },
               child: const Text(
