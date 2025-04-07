@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:notiyou/entities/current_participant.dart';
+import 'package:notiyou/exceptions/repository_exception.dart';
 import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
@@ -10,6 +12,7 @@ import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
 import 'package:notiyou/services/challenger_config_service.dart';
 import 'package:notiyou/exceptions/challenger_supporter_exception.dart';
+import 'package:notiyou/services/participant_service.dart';
 
 class SupporterSignupPage extends StatefulWidget {
   const SupporterSignupPage({
@@ -25,12 +28,15 @@ class SupporterSignupPage extends StatefulWidget {
 }
 
 class _SupporterSignupPageState extends State<SupporterSignupPage> {
+  final _participantService = ParticipantService.getInstance();
+
   late final TextEditingController _challengerCodeController;
   final ChallengerCodeService _challengerCodeService =
       ChallengerCodeServiceImpl.instance;
   ChallengerCodeException? _error;
   Timer? _debounceTimer;
   bool _isValidated = false;
+  CurrentParticipant? _challengerParticipant;
 
   void _updateCode(String? code) {
     if (code?.isNotEmpty ?? false) {
@@ -78,15 +84,30 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
 
   Future<bool> _validateChallengerCode(String code) async {
     try {
-      await _challengerCodeService.verifyCode(code);
+      final challengerId = await _challengerCodeService.verifyCode(code);
+
+      final challengerParticipant =
+          await _participantService.getParticipantById(challengerId);
+
       setState(() {
         _error = null;
         _isValidated = true;
+        _challengerParticipant = challengerParticipant;
       });
       return true;
     } on ChallengerCodeException catch (e) {
       setState(() {
         _error = e;
+        _isValidated = false;
+      });
+      return false;
+    } on EntityNotFoundException catch (e) {
+      setState(() {
+        _error = ChallengerCodeException(
+          message: ChallengerCodeExceptionType.notFound.message,
+          type: ChallengerCodeExceptionType.notFound,
+          details: e.details,
+        );
         _isValidated = false;
       });
       return false;
@@ -170,6 +191,16 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
                     : null,
               ),
             ),
+            if (_isValidated && _challengerParticipant != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                '${_challengerParticipant!.name}님의 초대 코드를 입력했습니다',
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 14,
+                ),
+              ),
+            ],
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _onNextPressed,

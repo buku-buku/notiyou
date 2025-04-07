@@ -74,7 +74,7 @@ class ChallengerCodeServiceImpl implements ChallengerCodeService {
   }
 
   @override
-  Future<void> verifyCode(String code) async {
+  Future<String> verifyCode(String code) async {
     if (code.isEmpty) {
       throw const ChallengerCodeException(
         message: '도전자 코드를 입력해주세요',
@@ -82,7 +82,8 @@ class ChallengerCodeServiceImpl implements ChallengerCodeService {
       );
     }
     try {
-      await extractUserId(code);
+      final userId = await extractUserId(code);
+      return userId;
     } catch (e) {
       throw ChallengerCodeException(
         message: '도전자 코드 검증에 실패했습니다',

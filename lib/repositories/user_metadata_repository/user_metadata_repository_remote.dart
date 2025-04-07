@@ -1,3 +1,4 @@
+import 'package:notiyou/exceptions/repository_exception.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:notiyou/repositories/supabase_table_names_constants.dart';
 import 'package:notiyou/repositories/user_metadata_repository/user_metadata_repository_interface.dart';
@@ -100,5 +101,28 @@ class UserMetadataRepositoryRemote implements UserMetadataRepository {
 
     final data = userMetadata.first;
     return data['name'];
+  }
+
+  @override
+  Future<Map<String, dynamic>> getUserMetadataByUserId(String userId) async {
+    final userMetadata = await supabaseClient
+        .from(SupabaseTableNames.userMetadata)
+        .select()
+        .eq('id', userId);
+
+    if (userMetadata.isEmpty) {
+      throw EntityNotFoundException(
+        'User not found',
+        details: 'No user found with ID: $userId',
+      );
+    }
+
+    if (userMetadata.length > 1) {
+      throw RepositoryException(
+        'Multiple user metadata found for user ID: $userId',
+      );
+    }
+
+    return userMetadata.first;
   }
 }
