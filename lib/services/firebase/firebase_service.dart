@@ -6,9 +6,15 @@ import 'package:flutter/foundation.dart';
 import 'package:notiyou/repositories/user_metadata_repository/user_metadata_repository_remote.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/firebase/firebase_options.dart';
+import 'package:notiyou/services/local_notification_service.dart';
+import 'package:notiyou/services/notification/notification_event.dart';
+import 'package:notiyou/services/notification/notification_handler.dart';
+import 'package:notiyou/services/notification/notification_handler_interface.dart';
 
 class FirebaseService {
   static final userMetadataRepository = UserMetadataRepositoryRemote();
+  static final NotificationHandler _notificationHandler =
+      NotificationHandlerImpl();
 
   static Future<void> init() async {
     try {
@@ -30,6 +36,29 @@ class FirebaseService {
             throw Exception('firebase_service: apnsToken is null');
           }
         }
+
+        FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+          if (message.notification == null) {
+            throw Exception('firebase_service: message.notification is null');
+          }
+
+          final event = NotificationEvent.getNotificationEvent(
+              message.data['notification_type']);
+
+          _notificationHandler.handleNotification(event, message.data);
+        });
+
+        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+          if (message.notification == null) {
+            throw Exception('firebase_service: message.notification is null');
+          }
+
+          LocalNotificationService.showNotification(
+            title: message.notification?.title,
+            body: message.notification?.body,
+            notificationType: message.data['notification_type'],
+          );
+        });
 
         _syncFCMToken();
       }

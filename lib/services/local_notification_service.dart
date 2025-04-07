@@ -1,4 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:notiyou/services/notification/notification_event.dart';
+import 'package:notiyou/services/notification/notification_handler.dart';
+import 'package:notiyou/services/notification/notification_handler_interface.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -31,16 +34,12 @@ const settings = InitializationSettings(
 class LocalNotificationService {
   static final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
-
-  static void Function(String?)? onNotificationTap;
+  static final NotificationHandler _notificationHandler =
+      NotificationHandlerImpl();
 
   static int _notificationId = 0;
 
-  static Future<void> init({
-    void Function(String?)? onNotificationTapped,
-  }) async {
-    onNotificationTap = onNotificationTapped;
-
+  static Future<void> init() async {
     await _initializeTimeZone();
     await _initializeSettings();
     await _requestPermissions();
@@ -55,9 +54,8 @@ class LocalNotificationService {
     await _notifications.initialize(
       settings,
       onDidReceiveNotificationResponse: (NotificationResponse details) {
-        if (onNotificationTap != null) {
-          onNotificationTap!(details.payload);
-        }
+        final event = NotificationEvent.getNotificationEvent(details.payload);
+        _notificationHandler.handleNotification(event, {});
       },
     );
   }
@@ -90,7 +88,7 @@ class LocalNotificationService {
     required String title,
     required String body,
     required DateTime scheduledTime,
-    required String payload,
+    required String notificationType,
   }) async {
     final newId = id ?? _notificationId++;
 
@@ -103,7 +101,7 @@ class LocalNotificationService {
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-      payload: payload,
+      payload: notificationType,
     );
 
     return newId;
@@ -121,14 +119,14 @@ class LocalNotificationService {
     int? id,
     String? title = '테스트 알림',
     String? body = '이것은 테스트 알림입니다.',
-    String? payload,
+    String? notificationType,
   }) async {
     await _notifications.show(
       id ?? _notificationId++,
       title,
       body,
       notificationDetails,
-      payload: payload,
+      payload: notificationType,
     );
   }
 }
