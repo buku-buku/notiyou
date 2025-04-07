@@ -8,16 +8,15 @@ import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/firebase/firebase_options.dart';
 import 'package:notiyou/services/local_notification_service.dart';
 import 'package:notiyou/services/notification/notification_event.dart';
+import 'package:notiyou/services/notification/notification_handler.dart';
 import 'package:notiyou/services/notification/notification_handler_interface.dart';
 
 class FirebaseService {
   static final userMetadataRepository = UserMetadataRepositoryRemote();
-  static NotificationHandler? _notificationHandler;
+  static final NotificationHandler _notificationHandler =
+      NotificationHandlerImpl();
 
-  static Future<void> init({
-    NotificationHandler? notificationHandler,
-  }) async {
-    _notificationHandler = notificationHandler;
+  static Future<void> init() async {
     try {
       if (Firebase.apps.isEmpty) {
         await Firebase.initializeApp(
@@ -46,7 +45,7 @@ class FirebaseService {
           final event = NotificationEvent.getNotificationEvent(
               message.data['notification_type']);
 
-          _notificationHandler?.handleNotification(event, message.data);
+          _notificationHandler.handleNotification(event, message.data);
         });
 
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {

@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:notiyou/services/notification/notification_event.dart';
+import 'package:notiyou/services/notification/notification_handler.dart';
 import 'package:notiyou/services/notification/notification_handler_interface.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -33,15 +34,12 @@ const settings = InitializationSettings(
 class LocalNotificationService {
   static final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
-  static NotificationHandler? _notificationHandler;
+  static final NotificationHandler _notificationHandler =
+      NotificationHandlerImpl();
 
   static int _notificationId = 0;
 
-  static Future<void> init({
-    NotificationHandler? notificationHandler,
-  }) async {
-    _notificationHandler = notificationHandler;
-
+  static Future<void> init() async {
     await _initializeTimeZone();
     await _initializeSettings();
     await _requestPermissions();
@@ -57,7 +55,7 @@ class LocalNotificationService {
       settings,
       onDidReceiveNotificationResponse: (NotificationResponse details) {
         final event = NotificationEvent.getNotificationEvent(details.payload);
-        _notificationHandler?.handleNotification(event, {});
+        _notificationHandler.handleNotification(event, {});
       },
     );
   }
