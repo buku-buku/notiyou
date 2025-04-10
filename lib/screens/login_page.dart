@@ -6,6 +6,7 @@ import 'package:notiyou/screens/supporter_signup_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 
 import 'package:notiyou/screens/signup_page.dart';
+import 'package:notiyou/services/user_metadata_service.dart';
 
 class LoginPage extends StatelessWidget {
   static const routeName = '/login';
@@ -23,17 +24,17 @@ class LoginPage extends StatelessWidget {
         throw Exception('User not found');
       }
 
-      final registrationStatus = AuthService.getRegistrationStatus(user);
+      final userRole = await UserMetadataService.getRole(user.id);
       if (!context.mounted) {
         return;
       }
 
-      if (registrationStatus.registeredRole != UserRole.none) {
+      if (userRole != UserRole.none) {
         context.go(HomePage.routeName);
         return;
       }
 
-      if (registrationStatus.registeredRole == UserRole.none) {
+      if (userRole == UserRole.none) {
         if (initialChallengerCode != null) {
           context.go(SupporterSignupPage.routeName,
               extra: initialChallengerCode);

@@ -3,6 +3,7 @@ import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/repositories/challenger_supporter/challenger_supporter_repository_remote.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/exceptions/challenger_supporter_exception.dart';
+import 'package:notiyou/services/user_metadata_service.dart';
 
 class ChallengerConfigService {
   static final _repository = ChallengerSupporterRepositoryRemote();
@@ -64,11 +65,11 @@ class ChallengerConfigService {
   static Future<void> quitSupporter() async {
     try {
       final userId = await AuthService.getUserId();
-      await AuthService.setRole(UserRole.none);
+      await UserMetadataService.setRole(userId, UserRole.none);
       try {
         await _repository.dismissChallengerSupporterBySupporterId(userId);
       } catch (e) {
-        await AuthService.setRole(UserRole.supporter);
+        await UserMetadataService.setRole(userId, UserRole.supporter);
         throw ChallengerSupporterException('서포터 해제 중 오류가 발생했습니다: $e');
       }
     } catch (e) {

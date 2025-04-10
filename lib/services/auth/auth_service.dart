@@ -6,6 +6,7 @@ import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/repositories/user_metadata_repository/user_metadata_repository_remote.dart';
 import 'package:notiyou/services/auth/kakao_auth_service.dart';
 import 'package:notiyou/services/auth/supabase_auth_service.dart';
+import 'package:notiyou/services/user_metadata_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 class AuthException implements Exception {
@@ -135,15 +136,5 @@ class AuthService {
 
   static bool isRegistrationCompleted(supabase.User user) {
     return SupabaseAuthService.isRegistrationCompleted(user);
-  }
-
-  static RegistrationStatus getRegistrationStatus(supabase.User user) {
-    // for testing
-    // TODO: static class 제거 이후 제거
-    if (_testRole != null) {
-      return RegistrationStatus(registeredRole: _testRole!);
-    }
-
-    return SupabaseAuthService.getRegistrationStatus(user);
   }
 }
