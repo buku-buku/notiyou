@@ -4,6 +4,7 @@ import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/challenger_code/challenger_code_service_interface.dart';
 import 'package:notiyou/services/dotenv_service.dart';
 import 'package:notiyou/routes/router.dart';
+import 'package:notiyou/services/user_metadata_service.dart';
 
 enum InvitedUserStatus {
   guest,
@@ -93,13 +94,10 @@ class InviteDeepLinkService {
   }
 
   static Future<InvitedUserStatus> _getUserStatus() async {
-    final user = await AuthService.getUser();
+    final isRoleRegistered =
+        await UserMetadataService.isRoleRegistrationCompleted();
 
-    if (user == null) {
-      return InvitedUserStatus.guest;
-    }
-
-    if (AuthService.isRegistrationCompleted(user)) {
+    if (isRoleRegistered) {
       return InvitedUserStatus.registeredUser;
     }
 

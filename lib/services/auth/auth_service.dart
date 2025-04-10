@@ -6,7 +6,6 @@ import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/repositories/user_metadata_repository/user_metadata_repository_remote.dart';
 import 'package:notiyou/services/auth/kakao_auth_service.dart';
 import 'package:notiyou/services/auth/supabase_auth_service.dart';
-import 'package:notiyou/services/user_metadata_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 class AuthException implements Exception {
@@ -64,10 +63,6 @@ class AuthService {
     } catch (e) {
       return false;
     }
-  }
-
-  static Future<void> setRole(UserRole role) async {
-    return SupabaseAuthService.setRole(role);
   }
 
   // TODO: static class 제거 이후 메서드 제거
@@ -132,9 +127,5 @@ class AuthService {
       throw Exception('Unauthorized');
     }
     return user.id;
-  }
-
-  static bool isRegistrationCompleted(supabase.User user) {
-    return SupabaseAuthService.isRegistrationCompleted(user);
   }
 }

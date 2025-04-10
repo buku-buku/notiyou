@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/screens/login_page.dart';
 import 'package:notiyou/screens/signup_page.dart';
-import 'package:notiyou/services/auth/auth_service.dart';
+import 'package:notiyou/services/user_metadata_service.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -24,14 +24,13 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<void> _checkLoginStatus() async {
     try {
-      final user = await AuthService.getUserSafe();
-
-      final isRegistrationComplete = AuthService.isRegistrationCompleted(user);
+      final isRoleRegistered =
+          await UserMetadataService.isRoleRegistrationCompleted();
       if (!mounted) {
         return;
       }
 
-      if (isRegistrationComplete) {
+      if (isRoleRegistered) {
         context.go(HomePage.routeName);
       } else {
         context.go(SignupPage.routeName);
