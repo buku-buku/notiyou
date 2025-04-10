@@ -65,10 +65,6 @@ class AuthService {
     }
   }
 
-  static Future<void> setRole(UserRole role) async {
-    return SupabaseAuthService.setRole(role);
-  }
-
   // TODO: static class 제거 이후 메서드 제거
   @visibleForTesting
   static dynamic _testUser;
@@ -131,19 +127,5 @@ class AuthService {
       throw Exception('Unauthorized');
     }
     return user.id;
-  }
-
-  static bool isRegistrationCompleted(supabase.User user) {
-    return SupabaseAuthService.isRegistrationCompleted(user);
-  }
-
-  static RegistrationStatus getRegistrationStatus(supabase.User user) {
-    // for testing
-    // TODO: static class 제거 이후 제거
-    if (_testRole != null) {
-      return RegistrationStatus(registeredRole: _testRole!);
-    }
-
-    return SupabaseAuthService.getRegistrationStatus(user);
   }
 }

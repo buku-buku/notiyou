@@ -1,4 +1,5 @@
 import 'package:notiyou/exceptions/repository_exception.dart';
+import 'package:notiyou/models/registration_status.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:notiyou/repositories/supabase_table_names_constants.dart';
 import 'package:notiyou/repositories/user_metadata_repository/user_metadata_repository_interface.dart';
@@ -124,5 +125,23 @@ class UserMetadataRepositoryRemote implements UserMetadataRepository {
     }
 
     return userMetadata.first;
+  }
+
+  @override
+  Future<UserRole> getRole(String userId) async {
+    final result = await supabaseClient
+        .from(SupabaseTableNames.userMetadata)
+        .select('role')
+        .eq('id', userId)
+        .single();
+
+    return UserRole.fromString(result['role']);
+  }
+
+  @override
+  Future<void> updateRole(String userId, UserRole role) async {
+    await supabaseClient.from(SupabaseTableNames.userMetadata).update({
+      'role': role.name,
+    }).eq('id', userId);
   }
 }
