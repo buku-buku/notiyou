@@ -34,53 +34,46 @@ class ParticipantRepositoryRemote implements ParticipantRepository {
 
   @override
   Future<CurrentParticipant> getParticipantById(String userId) async {
-    try {
-      final currentUserMetadata =
-          await _userMetadataRepository.getUserMetadataByUserId(userId);
+    final currentUserMetadata =
+        await _userMetadataRepository.getUserMetadataByUserId(userId);
 
-      final challengerSupporter = await supabaseClient
-          .from(SupabaseTableNames.challengerSupporter)
-          .select('challenger_id, supporter_id')
-          .or('challenger_id.eq.$userId,supporter_id.eq.$userId')
-          .maybeSingle();
+    final challengerSupporter = await supabaseClient
+        .from(SupabaseTableNames.challengerSupporter)
+        .select('challenger_id, supporter_id')
+        .or('challenger_id.eq.$userId,supporter_id.eq.$userId')
+        .maybeSingle();
 
-      final hasChallengerSupporter = challengerSupporter != null;
-      final isUserChallenger = hasChallengerSupporter &&
-          userId == challengerSupporter['challenger_id'];
+    final hasChallengerSupporter = challengerSupporter != null;
+    final isUserChallenger = hasChallengerSupporter &&
+        userId == challengerSupporter['challenger_id'];
 
-      String? partnerId;
-      if (hasChallengerSupporter) {
-        partnerId = isUserChallenger
-            ? challengerSupporter['supporter_id']
-            : challengerSupporter['challenger_id'];
-      }
+    String? partnerId;
+    if (hasChallengerSupporter) {
+      partnerId = isUserChallenger
+          ? challengerSupporter['supporter_id']
+          : challengerSupporter['challenger_id'];
+    }
 
-      Partner? partner;
-      final hasPartner = partnerId != null;
-      if (hasPartner) {
-        final partnerMetadata =
-            await _userMetadataRepository.getUserMetadataByUserId(partnerId);
+    Partner? partner;
+    final hasPartner = partnerId != null;
+    if (hasPartner) {
+      final partnerMetadata =
+          await _userMetadataRepository.getUserMetadataByUserId(partnerId);
 
-        partner = Partner(
-          type: isUserChallenger
-              ? ParticipantType.supporter
-              : ParticipantType.challenger,
-          name: partnerMetadata['name'],
-        );
-      }
-
-      return CurrentParticipant(
-        name: currentUserMetadata['name'],
+      partner = Partner(
         type: isUserChallenger
-            ? ParticipantType.challenger
-            : ParticipantType.supporter,
-        partner: partner,
-      );
-    } catch (e) {
-      throw RepositoryException(
-        'Failed to execute getParticipantById',
-        details: e.toString(),
+            ? ParticipantType.supporter
+            : ParticipantType.challenger,
+        name: partnerMetadata['name'],
       );
     }
+
+    return CurrentParticipant(
+      name: currentUserMetadata['name'],
+      type: isUserChallenger
+          ? ParticipantType.challenger
+          : ParticipantType.supporter,
+      partner: partner,
+    );
   }
 }
