@@ -2,7 +2,6 @@
 
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk_talk.dart';
 import 'package:meta/meta.dart';
-import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/repositories/user_metadata_repository/user_metadata_repository_remote.dart';
 import 'package:notiyou/services/auth/kakao_auth_service.dart';
 import 'package:notiyou/services/auth/supabase_auth_service.dart';
@@ -71,18 +70,11 @@ class AuthService {
   // TODO: static class 제거 이후 메서드 제거
   @visibleForTesting
   static bool _alwaysReturnNull = false;
-  @visibleForTesting
-  static UserRole? _testRole;
 
   // TODO: static class 제거 이후 메서드 제거
   @visibleForTesting
   static void setUserForTesting(dynamic user) {
     _testUser = user;
-  }
-
-  @visibleForTesting
-  static void setRoleForTesting(UserRole role) {
-    _testRole = role;
   }
 
   // TODO: static class 제거 이후 메서드 제거
