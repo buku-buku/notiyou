@@ -13,7 +13,7 @@ class UserMetadataService {
     return await userMetadataRepository.getRole(userId);
   }
 
-  static Future<bool> isRegistrationCompleted() async {
+  static Future<bool> isRoleRegistrationCompleted() async {
     final userId = await AuthService.getUserId();
     final role = await getRole(userId);
     return role != UserRole.none;
