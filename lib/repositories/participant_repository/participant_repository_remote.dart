@@ -1,7 +1,7 @@
 import 'package:notiyou/entities/current_participant.dart';
-import 'package:notiyou/exceptions/repository_exception.dart';
+import 'package:notiyou/repositories/challenger_supporter/challenger_supporter_repository_interface.dart';
+import 'package:notiyou/repositories/challenger_supporter/challenger_supporter_repository_remote.dart';
 import 'package:notiyou/repositories/participant_repository/participant_repository_interface.dart';
-import 'package:notiyou/repositories/supabase_table_names_constants.dart';
 import 'package:notiyou/repositories/user_metadata_repository/user_metadata_repository_interface.dart';
 import 'package:notiyou/repositories/user_metadata_repository/user_metadata_repository_remote.dart';
 import 'package:notiyou/services/supabase_service.dart';
@@ -13,6 +13,9 @@ class ParticipantRepositoryRemote implements ParticipantRepository {
 
   final UserMetadataRepository _userMetadataRepository =
       UserMetadataRepositoryRemote();
+
+  final ChallengerSupporterRepository _challengerSupporterRepository =
+      ChallengerSupporterRepositoryRemote();
 
   ParticipantRepositoryRemote._internal();
 
@@ -37,24 +40,17 @@ class ParticipantRepositoryRemote implements ParticipantRepository {
     final currentUserMetadata =
         await _userMetadataRepository.getUserMetadataByUserId(userId);
 
-    final challengerSupporter = await supabaseClient
-        .from(SupabaseTableNames.challengerSupporter)
-        .select('challenger_id, supporter_id')
-        .or('challenger_id.eq.$userId,supporter_id.eq.$userId')
-        .maybeSingle();
+    final challengerSupporter = await _challengerSupporterRepository
+        .getChallengerSupporterByUserId(userId);
 
-    final hasChallengerSupporter = challengerSupporter != null;
-    final isUserChallenger = hasChallengerSupporter &&
-        userId == challengerSupporter['challenger_id'];
+    final isUserChallenger = userId == challengerSupporter.challengerId;
 
-    String? partnerId;
-    if (hasChallengerSupporter) {
-      partnerId = isUserChallenger
-          ? challengerSupporter['supporter_id']
-          : challengerSupporter['challenger_id'];
-    }
+    final partnerId = isUserChallenger
+        ? challengerSupporter.supporterId
+        : challengerSupporter.challengerId;
 
     Partner? partner;
+
     final hasPartner = partnerId != null;
     if (hasPartner) {
       final partnerMetadata =

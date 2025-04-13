@@ -89,6 +89,13 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
       final challengerParticipant =
           await _participantService.getParticipantById(challengerId);
 
+      if (challengerParticipant.partner != null) {
+        throw ChallengerCodeException(
+          message: ChallengerCodeExceptionType.alreadyUsed.message,
+          type: ChallengerCodeExceptionType.alreadyUsed,
+        );
+      }
+
       setState(() {
         _error = null;
         _isValidated = true;
