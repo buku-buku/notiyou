@@ -55,22 +55,26 @@ class ChallengerConfigService {
 
   static Future<ChallengerSupporter> dismissSupporter() async {
     final userId = await _getAuthorizedUserId();
-    final supporter =
-        await _repository.getChallengerSupporterBySupporterId(userId);
+    final challengerSupporterInfo =
+        await _repository.getChallengerSupporterByChallengerId(userId);
+    final supporterId = challengerSupporterInfo.supporterId;
+    if (supporterId == null) {
+      throw ChallengerSupporterException('서포터 정보가 없습니다.');
+    }
 
     try {
       final result = await _repository.updateChallengerSupporter(
         challengerId: userId,
         supporterId: null,
       );
-      await UserMetadataService.setRole(supporter.id, UserRole.none);
+      await UserMetadataService.setRole(supporterId, UserRole.none);
       return result;
     } catch (e) {
       await _repository.updateChallengerSupporter(
         challengerId: userId,
-        supporterId: supporter.id,
+        supporterId: supporterId,
       );
-      await UserMetadataService.setRole(supporter.id, UserRole.supporter);
+      await UserMetadataService.setRole(supporterId, UserRole.supporter);
       throw ChallengerSupporterException('서포터 해제 중 오류가 발생했습니다: $e');
     }
   }
