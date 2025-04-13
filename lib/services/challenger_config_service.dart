@@ -55,11 +55,24 @@ class ChallengerConfigService {
 
   static Future<ChallengerSupporter> dismissSupporter() async {
     final userId = await _getAuthorizedUserId();
-    final result = await _repository.updateChallengerSupporter(
-      challengerId: userId,
-      supporterId: null,
-    );
-    return result;
+    final supporter =
+        await _repository.getChallengerSupporterBySupporterId(userId);
+
+    try {
+      final result = await _repository.updateChallengerSupporter(
+        challengerId: userId,
+        supporterId: null,
+      );
+      await UserMetadataService.setRole(supporter.id, UserRole.none);
+      return result;
+    } catch (e) {
+      await _repository.updateChallengerSupporter(
+        challengerId: userId,
+        supporterId: supporter.id,
+      );
+      await UserMetadataService.setRole(supporter.id, UserRole.supporter);
+      throw ChallengerSupporterException('서포터 해제 중 오류가 발생했습니다: $e');
+    }
   }
 
   static Future<void> quitSupporter() async {
