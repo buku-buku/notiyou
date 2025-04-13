@@ -1,3 +1,4 @@
+import 'package:notiyou/exceptions/repository_exception.dart';
 import 'package:notiyou/models/challenger_supporter_model.dart';
 import 'package:notiyou/repositories/challenger_supporter/challenger_supporter_repository_interface.dart';
 import 'package:notiyou/repositories/supabase_table_names_constants.dart';
@@ -148,6 +149,28 @@ class ChallengerSupporterRepositoryRemote
     return ChallengerSupporter(
       id: entity['id'],
       challengerId: entity['challenger_id'],
+    );
+  }
+
+  @override
+  Future<ChallengerSupporter> getChallengerSupporterByUserId(
+      String userId) async {
+    final challengerSupporter = await supabaseClient
+        .from(SupabaseTableNames.challengerSupporter)
+        .select('id, challenger_id, supporter_id')
+        .or('challenger_id.eq.$userId,supporter_id.eq.$userId')
+        .maybeSingle();
+
+    if (challengerSupporter == null) {
+      throw EntityNotFoundException(
+        'ChallengerSupporter not found matching user ID: $userId',
+      );
+    }
+
+    return ChallengerSupporter(
+      id: challengerSupporter['id'],
+      challengerId: challengerSupporter['challenger_id'],
+      supporterId: challengerSupporter['supporter_id'],
     );
   }
 }
