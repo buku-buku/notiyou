@@ -7,6 +7,7 @@ import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/routes/guards/role_guard.dart';
 import 'package:notiyou/screens/login_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
+import 'package:notiyou/services/user_metadata_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 class MockRouteGuard extends Mock implements RouteGuard {}
@@ -36,6 +37,8 @@ void main() {
     context = MockBuildContext();
     state = MockGoRouterState();
     mockUser = MockUser();
+
+    when(() => mockUser.id).thenReturn('test-user-id');
   });
 
   group('RoleGuard', () {
@@ -45,7 +48,7 @@ void main() {
           .thenAnswer((_) async => null);
 
       AuthService.setUserForTesting(mockUser);
-      AuthService.setRoleForTesting(UserRole.challenger);
+      UserMetadataService.setRoleForTesting(UserRole.challenger);
 
       // act
       final result = await roleGuard.canActivate(context, state, redirectPath);
@@ -64,7 +67,7 @@ void main() {
           .thenAnswer((_) async => null);
 
       AuthService.setUserForTesting(mockUser);
-      AuthService.setRoleForTesting(UserRole.supporter);
+      UserMetadataService.setRoleForTesting(UserRole.supporter);
 
       // act
       final result = await roleGuard.canActivate(context, state, redirectPath);
@@ -83,7 +86,7 @@ void main() {
           .thenAnswer((_) async => null);
 
       AuthService.setUserForTesting(mockUser);
-      AuthService.setRoleForTesting(UserRole.supporter);
+      UserMetadataService.setRoleForTesting(UserRole.supporter);
 
       // act
       final result = await roleGuard.canActivate(context, state, null);
