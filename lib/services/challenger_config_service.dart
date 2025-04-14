@@ -3,6 +3,7 @@ import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/repositories/challenger_supporter/challenger_supporter_repository_remote.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/exceptions/challenger_supporter_exception.dart';
+import 'package:notiyou/services/user_metadata_service.dart';
 
 class ChallengerConfigService {
   static final _repository = ChallengerSupporterRepositoryRemote();
@@ -54,21 +55,38 @@ class ChallengerConfigService {
 
   static Future<ChallengerSupporter> dismissSupporter() async {
     final userId = await _getAuthorizedUserId();
-    final result = await _repository.updateChallengerSupporter(
-      challengerId: userId,
-      supporterId: null,
-    );
-    return result;
+    final challengerSupporterInfo =
+        await _repository.getChallengerSupporterByChallengerId(userId);
+    final supporterId = challengerSupporterInfo.supporterId;
+    if (supporterId == null) {
+      throw ChallengerSupporterException('서포터 정보가 없습니다.');
+    }
+
+    try {
+      final result = await _repository.updateChallengerSupporter(
+        challengerId: userId,
+        supporterId: null,
+      );
+      await UserMetadataService.setRole(supporterId, UserRole.none);
+      return result;
+    } catch (e) {
+      await _repository.updateChallengerSupporter(
+        challengerId: userId,
+        supporterId: supporterId,
+      );
+      await UserMetadataService.setRole(supporterId, UserRole.supporter);
+      throw ChallengerSupporterException('서포터 해제 중 오류가 발생했습니다: $e');
+    }
   }
 
   static Future<void> quitSupporter() async {
     try {
       final userId = await AuthService.getUserId();
-      await AuthService.setRole(UserRole.none);
+      await UserMetadataService.setRole(userId, UserRole.none);
       try {
         await _repository.dismissChallengerSupporterBySupporterId(userId);
       } catch (e) {
-        await AuthService.setRole(UserRole.supporter);
+        await UserMetadataService.setRole(userId, UserRole.supporter);
         throw ChallengerSupporterException('서포터 해제 중 오류가 발생했습니다: $e');
       }
     } catch (e) {

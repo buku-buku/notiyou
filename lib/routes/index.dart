@@ -14,6 +14,7 @@ import 'package:notiyou/screens/splash_page.dart';
 import 'package:notiyou/screens/supporter_config_page.dart';
 import 'package:notiyou/screens/supporter_signup_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
+import 'package:notiyou/services/user_metadata_service.dart';
 
 final routes = <RouteBase>[
   GoRoute(
@@ -81,8 +82,7 @@ final routes = <RouteBase>[
               }
             } else if (index == 2) {
               final user = await AuthService.getUserSafe();
-              final userRole =
-                  AuthService.getRegistrationStatus(user).registeredRole;
+              final userRole = await UserMetadataService.getRole(user.id);
               if (context.mounted) {
                 if (userRole == UserRole.challenger) {
                   context.go(ChallengerConfigPage.routeName);

@@ -13,6 +13,7 @@ import 'package:notiyou/services/challenger_code/challenger_code_service_interfa
 import 'package:notiyou/services/challenger_config_service.dart';
 import 'package:notiyou/exceptions/challenger_supporter_exception.dart';
 import 'package:notiyou/services/participant_service.dart';
+import 'package:notiyou/services/user_metadata_service.dart';
 
 class SupporterSignupPage extends StatefulWidget {
   const SupporterSignupPage({
@@ -115,9 +116,10 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
   }
 
   Future<void> _registerMissionSupporter(String code) async {
+    final userId = await AuthService.getUserId();
     final challengerId = await _challengerCodeService.extractUserId(code);
     await ChallengerConfigService.registerSupporter(challengerId);
-    await AuthService.setRole(UserRole.supporter);
+    await UserMetadataService.setRole(userId, UserRole.supporter);
   }
 
   void _onNextPressed() async {

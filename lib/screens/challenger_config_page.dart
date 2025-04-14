@@ -4,6 +4,7 @@ import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/screens/home_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/mission_config_service.dart';
+import 'package:notiyou/services/user_metadata_service.dart';
 import 'package:notiyou/widgets/notification_template_config.dart';
 import 'package:notiyou/widgets/supporter_section.dart';
 
@@ -139,7 +140,8 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
       setState(() => _isSubmitLoading = true);
       await _saveTimes();
       if (widget.isFirstTime) {
-        AuthService.setRole(UserRole.challenger);
+        final userId = await AuthService.getUserId();
+        await UserMetadataService.setRole(userId, UserRole.challenger);
       }
       if (mounted) {
         context.go(HomePage.routeName);
