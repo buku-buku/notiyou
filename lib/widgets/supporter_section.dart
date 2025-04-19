@@ -115,7 +115,11 @@ class _SupporterSectionState extends State<SupporterSection>
 
       final TextTemplate defaultText = TextTemplate(
         objectType: 'text',
-        text: '${_participant?.name}님의 미션 서포터가 되어주시겠습니까?',
+        text: '${_participant?.name}님의 미션 서포터가 되어주시겠습니까?\n\n'
+            '${_participant?.name}님의 초대코드\n'
+            '━━━━━━━━━━━━━━\n'
+            '$challengerCode\n'
+            '━━━━━━━━━━━━━━',
         buttonTitle: '서포터 등록하기',
         link: Link(
             mobileWebUrl: Uri.parse(inviteLink),
