@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:notiyou/core/routes/guards/route_guard.dart';
 import 'package:notiyou/models/registration_status.dart';
-import 'package:notiyou/screens/login_page.dart';
+import 'package:notiyou/screens/signup_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/user_metadata_service.dart';
 
@@ -19,7 +19,7 @@ class RoleGuard extends RouteGuardDecorator {
       return result;
     }
 
-    result = redirectPath ?? LoginPage.routeName;
+    result = redirectPath ?? SignupPage.routeName;
 
     final user = await AuthService.getUser();
     if (user == null) {
