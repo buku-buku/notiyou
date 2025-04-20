@@ -101,6 +101,14 @@ final routes = <RouteBase>[
   ),
 ];
 
+// 라우트 경로와 네비게이션 인덱스 매핑
+final Map<String, int> routeIndexMap = {
+  HomePage.routeName: 0,
+  HistoryPage.routeName: 1,
+  ChallengerConfigPage.routeName: 2,
+  SupporterConfigPage.routeName: 2,
+};
+
 final List<GoRoute> bottomNavigationRoutes = [
   GoRouteWithGuards(
     path: HomePage.routeName,
@@ -148,11 +156,5 @@ int _calculateSelectedIndex(BuildContext context) {
   final String location =
       GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
 
-  if (location == ChallengerConfigPage.routeName ||
-      location == SupporterConfigPage.routeName) {
-    return 2;
-  }
-
-  return bottomNavigationRoutes
-      .indexWhere((route) => location.startsWith(route.path));
+  return routeIndexMap[location] ?? 3;
 }
