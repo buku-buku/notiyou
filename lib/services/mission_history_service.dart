@@ -2,6 +2,7 @@ import 'package:notiyou/models/mission.dart';
 import 'package:notiyou/repositories/mission_history_repository/mission_history_repository_interface.dart';
 import 'package:notiyou/repositories/mission_history_repository/mission_history_repository_local.dart';
 import 'package:notiyou/repositories/mission_history_repository/mission_history_repository_remote.dart';
+import 'package:notiyou/services/mission_alarm_service.dart';
 
 class MissionHistoryService {
   static MissionHistoryRepository _missionHistoryRepository =
@@ -32,6 +33,11 @@ class MissionHistoryService {
 
     // 변경된 데이터 저장
     await _missionHistoryRepository.updateMission(updatedMission);
+
+    // 미션이 완료되었을 경우 알람 취소
+    if (newIsCompleted) {
+      await MissionAlarmService.cancelAlarm(missionId);
+    }
 
     // 변경된 미션의 새로운 상태 반환
     return updatedMission.isCompleted;
