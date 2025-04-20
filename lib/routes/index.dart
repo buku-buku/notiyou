@@ -147,6 +147,12 @@ final List<GoRoute> bottomNavigationRoutes = [
 int _calculateSelectedIndex(BuildContext context) {
   final String location =
       GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
+
+  if (location == ChallengerConfigPage.routeName ||
+      location == SupporterConfigPage.routeName) {
+    return 2;
+  }
+
   return bottomNavigationRoutes
       .indexWhere((route) => location.startsWith(route.path));
 }
