@@ -5,7 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:notiyou/core/routes/guards/route_guard.dart';
 import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/routes/guards/role_guard.dart';
-import 'package:notiyou/screens/login_page.dart';
+import 'package:notiyou/screens/signup_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'package:notiyou/services/user_metadata_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
@@ -80,7 +80,7 @@ void main() {
       AuthService.clearUserForTesting();
     });
 
-    test('redirectPath가 null이면 LoginPage.routeName으로 리디렉션해야 한다', () async {
+    test('redirectPath가 null이면 SignupPage.routeName으로 리디렉션해야 한다', () async {
       // arrange
       when(() => mockGuard.canActivate(any(), any(), null))
           .thenAnswer((_) async => null);
@@ -92,7 +92,7 @@ void main() {
       final result = await roleGuard.canActivate(context, state, null);
 
       // assert
-      expect(result, equals(LoginPage.routeName));
+      expect(result, equals(SignupPage.routeName));
       verify(() => mockGuard.canActivate(context, state, null)).called(1);
 
       AuthService.clearUserForTesting();
