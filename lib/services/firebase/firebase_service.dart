@@ -31,9 +31,17 @@ class FirebaseService {
 
         // For apple platforms, ensure the APNS token is available before making any FCM plugin API calls
         if (Platform.isIOS) {
-          final apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+          String? apnsToken;
+          const maxAttempts = 20;
+          for (var i = 0; i < maxAttempts; i++) {
+            apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+            if (apnsToken != null) {
+              break;
+            }
+            await Future.delayed(const Duration(seconds: 1));
+          }
           if (apnsToken == null) {
-            throw Exception('firebase_service: apnsToken is null');
+            throw Exception('firebase_service: Problem with getting apnsToken');
           }
         }
 
