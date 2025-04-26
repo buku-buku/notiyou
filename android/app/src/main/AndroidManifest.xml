@@ -9,7 +9,7 @@
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
   <uses-permission android:name="android.permission.INTERNET" />
   <application
-    android:label="notiyou"
+    android:label="노티유"
     android:name="${applicationName}"
     android:icon="@mipmap/ic_launcher"
     android:enableOnBackInvokedCallback="true"
