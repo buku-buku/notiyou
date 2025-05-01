@@ -120,6 +120,13 @@ class _NotificationTemplateConfigState
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const Text('미션 성공 알림 메시지'),
+                      const Text(
+                        '*미션 완료 시, 서포터에게 전송될 문구입니다',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _successController,
@@ -128,7 +135,6 @@ class _NotificationTemplateConfigState
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           hintText: '미션 성공 시 전송될 알림 메시지를 입력하세요',
-                          helperText: '예: [이름]님이 미션을 성공적으로 완료했습니다!',
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -139,6 +145,13 @@ class _NotificationTemplateConfigState
                       ),
                       const SizedBox(height: 16),
                       const Text('미션 실패 알림 메시지'),
+                      const Text(
+                        '*정해진 시간에 미션을 완료하지 못한 경우, 서포터에게 전송될 문구입니다',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _failureController,
@@ -147,7 +160,6 @@ class _NotificationTemplateConfigState
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           hintText: '미션 실패 시 전송될 알림 메시지를 입력하세요',
-                          helperText: '예: [이름]님이 미션 수행에 실패했습니다.',
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {

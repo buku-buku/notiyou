@@ -189,8 +189,31 @@ Widget buildChallengerView(
                   : null,
               trailing: Checkbox(
                 value: mission.isCompleted,
-                onChanged: (bool? value) {
-                  onToggleMissionComplete(mission.id);
+                onChanged: (bool? value) async {
+                  if (mission.isCompleted) {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('주의'),
+                        content: const Text('이미 완료 처리한 미션입니다.\n정말 되돌리겠습니까?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text('아니오'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: const Text('예'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirmed == true) {
+                      onToggleMissionComplete(mission.id);
+                    }
+                  } else {
+                    onToggleMissionComplete(mission.id);
+                  }
                 },
               )),
         ],
