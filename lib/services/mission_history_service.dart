@@ -37,6 +37,8 @@ class MissionHistoryService {
     // 미션이 완료되었을 경우 알람 취소
     if (newIsCompleted) {
       await MissionAlarmService.cancelAlarm(missionId);
+    } else {
+      await MissionAlarmService.scheduleAlarm(missionId, mission.time);
     }
 
     // 변경된 미션의 새로운 상태 반환

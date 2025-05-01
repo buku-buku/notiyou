@@ -62,6 +62,7 @@ class FirebaseService {
           }
 
           LocalNotificationService.showNotification(
+            id: message.messageId.hashCode,
             title: message.notification?.title,
             body: message.notification?.body,
             notificationType: message.data['notification_type'],
