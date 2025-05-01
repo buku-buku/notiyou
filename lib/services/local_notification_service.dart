@@ -89,9 +89,9 @@ class LocalNotificationService {
     required String notificationType,
     required int count,
   }) async {
-    var time = tz.TZDateTime.from(scheduledTime, tz.local);
     for (var i = 0; i < count; i++) {
-      time = time.add(Duration(days: i));
+      final time =
+          tz.TZDateTime.from(scheduledTime.add(Duration(days: i)), tz.local);
       await _scheduleNotification(
         id: _createIdByDate(i, time),
         title: title,
