@@ -37,8 +37,6 @@ class LocalNotificationService {
   static final NotificationHandler _notificationHandler =
       NotificationHandlerImpl();
 
-  static int _notificationId = 0;
-
   static Future<void> init() async {
     await _initializeTimeZone();
     await _initializeSettings();
@@ -83,17 +81,36 @@ class LocalNotificationService {
         );
   }
 
-  static Future<int> scheduleNotification({
-    int? id,
+  static Future<void> scheduleNotificationInterval({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime scheduledTime,
+    required String notificationType,
+    required int count,
+  }) async {
+    for (var i = 0; i < count; i++) {
+      final time =
+          tz.TZDateTime.from(scheduledTime.add(Duration(days: i)), tz.local);
+      await _scheduleNotification(
+        id: _createIdByDate(i, time),
+        title: title,
+        body: body,
+        scheduledTime: time,
+        notificationType: notificationType,
+      );
+    }
+  }
+
+  static Future<int> _scheduleNotification({
+    required int id,
     required String title,
     required String body,
     required DateTime scheduledTime,
     required String notificationType,
   }) async {
-    final newId = id ?? _notificationId++;
-
     await _notifications.zonedSchedule(
-      newId,
+      id,
       title,
       body,
       tz.TZDateTime.from(scheduledTime, tz.local),
@@ -104,11 +121,17 @@ class LocalNotificationService {
       payload: notificationType,
     );
 
-    return newId;
+    return id;
   }
 
   static Future<void> cancelNotification(int id) async {
-    await _notifications.cancel(id);
+    final today = DateTime.now();
+    final idToCancel = _createIdByDate(id, today);
+    await _notifications.cancel(idToCancel);
+  }
+
+  static int _createIdByDate(int id, DateTime date) {
+    return "$id${date.year}${date.month}${date.day}".hashCode;
   }
 
   static Future<void> cancelAllNotifications() async {
@@ -116,13 +139,13 @@ class LocalNotificationService {
   }
 
   static Future<void> showNotification({
-    int? id,
+    required int id,
     String? title = '테스트 알림',
     String? body = '이것은 테스트 알림입니다.',
     String? notificationType,
   }) async {
     await _notifications.show(
-      id ?? _notificationId++,
+      _createIdByDate(id, DateTime.now()),
       title,
       body,
       notificationDetails,

@@ -38,6 +38,7 @@ class MissionAlarmService {
     }
   }
 
+  /// 10일 동안의 알람을 설정합니다.
   static Future<void> scheduleAlarm(
       int missionId, TimeOfDay missionTime) async {
     final now = DateTime.now();
@@ -53,11 +54,12 @@ class MissionAlarmService {
       scheduledTime = scheduledTime.add(const Duration(days: 1));
     }
 
-    await LocalNotificationService.scheduleNotification(
+    await LocalNotificationService.scheduleNotificationInterval(
       id: missionId,
       title: '미션 알림',
       body: '미션 시간입니다!',
       scheduledTime: scheduledTime,
+      count: 10,
       notificationType: NotificationEvent.missionAlarm.value,
     );
   }
