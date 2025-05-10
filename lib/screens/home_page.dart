@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('${_participant!.name}님의 Home')),
+      appBar: AppBar(title: const Text('오늘의 미션')),
       body: ListView(
         children: [
           if (_participant!.isChallenger)
