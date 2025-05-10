@@ -23,11 +23,12 @@ void main() async {
   );
   await SupabaseService.init();
   await FirebaseService.init();
+  runApp(const MyApp());
   await InviteDeepLinkService.init();
   await LocalNotificationService.init();
   await MissionConfigService.init();
   await MissionAlarmService.init();
-  runApp(const MyApp());
+  FlutterNativeSplash.remove();
 }
 
 class MyApp extends StatelessWidget {
