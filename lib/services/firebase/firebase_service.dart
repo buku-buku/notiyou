@@ -45,6 +45,21 @@ class FirebaseService {
           }
         }
 
+        // 앱 종료 상태에서 푸시 알림 처리
+        final initialMessage =
+            await FirebaseMessaging.instance.getInitialMessage();
+        if (initialMessage != null) {
+          if (initialMessage.notification == null) {
+            throw Exception(
+                'firebase_service: initialMessage.notification is null');
+          }
+
+          final event = NotificationEvent.getNotificationEvent(
+              initialMessage.data['notification_type']);
+
+          _notificationHandler.handleNotification(event, initialMessage.data);
+        }
+        // 앱 백그라운드 실행 상태에서 푸시 알림 처리
         FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
           if (message.notification == null) {
             throw Exception('firebase_service: message.notification is null');
@@ -55,7 +70,7 @@ class FirebaseService {
 
           _notificationHandler.handleNotification(event, message.data);
         });
-
+        // 앱 포그라운드 실행 상태에서 푸시 알림 처리
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
           if (message.notification == null) {
             throw Exception('firebase_service: message.notification is null');
