@@ -28,22 +28,22 @@ class NotificationHandlerImpl implements NotificationHandler {
   }
 
   void _handleMissionSuccessNotification(Map<String, dynamic> data) {
-    router.push(HistoryPage.routeName);
+    router.go(HistoryPage.routeName);
   }
 
   void _handleMissionFailedNotification(Map<String, dynamic> data) {
-    router.push(HistoryPage.routeName);
+    router.go(HistoryPage.routeName);
   }
 
   void _handleSupporterAssignedNotification(Map<String, dynamic> data) {
-    router.push(ChallengerConfigPage.routeName);
+    router.go(ChallengerConfigPage.routeName);
   }
 
   void _handleSupporterDismissedNotification(Map<String, dynamic> data) {
-    router.push(ChallengerConfigPage.routeName);
+    router.go(ChallengerConfigPage.routeName);
   }
 
   void _handleMissionAlarmNotification(Map<String, dynamic> data) {
-    router.push(HomePage.routeName);
+    router.go(HomePage.routeName);
   }
 }
