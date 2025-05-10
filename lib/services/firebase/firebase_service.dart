@@ -45,10 +45,21 @@ class FirebaseService {
           }
         }
 
+        // 앱 종료 상태에서 푸시 알림 처리
+        final initialMessage =
+            await FirebaseMessaging.instance.getInitialMessage();
+        if (initialMessage != null) {
+          _validateNotification(initialMessage);
+
+          final event = NotificationEvent.getNotificationEvent(
+              initialMessage.data['notification_type']);
+
+          _notificationHandler.handleNotification(event, initialMessage.data);
+        }
+
+        // 앱 백그라운드 실행 상태에서 푸시 알림 처리
         FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-          if (message.notification == null) {
-            throw Exception('firebase_service: message.notification is null');
-          }
+          _validateNotification(message);
 
           final event = NotificationEvent.getNotificationEvent(
               message.data['notification_type']);
@@ -56,10 +67,9 @@ class FirebaseService {
           _notificationHandler.handleNotification(event, message.data);
         });
 
+        // 앱 포그라운드 실행 상태에서 푸시 알림 처리
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-          if (message.notification == null) {
-            throw Exception('firebase_service: message.notification is null');
-          }
+          _validateNotification(message);
 
           LocalNotificationService.showNotification(
             id: message.messageId.hashCode,
@@ -108,5 +118,11 @@ class FirebaseService {
       await Future.delayed(const Duration(seconds: 10));
     }
     throw Exception('firebase_service: 사용자 인증 대기 시간이 초과되었습니다.');
+  }
+
+  static void _validateNotification(RemoteMessage message) {
+    if (message.notification == null) {
+      throw Exception('firebase_service: message.notification is null');
+    }
   }
 }
