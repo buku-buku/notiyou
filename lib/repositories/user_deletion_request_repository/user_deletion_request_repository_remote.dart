@@ -17,14 +17,10 @@ class UserDeletionRequestRepositoryRemote
 
   @override
   Future<void> createUserDeletionRequest(String userId) async {
-    print('createUserDeletionRequest: $userId');
     await SupabaseService.client
         .from(SupabaseTableNames.userDeletionRequest)
         .insert({
       'user_id': userId,
-    }).catchError((e) {
-      print('createUserDeletionRequest error: $e');
-      throw e;
     });
   }
 }
