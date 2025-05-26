@@ -8,7 +8,6 @@ import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/invite_deep_link_service.dart';
 import 'package:notiyou/services/challenger_config_service.dart';
 import 'package:notiyou/services/participant_service.dart';
-import 'package:flutter/rendering.dart';
 
 class SupporterSection extends StatefulWidget {
   const SupporterSection({super.key});
