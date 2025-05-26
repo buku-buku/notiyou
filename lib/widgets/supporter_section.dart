@@ -245,23 +245,63 @@ class _SupporterSectionState extends State<SupporterSection>
       children: [
         const SizedBox(height: 20),
         if (_challengerSupporterInfo?.supporterId == null) ...[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: shareLinkToSupporter,
-                child: const Text('카카오톡으로 서포터 초대하기'),
+          Card(
+            elevation: 0,
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  const Text(
+                    '서포터 초대하기',
+                    style: TextStyle(
+                      color: Colors.blueAccent,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    '서포터를 초대하여 알람 공유 기능을 활성화하세요',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.black54,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: shareLinkToSupporter,
+                      icon: const Icon(Icons.share),
+                      label: const Text('카카오톡으로 초대하기'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        backgroundColor: const Color(0xFFFEE500), // 카카오톡 색상
+                        foregroundColor: Colors.black87,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: copyCodeToClipboard,
+                      icon: const Icon(Icons.copy),
+                      label: const Text('초대코드 복사하기'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: copyCodeToClipboard,
-                child: const Text('초대코드 복사하기'),
-              ),
-            ],
+            ),
           ),
           if (_isKakaoTalkReturned)
             Padding(
-              padding: const EdgeInsets.only(top: 8.0),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: Text(
                 '서포터가 초대를 수락해야 알람 공유 기능이 활성화 됩니다.\n올바른 상대에게 초대 링크가 전송되었는지 정확하게 확인해 주세요',
                 style: TextStyle(
