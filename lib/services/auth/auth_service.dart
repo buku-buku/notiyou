@@ -2,6 +2,8 @@
 
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk_talk.dart';
 import 'package:meta/meta.dart';
+import 'package:notiyou/repositories/user_deletion_request_repository/user_deletion_request_repository_interface.dart';
+import 'package:notiyou/repositories/user_deletion_request_repository/user_deletion_request_repository_remote.dart';
 import 'package:notiyou/repositories/user_metadata_repository/user_metadata_repository_remote.dart';
 import 'package:notiyou/services/auth/kakao_auth_service.dart';
 import 'package:notiyou/services/auth/supabase_auth_service.dart';
@@ -19,6 +21,8 @@ class AuthException implements Exception {
 // TODO: 테스트 용이성을 위해 static class 제거 필요. 이를 위해선 어플리케이션 레이어에서 DI Container 사용 필요.
 class AuthService {
   static final userMetadataRepository = UserMetadataRepositoryRemote();
+  static UserDeletionRequestRepositoryInterface userDeletionRequestRepository =
+      UserDeletionRequestRepositoryRemote();
 
   static Future<supabase.User?> loginWithKakao() async {
     // * 기존 로그인 상태 초기화
@@ -119,5 +123,10 @@ class AuthService {
       throw Exception('Unauthorized');
     }
     return user.id;
+  }
+
+  static Future<void> deleteAccount() async {
+    final userId = await getUserId();
+    await userDeletionRequestRepository.createUserDeletionRequest(userId);
   }
 }
