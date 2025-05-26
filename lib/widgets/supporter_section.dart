@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:notiyou/entities/current_participant.dart';
 import 'package:notiyou/models/challenger_supporter_model.dart';
@@ -7,6 +8,7 @@ import 'package:notiyou/services/challenger_code/challenger_code_service.dart';
 import 'package:notiyou/services/invite_deep_link_service.dart';
 import 'package:notiyou/services/challenger_config_service.dart';
 import 'package:notiyou/services/participant_service.dart';
+import 'package:flutter/rendering.dart';
 
 class SupporterSection extends StatefulWidget {
   const SupporterSection({super.key});
@@ -211,15 +213,51 @@ class _SupporterSectionState extends State<SupporterSection>
     }
   }
 
+  Future<void> copyCodeToClipboard() async {
+    try {
+      final user = await AuthService.getUserSafe();
+      final challengerCode =
+          await ChallengerCodeServiceImpl.instance.generateCode(user.id);
+      await Clipboard.setData(ClipboardData(text: challengerCode));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('초대코드가 클립보드에 복사되었습니다'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('초대코드 복사 중 오류가 발생했습니다'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         const SizedBox(height: 20),
         if (_challengerSupporterInfo?.supporterId == null) ...[
-          ElevatedButton(
-            onPressed: shareLinkToSupporter,
-            child: const Text('카카오톡으로 서포터 초대하기'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: shareLinkToSupporter,
+                child: const Text('카카오톡으로 서포터 초대하기'),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: copyCodeToClipboard,
+                child: const Text('초대코드 복사하기'),
+              ),
+            ],
           ),
           if (_isKakaoTalkReturned)
             Padding(
