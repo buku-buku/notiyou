@@ -219,7 +219,7 @@ class _SupporterSectionState extends State<SupporterSection>
         if (_challengerSupporterInfo?.supporterId == null) ...[
           ElevatedButton(
             onPressed: shareLinkToSupporter,
-            child: const Text('서포터 초대하기'),
+            child: const Text('카카오톡으로 서포터 초대하기'),
           ),
           if (_isKakaoTalkReturned)
             Padding(
