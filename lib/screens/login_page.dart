@@ -59,7 +59,7 @@ class LoginPage extends StatelessWidget {
   Future<void> _handleAppleLogin(BuildContext context) async {
     try {
       final user = await AuthService.loginWithApple();
-      print('user: $user');
+
       if (user == null) {
         throw Exception('User not found');
       }
@@ -117,11 +117,15 @@ class LoginPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => _handleAppleLogin(context),
-              child: const Text('Apple로 시작하기'),
+            GestureDetector(
+              onTap: () => _handleAppleLogin(context),
+              child: Image.asset(
+                'assets/apple_login_button_2x.png',
+                width: 300,
+                height: 45,
+                fit: BoxFit.contain,
+              ),
             ),
-            const SizedBox(height: 8),
           ],
         ),
       ),
