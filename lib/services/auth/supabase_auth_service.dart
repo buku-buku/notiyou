@@ -10,6 +10,16 @@ class SupabaseAuthService {
     return authResponse.user;
   }
 
+  static Future<supabase.User?> signInWithApple(
+      String idToken, String rawNonce) async {
+    final authResponse = await SupabaseService.client.auth.signInWithIdToken(
+      provider: supabase.OAuthProvider.apple,
+      idToken: idToken,
+      nonce: rawNonce,
+    );
+    return authResponse.user;
+  }
+
   static Future<void> signOut() async {
     await SupabaseService.client.auth.signOut();
   }
