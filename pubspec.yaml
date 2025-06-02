@@ -38,6 +38,7 @@ flutter:
   assets:
     - .env
     - assets/app-512.png
+    - assets/kakao_login_large_wide.png
 
 flutter_launcher_icons:
   android: true

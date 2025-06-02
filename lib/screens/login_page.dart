@@ -107,11 +107,16 @@ class LoginPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
-              onPressed: () => _handleKakaoLogin(context),
-              child: const Text('카카오톡으로 시작하기'),
+            GestureDetector(
+              onTap: () => _handleKakaoLogin(context),
+              child: Image.asset(
+                'assets/kakao_login_large_wide.png',
+                width: 300,
+                height: 45,
+                fit: BoxFit.contain,
+              ),
             ),
-            const SizedBox(height: 8), // 버튼과 텍스트 사이 간격
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => _handleAppleLogin(context),
               child: const Text('Apple로 시작하기'),
