@@ -117,13 +117,6 @@ class LoginPage extends StatelessWidget {
               child: const Text('Apple로 시작하기'),
             ),
             const SizedBox(height: 8),
-            const Text(
-              '선택한 서비스에 설정된 이름으로 가입됩니다.',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
-            ),
           ],
         ),
       ),
