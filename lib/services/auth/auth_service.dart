@@ -79,7 +79,7 @@ class AuthService {
     }
 
     final name = credential.givenName;
-    if (name != null && name is String) {
+    if (name != null) {
       await userMetadataRepository.setName(name);
     }
 
