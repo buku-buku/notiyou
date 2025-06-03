@@ -4,6 +4,7 @@ import 'package:notiyou/entities/current_participant.dart';
 import 'package:notiyou/exceptions/repository_exception.dart';
 import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/screens/home_page.dart';
+import 'package:notiyou/screens/signup_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'dart:async';
 
@@ -169,7 +170,13 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('조력자 회원가입')),
+      appBar: AppBar(
+        title: const Text('조력자 회원가입'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go(SignupPage.routeName),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
