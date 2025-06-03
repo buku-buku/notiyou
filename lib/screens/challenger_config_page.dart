@@ -190,12 +190,12 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
                 _selectedGracePeriod = newValue ?? 0;
               }),
             ),
-            if (!widget.isFirstTime) const SupporterSection(),
             buildSettingButton(
               context: context,
-              label: '알림 메시지 설정',
+              label: '알림 메시지 설정하기',
             ),
-            const SizedBox(height: 16),
+            if (!widget.isFirstTime) const SupporterSection(),
+            const SizedBox(height: 20),
             buildSubmitButton(
               context: context,
               label: '설정 완료',
@@ -408,9 +408,21 @@ Widget buildSettingButton({
     );
   }
 
-  return ElevatedButton(
-    onPressed: () => showNotificationTemplateModal(),
-    child: Text(label),
+  return Container(
+    width: double.infinity,
+    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    child: OutlinedButton.icon(
+      onPressed: () => showNotificationTemplateModal(),
+      icon: const Icon(Icons.notifications_outlined),
+      label: Text(label),
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        side: const BorderSide(color: Colors.purple),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+      ),
+    ),
   );
 }
 
@@ -421,24 +433,43 @@ Widget buildSubmitButton({
   required bool isEnabled,
   required VoidCallback onSubmit,
 }) {
-  return ElevatedButton(
-    onPressed: isEnabled ? onSubmit : null,
-    child: isLoading
-        ? Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(label),
-              const SizedBox(width: 10),
-              const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
+  return Container(
+    width: double.infinity,
+    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    child: ElevatedButton(
+      onPressed: isEnabled ? onSubmit : null,
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        backgroundColor: isEnabled ? Colors.blue : Colors.grey,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        elevation: isEnabled ? 2 : 0,
+      ),
+      child: isLoading
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(label),
+                const SizedBox(width: 12),
+                const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
                 ),
+              ],
+            )
+          : Text(
+              label,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          )
-        : Text(label),
+            ),
+    ),
   );
 }
