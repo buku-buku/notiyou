@@ -59,7 +59,6 @@ class AuthService {
     if (await isLoggedIn()) {
       await logout();
     }
-
     final rawNonce = SupabaseService.client.auth.generateRawNonce();
     final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
     final credential = await SignInWithApple.getAppleIDCredential(
@@ -76,14 +75,11 @@ class AuthService {
     }
 
     final name = credential.givenName;
-    if (name == null) {
-      throw AuthException(
-          'Could not find givenName from generated credential.');
+    if (name != null && name is String) {
+      await userMetadataRepository.setName(name);
     }
 
     final user = await SupabaseAuthService.signInWithApple(idToken, rawNonce);
-
-    await userMetadataRepository.setName(name);
 
     return user;
   }
