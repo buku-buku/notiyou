@@ -163,7 +163,7 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Config')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Column(
           children: [
             buildMissionTimeField(
@@ -194,8 +194,9 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
               context: context,
               label: '알림 메시지 설정하기',
             ),
+            const Spacer(),
             if (!widget.isFirstTime) const SupporterSection(),
-            const SizedBox(height: 20),
+            const Spacer(),
             buildSubmitButton(
               context: context,
               label: '설정 완료',
@@ -203,7 +204,7 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
               isEnabled: _isSubmittable() && !_isSubmitLoading,
               onSubmit: _handleSubmit,
             ),
-            const SizedBox(height: 64),
+            const SizedBox(height: 8),
             buildDeleteAccountButton(context),
           ],
         ),
@@ -213,11 +214,12 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
 }
 
 Widget buildDeleteAccountButton(BuildContext context) {
-  return ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.red,
-      foregroundColor: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+  return TextButton(
+    style: TextButton.styleFrom(
+      foregroundColor: Colors.red,
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      minimumSize: const Size(0, 32),
+      tapTargetSize: MaterialTapTargetSize.padded,
     ),
     onPressed: () async {
       final bool? confirm = await showDialog<bool>(
@@ -268,7 +270,7 @@ Widget buildDeleteAccountButton(BuildContext context) {
         }
       }
     },
-    child: const Text('회원탈퇴', style: TextStyle(fontSize: 16)),
+    child: const Text('회원탈퇴', style: TextStyle(fontSize: 12)),
   );
 }
 
@@ -410,16 +412,16 @@ Widget buildSettingButton({
 
   return Container(
     width: double.infinity,
-    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    margin: const EdgeInsets.symmetric(vertical: 4.0),
     child: OutlinedButton.icon(
       onPressed: () => showNotificationTemplateModal(),
-      icon: const Icon(Icons.notifications_outlined),
-      label: Text(label),
+      icon: const Icon(Icons.notifications_outlined, size: 18),
+      label: Text(label, style: const TextStyle(fontSize: 14)),
       style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        padding: const EdgeInsets.symmetric(vertical: 12.0),
         side: const BorderSide(color: Colors.purple),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(8.0),
         ),
       ),
     ),
@@ -435,15 +437,15 @@ Widget buildSubmitButton({
 }) {
   return Container(
     width: double.infinity,
-    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    margin: const EdgeInsets.symmetric(vertical: 4.0),
     child: ElevatedButton(
       onPressed: isEnabled ? onSubmit : null,
       style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        padding: const EdgeInsets.symmetric(vertical: 12.0),
         backgroundColor: isEnabled ? Colors.blue : Colors.grey,
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(8.0),
         ),
         elevation: isEnabled ? 2 : 0,
       ),
@@ -451,11 +453,11 @@ Widget buildSubmitButton({
           ? Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(label),
-                const SizedBox(width: 12),
+                Text(label, style: const TextStyle(fontSize: 14)),
+                const SizedBox(width: 8),
                 const SizedBox(
-                  width: 20,
-                  height: 20,
+                  width: 16,
+                  height: 16,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
                     color: Colors.white,
@@ -466,7 +468,7 @@ Widget buildSubmitButton({
           : Text(
               label,
               style: const TextStyle(
-                fontSize: 16,
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
             ),

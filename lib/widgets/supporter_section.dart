@@ -255,20 +255,20 @@ class _SupporterSectionState extends State<SupporterSection>
                     '서포터 초대하기',
                     style: TextStyle(
                       color: Colors.blueAccent,
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 6),
                   const Text(
                     '서포터를 초대하여 알람 공유 기능을 활성화하세요',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.black54,
-                      fontSize: 14,
+                      fontSize: 12,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
