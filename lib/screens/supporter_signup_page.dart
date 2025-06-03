@@ -4,7 +4,6 @@ import 'package:notiyou/entities/current_participant.dart';
 import 'package:notiyou/exceptions/repository_exception.dart';
 import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/screens/home_page.dart';
-import 'package:notiyou/screens/signup_page.dart';
 import 'package:notiyou/services/auth/auth_service.dart';
 import 'dart:async';
 
