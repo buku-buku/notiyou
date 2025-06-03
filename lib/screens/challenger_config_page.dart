@@ -7,6 +7,7 @@ import 'package:notiyou/services/mission_config_service.dart';
 import 'package:notiyou/services/user_metadata_service.dart';
 import 'package:notiyou/widgets/notification_template_config.dart';
 import 'package:notiyou/widgets/supporter_section.dart';
+import 'package:notiyou/widgets/back_button_app_bar.dart';
 
 class ChallengerConfigPage extends StatefulWidget {
   static const String routeName = '/challenger/config';
@@ -161,7 +162,9 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Config')),
+      appBar: const BackButtonAppBar(
+        title: 'Config',
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Column(
