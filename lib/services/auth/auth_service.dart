@@ -78,12 +78,12 @@ class AuthService {
       throw AuthException('Could not find ID Token from generated credential.');
     }
 
+    final user = await SupabaseAuthService.signInWithApple(idToken, rawNonce);
     final name = credential.givenName;
+    // apple 로그인은 기기 최초 로그인 시에만 name 정보를 반환한다. 그 이후로는 null.
     if (name != null) {
       await userMetadataRepository.setName(name);
     }
-
-    final user = await SupabaseAuthService.signInWithApple(idToken, rawNonce);
 
     return user;
   }
