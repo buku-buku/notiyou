@@ -192,11 +192,11 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
                 _selectedGracePeriod = newValue ?? 0;
               }),
             ),
-            if (!widget.isFirstTime) const SupporterSection(),
             buildSettingButton(
               context: context,
-              label: '알림 메시지 설정',
+              label: '알림 메시지 설정하기',
             ),
+            if (!widget.isFirstTime) const SupporterSection(),
             const SizedBox(height: 20),
             buildSubmitButton(
               context: context,
@@ -204,12 +204,74 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
               isLoading: _isSubmitLoading,
               isEnabled: _isSubmittable() && !_isSubmitLoading,
               onSubmit: _handleSubmit,
-            )
+            ),
+            const SizedBox(height: 64),
+            buildDeleteAccountButton(context),
           ],
         ),
       ),
     );
   }
+}
+
+Widget buildDeleteAccountButton(BuildContext context) {
+  return ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.red,
+      foregroundColor: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+    ),
+    onPressed: () async {
+      final bool? confirm = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('※주의', style: TextStyle(color: Colors.red)),
+            content: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('정말 회원탈퇴 하시겠습니까?'),
+                SizedBox(height: 8),
+                Text(
+                  '회원탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.',
+                  style: TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('취소'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('확인'),
+              ),
+            ],
+          );
+        },
+      );
+      if (confirm == true) {
+        try {
+          await AuthService.deleteAccount();
+          if (!context.mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('회원탈퇴가 완료되었습니다.'),
+                duration: Duration(seconds: 2)),
+          );
+          context.go('/login');
+        } catch (e) {
+          if (!context.mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('회원탈퇴 중 오류가 발생했습니다: \n$e')),
+          );
+        }
+      }
+    },
+    child: const Text('회원탈퇴', style: TextStyle(fontSize: 16)),
+  );
 }
 
 Widget buildMissionTimeField({
@@ -348,9 +410,21 @@ Widget buildSettingButton({
     );
   }
 
-  return ElevatedButton(
-    onPressed: () => showNotificationTemplateModal(),
-    child: Text(label),
+  return Container(
+    width: double.infinity,
+    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    child: OutlinedButton.icon(
+      onPressed: () => showNotificationTemplateModal(),
+      icon: const Icon(Icons.notifications_outlined),
+      label: Text(label),
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        side: const BorderSide(color: Colors.purple),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+      ),
+    ),
   );
 }
 
@@ -361,24 +435,43 @@ Widget buildSubmitButton({
   required bool isEnabled,
   required VoidCallback onSubmit,
 }) {
-  return ElevatedButton(
-    onPressed: isEnabled ? onSubmit : null,
-    child: isLoading
-        ? Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(label),
-              const SizedBox(width: 10),
-              const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
+  return Container(
+    width: double.infinity,
+    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    child: ElevatedButton(
+      onPressed: isEnabled ? onSubmit : null,
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        backgroundColor: isEnabled ? Colors.blue : Colors.grey,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        elevation: isEnabled ? 2 : 0,
+      ),
+      child: isLoading
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(label),
+                const SizedBox(width: 12),
+                const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
                 ),
+              ],
+            )
+          : Text(
+              label,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          )
-        : Text(label),
+            ),
+    ),
   );
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:notiyou/entities/current_participant.dart';
 import 'package:notiyou/models/challenger_supporter_model.dart';
@@ -211,19 +212,95 @@ class _SupporterSectionState extends State<SupporterSection>
     }
   }
 
+  Future<void> copyCodeToClipboard() async {
+    try {
+      final user = await AuthService.getUserSafe();
+      final challengerCode =
+          await ChallengerCodeServiceImpl.instance.generateCode(user.id);
+      await Clipboard.setData(ClipboardData(text: challengerCode));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('초대코드가 클립보드에 복사되었습니다'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('초대코드 복사 중 오류가 발생했습니다'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         const SizedBox(height: 20),
         if (_challengerSupporterInfo?.supporterId == null) ...[
-          ElevatedButton(
-            onPressed: shareLinkToSupporter,
-            child: const Text('서포터 초대하기'),
+          Card(
+            elevation: 0,
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  const Text(
+                    '서포터 초대하기',
+                    style: TextStyle(
+                      color: Colors.blueAccent,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    '서포터를 초대하여 알람 공유 기능을 활성화하세요',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.black54,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: shareLinkToSupporter,
+                      icon: const Icon(Icons.share),
+                      label: const Text('카카오톡으로 초대하기'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        backgroundColor: const Color(0xFFFEE500), // 카카오톡 색상
+                        foregroundColor: Colors.black87,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: copyCodeToClipboard,
+                      icon: const Icon(Icons.copy),
+                      label: const Text('초대코드 복사하기'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
           if (_isKakaoTalkReturned)
             Padding(
-              padding: const EdgeInsets.only(top: 8.0),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: Text(
                 '서포터가 초대를 수락해야 알람 공유 기능이 활성화 됩니다.\n올바른 상대에게 초대 링크가 전송되었는지 정확하게 확인해 주세요',
                 style: TextStyle(

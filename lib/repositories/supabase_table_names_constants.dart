@@ -6,4 +6,5 @@ final class SupabaseTableNames {
   static const missionTime = 'mission_time';
   static const challengerSupporter = 'challenger_supporter';
   static const userMetadata = 'user_metadata';
+  static const userDeletionRequest = 'user_deletion_request';
 }
