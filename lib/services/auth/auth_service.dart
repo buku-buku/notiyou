@@ -178,7 +178,7 @@ class AuthService {
     if (provider == 'apple') {
       await AppleAuthService.unregister();
     } else if (provider == 'kakao') {
-      // TOOD: 카카오 연동 해제
+      await KakaoAuthService.unregister();
     }
 
     final userId = await getUserId();
