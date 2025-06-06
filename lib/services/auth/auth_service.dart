@@ -1,12 +1,18 @@
 // ignore_for_file: invalid_visibility_annotation
 
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk_talk.dart';
 import 'package:meta/meta.dart';
 import 'package:notiyou/repositories/user_deletion_request_repository/user_deletion_request_repository_interface.dart';
 import 'package:notiyou/repositories/user_deletion_request_repository/user_deletion_request_repository_remote.dart';
 import 'package:notiyou/repositories/user_metadata_repository/user_metadata_repository_remote.dart';
+import 'package:notiyou/services/auth/apple_auth_service.dart';
 import 'package:notiyou/services/auth/kakao_auth_service.dart';
 import 'package:notiyou/services/auth/supabase_auth_service.dart';
+import 'package:notiyou/services/supabase_service.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 class AuthException implements Exception {
@@ -54,8 +60,42 @@ class AuthService {
     return user;
   }
 
+  static Future<supabase.User?> loginWithApple() async {
+    if (await isLoggedIn()) {
+      await logout();
+    }
+    final rawNonce = SupabaseService.client.auth.generateRawNonce();
+    final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
+    final credential = await SignInWithApple.getAppleIDCredential(
+      scopes: [
+        AppleIDAuthorizationScopes.email,
+        AppleIDAuthorizationScopes.fullName,
+      ],
+      nonce: hashedNonce,
+    );
+
+    final idToken = credential.identityToken;
+    if (idToken == null) {
+      throw AuthException('Could not find ID Token from generated credential.');
+    }
+
+    final user = await SupabaseAuthService.signInWithApple(idToken, rawNonce);
+    final name = credential.givenName;
+    // apple 로그인은 기기 최초 로그인 시에만 name 정보를 반환한다. 그 이후로는 null.
+    if (name != null) {
+      await userMetadataRepository.setName(name);
+    }
+
+    return user;
+  }
+
   static Future<void> logout() async {
-    await KakaoAuthService.logout();
+    final provider = await getUserProvider();
+    if (provider == 'kakao') {
+      await KakaoAuthService.logout();
+    }
+    // APPLE은 별도의 로그아웃 없는듯(?)
+
     await SupabaseAuthService.signOut();
   }
 
@@ -125,7 +165,28 @@ class AuthService {
     return user.id;
   }
 
+  static Future<String> getUserProvider() async {
+    final user = await getUser();
+    if (user == null) {
+      throw Exception('Unauthorized');
+    }
+    return user.appMetadata['provider'];
+  }
+
   static Future<void> deleteAccount() async {
+    try {
+      final provider = await getUserProvider();
+
+      if (provider == 'apple') {
+        await AppleAuthService.unregister();
+      } else if (provider == 'kakao') {
+        await KakaoAuthService.unregister();
+      }
+    } catch (e) {
+      // 연동 해제 실패 시에도 계정 삭제는 진행할지 정책 결정 필요
+      throw Exception('계정 연동 해제에 실패했습니다: $e');
+    }
+
     final userId = await getUserId();
     await userDeletionRequestRepository.createUserDeletionRequest(userId);
   }

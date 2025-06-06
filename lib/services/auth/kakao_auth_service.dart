@@ -50,4 +50,12 @@ class KakaoAuthService {
       await _kakaoUserApi.logout();
     }
   }
+
+  static Future<void> unregister() async {
+    try {
+      await _kakaoUserApi.unlink();
+    } catch (error) {
+      throw Exception(error);
+    }
+  }
 }
