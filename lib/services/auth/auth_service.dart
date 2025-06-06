@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 import 'package:notiyou/repositories/user_deletion_request_repository/user_deletion_request_repository_interface.dart';
 import 'package:notiyou/repositories/user_deletion_request_repository/user_deletion_request_repository_remote.dart';
 import 'package:notiyou/repositories/user_metadata_repository/user_metadata_repository_remote.dart';
+import 'package:notiyou/services/auth/apple_auth_service.dart';
 import 'package:notiyou/services/auth/kakao_auth_service.dart';
 import 'package:notiyou/services/auth/supabase_auth_service.dart';
 import 'package:notiyou/services/supabase_service.dart';
@@ -89,7 +90,12 @@ class AuthService {
   }
 
   static Future<void> logout() async {
-    await KakaoAuthService.logout();
+    final provider = await getUserProvider();
+    if (provider == 'kakao') {
+      await KakaoAuthService.logout();
+    }
+    // APPLE은 별도의 로그아웃 없는듯(?)
+
     await SupabaseAuthService.signOut();
   }
 
@@ -159,7 +165,22 @@ class AuthService {
     return user.id;
   }
 
+  static Future<String> getUserProvider() async {
+    final user = await getUser();
+    if (user == null) {
+      throw Exception('Unauthorized');
+    }
+    return user.appMetadata['provider'];
+  }
+
   static Future<void> deleteAccount() async {
+    final provider = await getUserProvider();
+    if (provider == 'apple') {
+      await AppleAuthService.signOut();
+    } else if (provider == 'kakao') {
+      // TOOD: 카카오 연동 해제
+    }
+
     final userId = await getUserId();
     await userDeletionRequestRepository.createUserDeletionRequest(userId);
   }
