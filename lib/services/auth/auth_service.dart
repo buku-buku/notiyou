@@ -174,11 +174,17 @@ class AuthService {
   }
 
   static Future<void> deleteAccount() async {
-    final provider = await getUserProvider();
-    if (provider == 'apple') {
-      await AppleAuthService.unregister();
-    } else if (provider == 'kakao') {
-      await KakaoAuthService.unregister();
+    try {
+      final provider = await getUserProvider();
+
+      if (provider == 'apple') {
+        await AppleAuthService.unregister();
+      } else if (provider == 'kakao') {
+        await KakaoAuthService.unregister();
+      }
+    } catch (e) {
+      // 연동 해제 실패 시에도 계정 삭제는 진행할지 정책 결정 필요
+      throw Exception('계정 연동 해제에 실패했습니다: $e');
     }
 
     final userId = await getUserId();
