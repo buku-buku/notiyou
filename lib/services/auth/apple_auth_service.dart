@@ -9,7 +9,7 @@ import 'package:jose/jose.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppleAuthService {
-  static Future<void> signOut() async {
+  static Future<void> unregister() async {
     final rawNonce = SupabaseService.client.auth.generateRawNonce();
     final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
     final credential = await SignInWithApple.getAppleIDCredential(

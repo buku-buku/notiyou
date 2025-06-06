@@ -176,7 +176,7 @@ class AuthService {
   static Future<void> deleteAccount() async {
     final provider = await getUserProvider();
     if (provider == 'apple') {
-      await AppleAuthService.signOut();
+      await AppleAuthService.unregister();
     } else if (provider == 'kakao') {
       // TOOD: 카카오 연동 해제
     }
