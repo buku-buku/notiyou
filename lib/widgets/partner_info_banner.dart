@@ -58,7 +58,7 @@ class PartnerInfoBanner extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      '소중한 서포터와 함께 미션을 수행해보세요!\n서포터가가 초대를 수락하기 전까지는 혼자 미션을 수행하게 됩니다.',
+                      '소중한 서포터와 함께 미션을 수행해보세요!\n서포터가 초대를 수락하기 전까지는 혼자 미션을 수행하게 됩니다.',
                       style: TextStyle(
                         color: Colors.black87,
                         fontSize: 12,
