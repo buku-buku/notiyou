@@ -14,6 +14,7 @@ import 'package:notiyou/services/challenger_config_service.dart';
 import 'package:notiyou/exceptions/challenger_supporter_exception.dart';
 import 'package:notiyou/services/participant_service.dart';
 import 'package:notiyou/services/user_metadata_service.dart';
+import 'package:notiyou/widgets/back_button_app_bar.dart';
 
 class SupporterSignupPage extends StatefulWidget {
   const SupporterSignupPage({
@@ -169,7 +170,9 @@ class _SupporterSignupPageState extends State<SupporterSignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('조력자 회원가입')),
+      appBar: const BackButtonAppBar(
+        title: '조력자 회원가입',
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
