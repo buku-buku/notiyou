@@ -52,9 +52,9 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('히스토리')),
+      appBar: AppBar(title: const Text('미션 히스토리')),
       body: groupedMissions.isEmpty
-          ? const Center(child: Text('미션 히스토리가 없습니다.'))
+          ? const Center(child: Text('아직 미션 히스토리가 없습니다.'))
           : ListView.builder(
               itemCount: groupedMissions.keys.length,
               itemBuilder: (context, index) {

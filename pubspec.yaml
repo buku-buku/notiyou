@@ -27,6 +27,7 @@ dependencies:
   sign_in_with_apple: ^7.0.1
   http: ^1.1.0
   jose: ^0.3.2
+  flutter_datetime_picker_plus: ^2.2.0
 
 dev_dependencies:
   flutter_test:

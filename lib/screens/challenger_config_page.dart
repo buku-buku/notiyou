@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:go_router/go_router.dart';
 import 'package:notiyou/models/registration_status.dart';
 import 'package:notiyou/screens/home_page.dart';
@@ -109,26 +110,27 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
 
   Future<void> _selectTime(
       BuildContext context, _MissionTimeConfig? config) async {
-    final selectedTime = await showTimePicker(
-      context: context,
-      initialTime: config?.missionTime ?? TimeOfDay.now(),
+    DatePicker.showTime12hPicker(
+      context,
+      showTitleActions: true,
+      onConfirm: (time) {
+        setState(() {
+          if (config == _mission1TimeConfig) {
+            _mission1TimeConfig = _MissionTimeConfig(
+              missionId: _mission1TimeConfig?.missionId,
+              missionTime: TimeOfDay.fromDateTime(time),
+            );
+          } else {
+            _mission2TimeConfig = _MissionTimeConfig(
+              missionId: _mission2TimeConfig?.missionId,
+              missionTime: TimeOfDay.fromDateTime(time),
+            );
+          }
+        });
+      },
+      currentTime: DateTime.now(),
+      locale: LocaleType.ko,
     );
-
-    if (selectedTime != null) {
-      setState(() {
-        if (config == _mission1TimeConfig) {
-          _mission1TimeConfig = _MissionTimeConfig(
-            missionId: _mission1TimeConfig?.missionId,
-            missionTime: selectedTime,
-          );
-        } else {
-          _mission2TimeConfig = _MissionTimeConfig(
-            missionId: _mission2TimeConfig?.missionId,
-            missionTime: selectedTime,
-          );
-        }
-      });
-    }
   }
 
   bool _isSubmittable() {
@@ -163,7 +165,7 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const BackButtonAppBar(
-        title: 'Config',
+        title: '미션 설정',
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
