@@ -5,6 +5,7 @@ import 'package:notiyou/models/mission.dart';
 import 'package:notiyou/screens/challenger_config_page.dart';
 import 'package:notiyou/services/mission_history_service.dart';
 import 'package:notiyou/services/participant_service.dart';
+import 'package:notiyou/widgets/partner_info_banner.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -77,7 +78,9 @@ class _HomePageState extends State<HomePage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('${_participant!.name}님의 Home')),
+      appBar: AppBar(
+        title: Text('${_participant!.name}님의 미션'),
+      ),
       body: ListView(
         children: [
           if (_participant!.isChallenger)
@@ -103,51 +106,12 @@ Widget buildSupporterAlertBannerForChallenger({
   required BuildContext context,
   required Partner? supporter,
 }) {
-  final hasSupporter = supporter != null;
-
-  return Container(
-    color: hasSupporter ? Colors.green[100] : Colors.red[100],
-    padding: const EdgeInsets.all(16.0),
-    child: hasSupporter
-        ? SizedBox(
-            width: double.infinity,
-            child: Text(
-              '조력자 ${supporter.name}님과 함께 하고 있습니다.',
-            ),
-          )
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Row(
-                children: [
-                  Icon(Icons.warning_amber_rounded, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text(
-                    '아직 조력자가 설정되지 않았습니다',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                '조력자가 초대를 수락하기 전까지는 혼자 미션을 수행하게 됩니다. 조력자와 함께 미션을 수행해보세요.',
-                style: TextStyle(
-                  color: Colors.black87,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 8),
-              ElevatedButton(
-                onPressed: () {
-                  context.go(ChallengerConfigPage.routeName);
-                },
-                child: const Text('조력자 초대하러 가기'),
-              ),
-            ],
-          ),
+  return PartnerInfoBanner(
+    partner: supporter,
+    isChallenger: true,
+    onTap: () {
+      context.go(ChallengerConfigPage.routeName);
+    },
   );
 }
 
@@ -235,12 +199,10 @@ Widget buildChallengerInfoBannerForSupporter({
   required BuildContext context,
   required Partner? challenger,
 }) {
-  return Container(
-      color: Colors.green[100],
-      padding: const EdgeInsets.all(16.0),
-      child: Text(
-        '도전자 ${challenger?.name}님과 함께 하고 있습니다.',
-      ));
+  return PartnerInfoBanner(
+    partner: challenger,
+    isChallenger: false,
+  );
 }
 
 Widget buildSupporterView(
