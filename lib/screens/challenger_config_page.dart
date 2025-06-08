@@ -164,7 +164,9 @@ class _ChallengerConfigPageState extends State<ChallengerConfigPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('미션 설정')),
+      appBar: const BackButtonAppBar(
+        title: '미션 설정',
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Column(
