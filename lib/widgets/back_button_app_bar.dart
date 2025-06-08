@@ -4,7 +4,7 @@ import 'package:notiyou/screens/signup_page.dart';
 
 class BackButtonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-  final String? backRoute;
+  final String backRoute;
 
   const BackButtonAppBar({
     super.key,
@@ -18,7 +18,7 @@ class BackButtonAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(title),
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
-        onPressed: () => context.go(backRoute!),
+        onPressed: () => context.go(backRoute),
       ),
     );
   }

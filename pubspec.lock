@@ -121,6 +121,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.6"
+  crypto_keys:
+    dependency: transitive
+    description:
+      name: crypto_keys
+      sha256: acc19abf34623d990a0e8aec69463d74a824c31f137128f42e2810befc509ad0
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0+1"
   csslib:
     dependency: transitive
     description:
@@ -353,7 +361,7 @@ packages:
     source: hosted
     version: "0.15.5"
   http:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http
       sha256: b9c29a161230ee03d3ccf545097fccd9b87a5264228c5d348202e0f0c28f9010
@@ -384,6 +392,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.17.0"
+  jose:
+    dependency: "direct main"
+    description:
+      name: jose
+      sha256: "7955ec5d131960104e81fbf151abacb9d835c16c9e793ed394b2809f28b2198d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.4"
   js:
     dependency: transitive
     description:
@@ -664,6 +680,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.0"
+  quiver:
+    dependency: transitive
+    description:
+      name: quiver
+      sha256: ea0b925899e64ecdfbf9c7becb60d5b50e706ade44a85b2363be2a22d88117d2
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.2"
   realtime_client:
     dependency: transitive
     description:
@@ -1005,6 +1029,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.16.3"
+  x509:
+    dependency: transitive
+    description:
+      name: x509
+      sha256: cbd1a63846884afd273cda247b0365284c8d85a365ca98e110413f93d105b935
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.4+3"
   xdg_directories:
     dependency: transitive
     description:
